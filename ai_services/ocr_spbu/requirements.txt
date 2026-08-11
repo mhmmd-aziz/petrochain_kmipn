@@ -1,0 +1,26 @@
+# ============================================================
+# YOLO + OCR Sistem Deteksi Plat Nomor Kendaraan
+# ============================================================
+
+# Core YOLO
+ultralytics>=8.0.0
+
+# OCR
+easyocr>=1.7.0
+
+# Web Framework
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+
+# Database ORM
+sqlalchemy>=2.0.0
+
+# Image Processing
+opencv-python>=4.9.0
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# Utilities
+python-dotenv>=1.0.0
+aiofiles>=23.0.0

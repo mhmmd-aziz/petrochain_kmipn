@@ -1,0 +1,63 @@
+# Datasets & Uploads
+/dataset*/
+/uploads/
+/crops/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+venv/
+ENV/
+
+# YOLO & Models
+runs/
+*.pt
+
+# Node / JS
+node_modules/
+npm-debug.log
+yarn-error.log
+.DS_Store
+
+# Laravel (Web Portal)
+/web_portal/vendor/
+/web_portal/node_modules/
+/web_portal/public/build/
+/web_portal/public/hot
+/web_portal/public/storage
+/web_portal/storage/*.key
+/web_portal/.env
+/web_portal/.phpunit.result.cache
+/web_portal/database/database.sqlite
+/web_portal/database/database.sqlite-journal
+
+# Mobile App (Android/Kotlin)
+/mobile_app/.gradle/
+/mobile_app/build/
+/mobile_app/local.properties
+/mobile_app/.idea/
+/mobile_app/**/*.iml
+
+# Explicitly KEEP CLAUDE.md
+!CLAUDE.md

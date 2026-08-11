@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlatScan AI — Deteksi Plat Nomor Kendaraan</title>
+  <meta name="description" content="Sistem deteksi plat nomor kendaraan berbasis YOLO + OCR. Upload gambar kendaraan dan baca plat nomor secara otomatis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Tokens ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:    #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-card:    #ffffff;
+      --bg-hover:   #f1f5f9;
+      --border:     #e2e8f0;
+      --border-glow:rgba(152, 15, 18, 0.35);
+
+      --accent:     #980f12;
+      --accent-2:   #dc2626;
+      --success:    #34d399;
+      --warning:    #fbbf24;
+      --danger:     #f87171;
+
+      --text-primary:   #0f172a;
+      --text-secondary: #334155;
+      --text-muted:     #64748b;
+
+      --radius-sm:  8px;
+      --radius-md:  14px;
+      --radius-lg:  20px;
+      --radius-xl:  28px;
+
+      --shadow-glow: 0 0 40px rgba(152, 15, 18, 0.12);
+      --shadow-card: 0 4px 24px rgba(0,0,0,0.05);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background Ambient ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(152, 15, 18, 0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(152, 15, 18, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 46px; height: 46px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(152, 15, 18, 0.35);
+    }
+
+    .logo-text h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text p { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.25);
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 28px 0;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .stat-card:hover { border-color: var(--border-glow); transform: translateY(-2px); }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .stat-card:hover::before { opacity: 1; }
+
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .stat-value { font-size: 1.9rem; font-weight: 800; margin-top: 4px; background: linear-gradient(135deg, var(--text-primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-sub   { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── Main Grid ── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.3s;
+    }
+
+    .card:hover { border-color: var(--border-glow); }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title span { font-size: 1rem; }
+
+    /* ── Upload Zone ── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-zone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(152, 15, 18, 0.03), rgba(152, 15, 18, 0.03));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag-over {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(152, 15, 18, 0.08);
+    }
+
+    .upload-zone:hover::before,
+    .upload-zone.drag-over::before { opacity: 1; }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(152, 15, 18, 0.4));
+    }
+
+    .upload-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+    .upload-sub   { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+
+    .upload-input { display: none; }
+
+    /* ── Preview ── */
+    #preview-section { display: none; margin-top: 16px; }
+
+    #preview-img {
+      width: 100%;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      max-height: 280px;
+      object-fit: contain;
+      background: var(--bg-surface);
+    }
+
+    /* ── Button ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      width: 100%;
+      margin-top: 16px;
+      font-size: 1rem;
+      padding: 14px;
+      box-shadow: 0 4px 20px rgba(152, 15, 18, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(152, 15, 18, 0.45);
+    }
+
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-danger {
+      background: rgba(248,113,113,0.12);
+      color: var(--danger);
+      border: 1px solid rgba(248,113,113,0.25);
+      font-size: 0.78rem;
+      padding: 5px 12px;
+    }
+
+    .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result Box ── */
+    #result-section { display: none; margin-top: 16px; }
+
+    #annotated-img {
+      width: 100%;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-glow);
+      max-height: 280px;
+      object-fit: contain;
+      background: var(--bg-surface);
+      box-shadow: 0 0 30px rgba(152, 15, 18, 0.1);
+    }
+
+    /* ── Detection Cards ── */
+    .detections-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .det-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      animation: slide-in 0.3s ease;
+    }
+
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .det-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .icon-car        { background: rgba(152, 15, 18, 0.12); }
+    .icon-motorcycle { background: rgba(251,191,36,0.12); }
+    .icon-truck      { background: rgba(248,113,113,0.12); }
+    .icon-bus        { background: rgba(129,140,248,0.12); }
+
+    .det-info { flex: 1; min-width: 0; }
+    .det-plate {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 2px;
+    }
+
+    .det-plate.unknown { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 0; }
+    .det-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+    .det-badge {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .badge-high   { background: rgba(52,211,153,0.12); color: var(--success); }
+    .badge-medium { background: rgba(251,191,36,0.12);  color: var(--warning); }
+    .badge-low    { background: rgba(248,113,113,0.12); color: var(--danger);  }
+
+    /* ── Search Bar ── */
+    .search-wrap {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      text-transform: uppercase;
+    }
+
+    .search-input::placeholder { color: var(--text-muted); text-transform: none; font-family: 'Inter', sans-serif; }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(152, 15, 18, 0.1); }
+
+    .btn-search {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+
+    .btn-search:hover { background: var(--bg-hover); border-color: var(--accent); }
+
+    /* ── History Table ── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead th {
+      background: var(--bg-surface);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(99,179,237,0.06);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: var(--bg-hover); }
+    tbody tr:last-child { border-bottom: none; }
+
+    td { padding: 10px 14px; color: var(--text-secondary); vertical-align: middle; }
+
+    .td-plate {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .td-plate.unknown { color: var(--text-muted); font-family: inherit; letter-spacing: 0; }
+
+    .vehicle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .chip-car        { background: rgba(152, 15, 18, 0.1);  color: #38bdf8; }
+    .chip-motorcycle { background: rgba(251,191,36,0.1);  color: #fbbf24; }
+    .chip-truck      { background: rgba(248,113,113,0.1); color: #f87171; }
+    .chip-bus        { background: rgba(129,140,248,0.1); color: #818cf8; }
+    .chip-unknown    { background: rgba(100,116,139,0.1); color: #94a3b8; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 500;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(52,211,153,0.3); color: var(--success); }
+    #toast.error   { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+
+    /* ── No Data ── */
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .no-data span { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+    /* ── Empty Message (inline) ── */
+    .empty-msg {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 16px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .main-grid      { grid-template-columns: 1fr; }
+      .stats-bar      { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-bar      { grid-template-columns: 1fr; }
+      .header-inner   { flex-direction: column; gap: 12px; }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-glow); }
+  </style>
+</head>
+
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="container header-inner">
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <div class="logo-text">
+        <h1>PlatScan AI</h1>
+        <p>Deteksi Plat Nomor Kendaraan · YOLO + OCR</p>
+      </div>
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      <span id="api-status">Memeriksa API...</span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── Stats Bar ── -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Total Deteksi</div>
+      <div class="stat-value" id="stat-total">—</div>
+      <div class="stat-sub">semua kendaraan</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Plat Unik</div>
+      <div class="stat-value" id="stat-plates">—</div>
+      <div class="stat-sub">nomor berbeda</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Jenis Terbanyak</div>
+      <div class="stat-value" id="stat-top" style="font-size:1.3rem">—</div>
+      <div class="stat-sub" id="stat-top-count"></div>
+    </div>
+  </div>
+
+  <!-- ── Main Grid ── -->
+  <div class="main-grid">
+
+    <!-- ── Upload Panel ── -->
+    <div class="card">
+      <div class="card-title">Upload Gambar</div>
+
+      <div class="upload-zone" id="upload-zone">
+        
+        <div class="upload-title">Klik atau drag & drop gambar</div>
+        <div class="upload-sub">JPG, PNG, WEBP · Maks 10 MB</div>
+        <input type="file" id="file-input" class="upload-input" accept=".jpg,.jpeg,.png,.bmp,.webp" />
+      </div>
+
+      <div id="preview-section">
+        <img id="preview-img" alt="Preview gambar" />
+      </div>
+
+      <div class="card-title" style="margin-top:20px;">Upload QR Code (Opsional)</div>
+      <div class="upload-zone" id="qr-upload-zone" style="padding: 20px 10px;">
+        <div class="upload-title" style="font-size: 0.9rem;">Klik / drag & drop QR Code</div>
+        <input type="file" id="qr-file-input" class="upload-input" accept=".jpg,.jpeg,.png,.bmp,.webp" />
+      </div>
+      <div id="qr-preview-section" style="display:none; margin-top:10px; text-align:center;">
+        <img id="qr-preview-img" alt="Preview QR" style="max-height: 120px; width: auto; border-radius: 8px; border: 1px solid var(--border);" />
+      </div>
+
+      <button class="btn btn-primary" id="detect-btn" disabled>
+        <span>Deteksi Plat</span>
+      </button>
+    </div>
+
+    <!-- ── Result Panel ── -->
+    <div class="card">
+      <div class="card-title">Hasil Deteksi</div>
+
+      <div id="result-placeholder" class="no-data">
+        
+        Upload gambar kendaraan dan tekan "Deteksi Plat" untuk memulai
+      </div>
+
+      <div id="result-section">
+        <img id="annotated-img" alt="Hasil deteksi" />
+        <div class="detections-list" id="detections-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── History & Search ── -->
+  <div class="card" style="margin-bottom: 40px;">
+    <div class="card-title">Riwayat Deteksi</div>
+
+    <div class="search-wrap">
+      <input
+        type="text"
+        class="search-input"
+        id="search-input"
+        placeholder="Cari plat nomor... (contoh: B 1234)"
+        maxlength="20"
+      />
+      <button class="btn-search" id="search-btn" title="Cari">Cari</button>
+      <button class="btn-search" id="refresh-btn" title="Refresh">Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Waktu</th>
+            <th>Kendaraan</th>
+            <th>Plat Nomor</th>
+            <th>Conf. Det</th>
+            <th>Conf. OCR</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="7" class="empty-msg">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast"></div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────────────────
+  const API = '';  // same origin
+
+  // ── State ───────────────────────────────────────────────────────────────────
+  let selectedFile = null;
+
+  // ── Elements ────────────────────────────────────────────────────────────────
+  const uploadZone    = document.getElementById('upload-zone');
+  const fileInput     = document.getElementById('file-input');
+  const previewSec    = document.getElementById('preview-section');
+  const previewImg    = document.getElementById('preview-img');
+  
+  const qrUploadZone  = document.getElementById('qr-upload-zone');
+  const qrFileInput   = document.getElementById('qr-file-input');
+  const qrPreviewSec  = document.getElementById('qr-preview-section');
+  const qrPreviewImg  = document.getElementById('qr-preview-img');
+  
+  const detectBtn     = document.getElementById('detect-btn');
+  const resultPlaceh  = document.getElementById('result-placeholder');
+  const resultSec     = document.getElementById('result-section');
+  const annotatedImg  = document.getElementById('annotated-img');
+  const detectionsList= document.getElementById('detections-list');
+  const historyTbody  = document.getElementById('history-tbody');
+  const searchInput   = document.getElementById('search-input');
+  const searchBtn     = document.getElementById('search-btn');
+  const refreshBtn    = document.getElementById('refresh-btn');
+  const apiStatus     = document.getElementById('api-status');
+  const toast         = document.getElementById('toast');
+
+  // ── Toast ───────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    toast.textContent = msg;
+    toast.className   = `show ${type}`;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 3500);
+  }
+
+  // ── Health Check ────────────────────────────────────────────────────────────
+  async function checkHealth() {
+    try {
+      const r = await fetch(`${API}/health`);
+      if (r.ok) {
+        apiStatus.textContent = 'API Online';
+      } else {
+        apiStatus.textContent = 'API Error';
+      }
+    } catch {
+      apiStatus.textContent = 'API Offline';
+    }
+  }
+
+  // ── Stats ───────────────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const r    = await fetch(`${API}/stats`);
+      const data = await r.json();
+      const s    = data.data;
+
+      document.getElementById('stat-total').textContent  = s.total_detections ?? '0';
+      document.getElementById('stat-plates').textContent = s.unique_plates ?? '0';
+
+      const byVeh = s.by_vehicle_type ?? {};
+      const topEntry = Object.entries(byVeh).sort((a, b) => b[1] - a[1])[0];
+      if (topEntry) {
+        const icons = { car: '', motorcycle: '', truck: '', bus: '' };
+        document.getElementById('stat-top').textContent       = `${topEntry[0]}`;
+        document.getElementById('stat-top-count').textContent = `${topEntry[1]} deteksi`;
+      } else {
+        document.getElementById('stat-top').textContent = '—';
+      }
+    } catch (e) {
+      console.warn('Stats error:', e);
+    }
+  }
+
+  // ── Upload Zone ─────────────────────────────────────────────────────────────
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    const url = URL.createObjectURL(file);
+    previewImg.src = url;
+    previewSec.style.display = 'block';
+    detectBtn.disabled = false;
+
+    // Reset hasil
+    resultSec.style.display    = 'none';
+    resultPlaceh.style.display = 'block';
+  }
+
+  let selectedQrFile = null;
+  if (qrUploadZone) {
+    qrUploadZone.addEventListener('click', () => qrFileInput.click());
+    qrUploadZone.addEventListener('dragover', e => { e.preventDefault(); qrUploadZone.classList.add('drag-over'); });
+    qrUploadZone.addEventListener('dragleave', () => qrUploadZone.classList.remove('drag-over'));
+    qrUploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      qrUploadZone.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleQrFile(e.dataTransfer.files[0]);
+    });
+    qrFileInput.addEventListener('change', () => {
+      if (qrFileInput.files[0]) handleQrFile(qrFileInput.files[0]);
+    });
+  }
+
+  function handleQrFile(file) {
+    selectedQrFile = file;
+    const url = URL.createObjectURL(file);
+    qrPreviewImg.src = url;
+    qrPreviewSec.style.display = 'block';
+  }
+
+  // ── Detect ──────────────────────────────────────────────────────────────────
+  detectBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    detectBtn.disabled   = true;
+    detectBtn.innerHTML  = `<div class="spinner"></div> Memproses...`;
+
+    const fd = new FormData();
+    fd.append('file', selectedFile);
+    if (selectedQrFile) {
+      fd.append('qr_file', selectedQrFile);
+    }
+
+    try {
+      const r    = await fetch(`${API}/detect`, { method: 'POST', body: fd });
+      const data = await r.json();
+
+      if (!r.ok) throw new Error(data.detail || 'Terjadi error');
+
+      showToast(`✅ ${data.message}`, 'success');
+
+      if (data.annotated) {
+        annotatedImg.src           = data.annotated;
+        resultSec.style.display    = 'block';
+        resultPlaceh.style.display = 'none';
+      }
+
+      // Render detection cards
+      detectionsList.innerHTML = '';
+      
+      if (data.qr_text) {
+        const qrEl = document.createElement('div');
+        qrEl.className = 'det-card';
+        qrEl.style.cssText = 'background: rgba(139, 92, 246, 0.08); border-color: rgba(139, 92, 246, 0.2);';
+        qrEl.innerHTML = `
+          <div class="det-icon" style="background: rgba(139, 92, 246, 0.15);">📱</div>
+          <div class="det-info">
+            <div class="det-plate" style="color: #8b5cf6; font-size: 1.0rem;">QR Terbaca: ${data.qr_text}</div>
+          </div>
+        `;
+        detectionsList.appendChild(qrEl);
+      } else if (selectedQrFile) {
+        const qrEl = document.createElement('div');
+        qrEl.className = 'det-card';
+        qrEl.style.cssText = 'background: rgba(248, 113, 113, 0.08); border-color: rgba(248, 113, 113, 0.2);';
+        qrEl.innerHTML = `
+          <div class="det-icon" style="background: rgba(248, 113, 113, 0.15);">⚠️</div>
+          <div class="det-info">
+            <div class="det-plate" style="color: var(--danger); font-size: 0.9rem;">Gagal membaca teks dari QR Code</div>
+          </div>
+        `;
+        detectionsList.appendChild(qrEl);
+      }
+
+      if (data.detections && data.detections.length > 0) {
+        data.detections.forEach(det => {
+          detectionsList.appendChild(buildDetCard(det, data.qr_text));
+        });
+      } else {
+        detectionsList.innerHTML += '<p class="empty-msg">Tidak ada kendaraan terdeteksi</p>';
+      }
+
+      // Reload stats & history
+      await loadStats();
+      await loadHistory();
+
+    } catch (err) {
+      showToast(`❌ ${err.message}`, 'error');
+    } finally {
+      detectBtn.disabled  = false;
+      detectBtn.innerHTML = '<span>Deteksi Plat</span>';
+    }
+  });
+
+  // ── Build Detection Card ─────────────────────────────────────────────────────
+  function buildDetCard(det, qrText) {
+    const icons  = { car: '🚗', motorcycle: '🏍️', truck: '🚛', bus: '🚌', unknown: '🚙' };
+    const icon   = icons[det.vehicle_type] || '🚙';
+    const iconCls= `icon-${det.vehicle_type || 'unknown'}`;
+
+    const plate     = det.plate_text || null;
+    const ocrConf   = det.confidence_ocr || 0;
+    const badgeCls  = ocrConf >= 0.7 ? 'badge-high' : ocrConf >= 0.4 ? 'badge-medium' : 'badge-low';
+    const badgeTxt  = ocrConf >= 0.7 ? '✓ Tinggi' : ocrConf >= 0.4 ? '~ Sedang' : '! Rendah';
+
+    let qrBadge = '';
+    if (qrText && det.is_qr_match !== undefined && plate) {
+      if (det.is_qr_match) {
+        qrBadge = `<span class="det-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">✓ QR MATCH</span>`;
+      } else {
+        qrBadge = `<span class="det-badge" style="background: rgba(248, 113, 113, 0.15); color: var(--danger);">✗ NOT MATCH</span>`;
+      }
+    }
+
+    const el = document.createElement('div');
+    el.className = 'det-card';
+    el.innerHTML = `
+      <div class="det-icon ${iconCls}">${icon}</div>
+      <div class="det-info">
+        <div class="det-plate ${plate ? '' : 'unknown'}">${plate || '— Plat tidak terbaca —'}</div>
+        <div class="det-meta">${det.vehicle_type} · det ${(det.confidence_det * 100).toFixed(0)}%</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+        ${plate ? `<span class="det-badge ${badgeCls}">${badgeTxt}</span>` : ''}
+        ${qrBadge}
+      </div>
+    `;
+    return el;
+  }
+
+  // ── History ──────────────────────────────────────────────────────────────────
+  async function loadHistory(query = '') {
+    let url = query
+      ? `${API}/search?plate=${encodeURIComponent(query)}`
+      : `${API}/results?limit=50`;
+
+    try {
+      const r    = await fetch(url);
+      const data = await r.json();
+      renderTable(data.data || []);
+    } catch (e) {
+      historyTbody.innerHTML = `<tr><td colspan="7" class="empty-msg">❌ Gagal memuat data</td></tr>`;
+    }
+  }
+
+  function renderTable(records) {
+    if (!records.length) {
+      historyTbody.innerHTML = `<tr><td colspan="7" class="empty-msg">Belum ada data deteksi</td></tr>`;
+      return;
+    }
+
+    const icons  = { car: '🚗', motorcycle: '🏍️', truck: '🚛', bus: '🚌' };
+
+    historyTbody.innerHTML = records.map(r => {
+      const ts    = r.timestamp ? new Date(r.timestamp).toLocaleString('id-ID') : '—';
+      const plate = r.plate_text || null;
+      const icon  = icons[r.vehicle_type] || '🚙';
+      const chipCls = `chip-${r.vehicle_type || 'unknown'}`;
+      const detConf = r.confidence_det ? `${(r.confidence_det*100).toFixed(0)}%` : '—';
+      const ocrConf = r.confidence_ocr ? `${(r.confidence_ocr*100).toFixed(0)}%` : '—';
+
+      return `<tr>
+        <td style="color:var(--text-muted)">#${r.id}</td>
+        <td style="white-space:nowrap">${ts}</td>
+        <td><span class="vehicle-chip ${chipCls}">${icon} ${r.vehicle_type || '—'}</span></td>
+        <td class="td-plate ${plate ? '' : 'unknown'}">${plate || '— tidak terbaca —'}</td>
+        <td>${detConf}</td>
+        <td>${ocrConf}</td>
+        <td>
+          <button class="btn btn-danger" onclick="deleteRecord(${r.id}, this)">🗑</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Delete ───────────────────────────────────────────────────────────────────
+  async function deleteRecord(id, btn) {
+    btn.disabled = true;
+    try {
+      const r = await fetch(`${API}/detection/${id}`, { method: 'DELETE' });
+      if (r.ok) {
+        showToast('🗑 Record dihapus', 'success');
+        await loadHistory();
+        await loadStats();
+      } else {
+        throw new Error('Gagal menghapus');
+      }
+    } catch {
+      showToast('❌ Gagal menghapus record', 'error');
+      btn.disabled = false;
+    }
+  }
+
+  // ── Search ───────────────────────────────────────────────────────────────────
+  searchBtn.addEventListener('click', () => loadHistory(searchInput.value.trim()));
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadHistory(searchInput.value.trim());
+  });
+  refreshBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    loadHistory();
+  });
+
+  // ── Init ────────────────────────────────────────────────────────────────────
+  (async () => {
+    await checkHealth();
+    await loadStats();
+    await loadHistory();
+  })();
+</script>
+
+</body>
+</html>

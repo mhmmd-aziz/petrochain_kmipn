@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Validasi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {% if submission.status == 'pending' %}
+    <meta http-equiv="refresh" content="5">
+    {% endif %}
+</head>
+<body>
+    <nav class="dashboard-navbar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        <h1>Halaman User</h1>
+    </nav>
+
+    <div class="dashboard-content">
+        <h2 class="page-title">Status Pengajuan</h2>
+
+        <div class="card result-card">
+            {% if submission.status == 'pending' %}
+                <div class="icon-box" style="background: rgba(255, 193, 7, 0.2); color: #ffc107;">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <h2>Menunggu Review</h2>
+                <p class="message">{{ submission.message }}</p>
+                <div class="data-box">
+                    <p>Halaman ini akan refresh otomatis setiap 5 detik.</p>
+                </div>
+                <div class="data-box" style="margin-top: 15px;">
+                    <p><strong>Plat STNK (Prediksi AI):</strong> {{ submission.stnk_plate }}</p>
+                    <p><strong>Plat Mobil (Prediksi AI):</strong> {{ submission.car_plate }}</p>
+                </div>
+            
+            {% elif submission.status == 'approved' %}
+                <div class="icon-box success-box">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h2>Validasi Disetujui</h2>
+                <p class="message">{{ submission.message }}</p>
+                
+                <div class="data-box">
+                    <p><strong>Plat Tervalidasi:</strong> {{ submission.stnk_plate }}</p>
+                </div>
+
+                {% if submission.qr_filename %}
+                <div class="qr-box">
+                    <p>Tunjukkan QR ini ke Petugas Gerbang / Area Parkir:</p>
+                    <img src="{{ url_for('static', filename='qrcodes/' + submission.qr_filename) }}" alt="QR Code">
+                </div>
+                {% endif %}
+                <a href="{{ url_for('index') }}" class="btn-submit btn-secondary" style="margin-top: 20px;">Validasi Kendaraan Lain</a>
+
+            {% elif submission.status == 'rejected' %}
+                <div class="icon-box error-box">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <h2>Validasi Ditolak</h2>
+                <p class="message">{{ submission.message }}</p>
+                
+                <a href="{{ url_for('index') }}" class="btn-submit" style="margin-top: 20px;">Ulangi Pengajuan</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
