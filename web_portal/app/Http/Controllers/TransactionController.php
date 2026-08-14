@@ -8,12 +8,18 @@ use App\Models\Transaction;
 
 class TransactionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Load transactions with relationships
-        $transactions = Transaction::with(['vehicle', 'spbu', 'operator.user'])
-            ->latest('transacted_at')
-            ->get();
+        $query = Transaction::with(['vehicle', 'spbu', 'operator.user'])
+            ->latest('transacted_at');
+
+        if ($request->user()->role === 'public') {
+            $query->whereHas('vehicle', function ($q) use ($request) {
+                $q->where('user_id', $request->user()->id);
+            });
+        }
+
+        $transactions = $query->get();
 
         return Inertia::render('Admin/Transactions', [
             'transactions' => $transactions

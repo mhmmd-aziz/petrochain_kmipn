@@ -58,7 +58,7 @@ export default function Transactions({ transactions }: { transactions: Transacti
     };
 
     return (
-        <AppLayout title="Transaksi SPBU">
+        <>
             <Head title="Transaksi SPBU" />
 
             <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -143,6 +143,8 @@ export default function Transactions({ transactions }: { transactions: Transacti
                     </table>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Transactions.layout = (page: any) => <AppLayout title="Transaksi SPBU">{page}</AppLayout>;

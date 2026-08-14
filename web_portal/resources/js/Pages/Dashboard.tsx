@@ -7,6 +7,29 @@ import {
     FiTruck, FiCheckCircle, FiUsers,
     FiActivity, FiChevronRight, FiCheck, FiX
 } from 'react-icons/fi';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 interface Stats {
     total_spbu: number;
@@ -108,22 +131,69 @@ const defaultTransactions: RecentTransaction[] = [
     { id: 5, plate_number: 'BL 7890 IJ', spbu_name: 'SPBU 14.201.002', fuel_type: 'Solar', qr_result: 'qr_match', status: 'validated', transacted_at: '2026-08-11 21:30' },
 ];
 
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            mode: 'index' as const,
+            intersect: false,
+        },
+    },
+    scales: {
+        y: { beginAtZero: true, border: { display: false }, grid: { color: '#f3f4f6' } },
+        x: { border: { display: false }, grid: { display: false } },
+    },
+};
+
+const chartData = {
+    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+    datasets: [
+        {
+            fill: true,
+            label: 'Transaksi Divalidasi',
+            data: [120, 190, 150, 220, 180, 250, 210],
+            borderColor: '#980f12',
+            backgroundColor: 'rgba(152, 15, 18, 0.1)',
+            tension: 0.4,
+            borderWidth: 3,
+            pointBackgroundColor: '#980f12',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+        },
+    ],
+};
+
 export default function Dashboard({ stats = defaultStats, recent_transactions = defaultTransactions }: Partial<Props>) {
     const s = stats ?? defaultStats;
     const transactions = recent_transactions ?? defaultTransactions;
 
     return (
-        <AppLayout title="Dashboard">
+        <>
             <Head title="Dashboard" />
 
-            {/* Header */}
+            {/* Header Banner */}
             <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-8"
+                className="mb-8 relative rounded-3xl overflow-hidden min-h-[240px] flex flex-col justify-end p-8 shadow-sm border border-gray-100"
             >
-                <h2 className="text-2xl font-bold text-gray-900">Selamat Datang, Admin</h2>
-                <p className="text-gray-500 mt-1 text-sm">Platform PETROCHAIN — Monitoring Distribusi BBM Bersubsidi</p>
+                <img 
+                    src="/images/dashboard_banner.jpg" 
+                    alt="Banner" 
+                    className="absolute inset-0 w-full h-full object-cover object-center" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#980f12]/95 via-[#980f12]/70 to-transparent"></div>
+                
+                <div className="relative z-10 w-full md:w-2/3">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-2">Selamat Datang, Admin!</h2>
+                    <p className="text-red-100/90 text-sm md:text-base leading-relaxed">
+                        Pantau ringkasan performa distribusi BBM bersubsidi, verifikasi AI (YOLO & OCR), dan metrik utama SPBU secara real-time.
+                    </p>
+                </div>
             </motion.div>
 
             {/* Stats Grid */}
@@ -135,6 +205,21 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                 <StatCard label="QR Match Rate" value={`${s.qr_match_rate}%`} icon={FiCheckCircle} color="#059669" delay={0.25} sub={`Akurasi verifikasi`} />
                 <StatCard label="Operator SPBU" value={s.active_operators} icon={FiUsers} color="#db2777" delay={0.3} sub={`Online hari ini`} />
             </div>
+
+            {/* Chart Section */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="card p-6 mb-8 h-80"
+            >
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-gray-900 font-bold text-base">Tren Transaksi Mingguan</h3>
+                </div>
+                <div className="h-64 w-full">
+                    <Line options={chartOptions} data={chartData} />
+                </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                 {/* Recent Transactions */}
@@ -217,6 +302,8 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                     </div>
                 </motion.div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Dashboard.layout = (page: any) => <AppLayout title="Dashboard">{page}</AppLayout>;

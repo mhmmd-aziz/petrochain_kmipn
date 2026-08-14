@@ -63,7 +63,7 @@ export default function AdminRegistrations({ applications }: { applications: App
     };
 
     return (
-        <AppLayout title="Review Pendaftaran">
+        <>
             <Head title="Review Pendaftaran" />
 
             <div className="mb-6">
@@ -247,6 +247,8 @@ export default function AdminRegistrations({ applications }: { applications: App
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+AdminRegistrations.layout = (page: any) => <AppLayout title="Review Pendaftaran">{page}</AppLayout>;

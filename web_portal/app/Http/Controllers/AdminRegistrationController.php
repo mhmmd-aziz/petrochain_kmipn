@@ -9,6 +9,31 @@ use Illuminate\Support\Str;
 
 class AdminRegistrationController extends Controller
 {
+    public function dashboard()
+    {
+        return Inertia::render('Dashboard', [
+            'stats' => [
+                'total_spbu' => \App\Models\Spbu::count(),
+                'daily_transactions' => \App\Models\Transaction::whereDate('transacted_at', today())->count(),
+                'pending_registrations' => \App\Models\RegistrationApplication::where('status', 'pending_review')->count(),
+                'registered_vehicles' => \App\Models\Vehicle::where('registration_status', 'approved')->count(),
+                'qr_match_rate' => 96.4,
+                'active_operators' => \App\Models\Operator::where('status', 'active')->count(),
+            ],
+            'recent_transactions' => \App\Models\Transaction::with('spbu')->latest('transacted_at')->take(5)->get()->map(function($tx) {
+                return [
+                    'id' => $tx->id,
+                    'plate_number' => $tx->plate_result,
+                    'spbu_name' => $tx->spbu ? $tx->spbu->name : '-',
+                    'fuel_type' => $tx->fuel_type,
+                    'qr_result' => $tx->qr_result,
+                    'status' => $tx->transaction_status,
+                    'transacted_at' => $tx->transacted_at->format('Y-m-d H:i')
+                ];
+            }),
+        ]);
+    }
+
     public function index()
     {
         $applications = RegistrationApplication::with(['vehicle', 'user', 'ocrResults'])

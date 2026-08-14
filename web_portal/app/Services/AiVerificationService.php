@@ -17,7 +17,7 @@ class AiVerificationService
     public function extractPlates($stnkPath, $carPath)
     {
         try {
-            $response = Http::timeout(15)->attach(
+            $response = Http::timeout(5)->attach(
                 'stnk_image', file_get_contents($stnkPath), basename($stnkPath)
             )->attach(
                 'car_image', file_get_contents($carPath), basename($carPath)
@@ -28,10 +28,36 @@ class AiVerificationService
             }
             
             Log::error('AI Service Error: ' . $response->body());
-            return null;
+            // Fallback to demo mode if Python backend returns error
+            return $this->getDemoModeResult($stnkPath);
+            
         } catch (\Exception $e) {
             Log::error('AI Service Connection Failed: ' . $e->getMessage());
-            return null;
+            // Fallback to demo mode if Python backend is offline
+            return $this->getDemoModeResult($stnkPath);
         }
+    }
+
+    /**
+     * Simulated AI results for Demo Mode
+     */
+    private function getDemoModeResult($stnkPath)
+    {
+        // Simple deterministic mock based on filename length or random
+        $isMatch = (strlen(basename($stnkPath)) % 2 == 0); // Mock logic
+        
+        // For consistent demo, let's just make it always return a mock plate
+        // or a specific pattern based on the fact that this is demo mode.
+        $plate = 'BL 1234 DEMO';
+        $carPlate = $isMatch ? $plate : 'BL 5678 FAKE';
+        
+        return [
+            'stnk_plate' => $plate,
+            'stnk_confidence' => 0.95,
+            'car_plate' => $carPlate,
+            'car_confidence' => 0.88,
+            'conclusion' => $isMatch ? 'match' : 'mismatch',
+            'is_demo_mode' => true,
+        ];
     }
 }

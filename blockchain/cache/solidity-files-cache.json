@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "E:\\KMIPN\\AI\\petrochain\\blockchain\\contracts\\PetrochainAudit.sol": {
+      "lastModificationDate": 1786722892997,
+      "contentHash": "d3c99af40386e7f23cdd0e8c21f6fb07",
+      "sourceName": "contracts/PetrochainAudit.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "PetrochainAudit"
+      ]
+    }
+  }
+}

@@ -1,6 +1,10 @@
-# Script untuk menjalankan 3 AI Service secara bersamaan
+# Script untuk menjalankan Blockchain Node & 3 AI Service secara bersamaan
 
 $baseDir = "e:\KMIPN\AI\petrochain\ai_services"
+$blockchainDir = "e:\KMIPN\AI\petrochain\blockchain"
+
+Write-Host "Menjalankan Blockchain Node Lokal (Hardhat - Port 8545)..." -ForegroundColor Blue
+Start-Process "cmd.exe" -ArgumentList "/c npx hardhat node" -WorkingDirectory $blockchainDir -WindowStyle Normal
 
 Write-Host "Menjalankan AI Klasifikasi Motor (Port 5001)..." -ForegroundColor Cyan
 Start-Process "python" -ArgumentList "app.py" -WorkingDirectory "$baseDir\klasifikasi_motor" -WindowStyle Normal

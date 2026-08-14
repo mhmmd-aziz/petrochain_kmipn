@@ -13,15 +13,30 @@ interface Props {
 }
 
 const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: FiHome, roles: ['admin', 'operator', 'auditor', 'public'] },
+    // Dashboard
+    { href: '/admin/dashboard', label: 'Dashboard', icon: FiHome, roles: ['admin'] },
+    { href: '/operator/dashboard', label: 'Dashboard', icon: FiHome, roles: ['operator'] },
+    { href: '/auditor/dashboard', label: 'Dashboard', icon: FiHome, roles: ['auditor'] },
+    
+    // Public User
     { href: '/registrations', label: 'Kendaraan Saya', icon: FiFileText, roles: ['public'] },
+    { href: '/transactions', label: 'Riwayat Transaksi', icon: FiRepeat, roles: ['public'] },
+    
+    // Admin features
     { href: '/admin/registrations', label: 'Review Pendaftaran', icon: FiFileText, roles: ['admin'] },
     { href: '/vehicles', label: 'Kendaraan', icon: FiTruck, roles: ['admin', 'operator'] },
-    { href: '/spbu', label: 'SPBU', icon: FiMapPin, roles: ['admin', 'auditor'] },
-    { href: '/transactions', label: 'Transaksi', icon: FiRepeat, roles: ['admin', 'operator', 'auditor'] },
-    { href: '/blockchain', label: 'Blockchain', icon: FiLink, roles: ['admin', 'auditor'] },
-    { href: '/fuel-stock', label: 'Stok BBM', icon: FiDatabase, roles: ['admin', 'operator'] },
+    { href: '/admin/spbu', label: 'Manajemen SPBU', icon: FiMapPin, roles: ['admin'] },
     { href: '/users', label: 'Pengguna', icon: FiUsers, roles: ['admin'] },
+    { href: '/transactions', label: 'Semua Transaksi', icon: FiRepeat, roles: ['admin'] },
+    { href: '/blockchain', label: 'Blockchain', icon: FiLink, roles: ['admin', 'auditor'] },
+
+    // Operator features
+    { href: '/operator/validation', label: 'Validasi Kendaraan', icon: FiTruck, roles: ['operator'] },
+    { href: '/operator/stock', label: 'Update Stok BBM', icon: FiDatabase, roles: ['operator'] },
+    { href: '/transactions', label: 'Riwayat Transaksi', icon: FiRepeat, roles: ['operator'] },
+
+    // Auditor features
+    { href: '/auditor/transactions', label: 'Audit Transaksi', icon: FiFileText, roles: ['auditor'] },
 ];
 
 export default function AppLayout({ children, title }: Props) {
@@ -41,21 +56,18 @@ export default function AppLayout({ children, title }: Props) {
                         animate={{ x: 0 }}
                         exit={{ x: -280 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="w-64 flex-shrink-0 flex flex-col bg-white border-r border-gray-200 shadow-sm relative z-20"
+                        className="w-64 flex-shrink-0 flex flex-col bg-[#980f12] text-white shadow-xl relative z-20"
                     >
                         {/* Logo */}
-                        <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg bg-primary shadow-md">
-                                PC
-                            </div>
-                            <div>
-                                <div className="text-gray-900 font-bold text-sm tracking-wide">PETROCHAIN</div>
-                                <div className="text-xs text-gray-500">MyPertamina Ext.</div>
-                            </div>
+                        <div className="flex flex-col gap-1.5 px-6 py-5 border-b border-red-900/50">
+                            <img src="/images/logo web navbar.png" alt="PETROCHAIN Logo" className="h-10 object-contain self-start" />
+                            <p className="text-[8px] text-white font-medium leading-tight opacity-90">
+                                Advancing Transparent and Targeted Fuel Subsidies
+                            </p>
                         </div>
 
                         {/* Nav */}
-                        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                        <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                             {visibleNavItems.map((item) => {
                                 const isActive = url.startsWith(item.href);
                                 const Icon = item.icon;
@@ -63,9 +75,9 @@ export default function AppLayout({ children, title }: Props) {
                                     <Link
                                         key={item.href}
                                         href={item.href}
-                                        className={`sidebar-item flex items-center gap-3 px-4 py-3 text-sm ${isActive ? 'active' : 'text-gray-600'}`}
+                                        className={`flex items-center gap-3 px-4 py-3.5 text-sm rounded-xl transition-all ${isActive ? 'bg-white text-[#980f12] font-bold shadow-md' : 'text-red-100 hover:bg-white/10'}`}
                                     >
-                                        <Icon className={`text-lg ${isActive ? 'text-primary' : 'text-gray-400'}`} />
+                                        <Icon className={`text-xl ${isActive ? 'text-[#980f12]' : 'text-red-200'}`} />
                                         <span>{item.label}</span>
                                     </Link>
                                 );
@@ -73,16 +85,16 @@ export default function AppLayout({ children, title }: Props) {
                         </nav>
 
                         {/* User Info */}
-                        <div className="px-4 py-4 border-t border-gray-100 bg-gray-50/50">
+                        <div className="px-4 py-4 border-t border-red-900/50 bg-red-900/20">
                             <div className="flex items-center gap-3 p-2">
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-primary shadow-sm uppercase">
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white text-[#980f12] text-sm font-bold shadow-sm uppercase">
                                     {user?.name?.substring(0, 2) || 'US'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-gray-900 text-sm font-semibold truncate">{user?.name || 'Guest User'}</div>
-                                    <div className="text-xs text-gray-500 truncate capitalize">{user?.role || 'Guest'}</div>
+                                    <div className="text-white text-sm font-semibold truncate">{user?.name || 'Guest User'}</div>
+                                    <div className="text-red-200 text-xs truncate capitalize">{user?.role || 'Guest'}</div>
                                 </div>
-                                <Link href="/logout" method="post" as="button" className="text-gray-400 hover:text-primary transition-colors p-2">
+                                <Link href="/logout" method="post" as="button" className="text-red-200 hover:text-white transition-colors p-2">
                                     <FiLogOut size={18} />
                                 </Link>
                             </div>

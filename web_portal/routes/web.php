@@ -3,47 +3,80 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\OperatorController;
+use App\Http\Controllers\AuditorController;
+use App\Http\Controllers\FuelStockController;
+use App\Http\Controllers\UserRegistrationController;
+use App\Http\Controllers\AdminRegistrationController;
 
-// Redirect root ke dashboard
+// Public Landing Page
 Route::get('/', function () {
-    return redirect()->route('dashboard');
-});
+    return Inertia::render('Welcome');
+})->name('welcome');
+
+// Public Stock View
+Route::get('/public-stock', [FuelStockController::class, 'publicIndex'])->name('public.stock');
 
 Route::middleware(['auth'])->group(function () {
+    // Redirect /dashboard based on role
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard', [
-            'stats' => [
-                'total_spbu' => 12,
-                'daily_transactions' => 348,
-                'pending_registrations' => 23,
-                'registered_vehicles' => 1204,
-                'qr_match_rate' => 96.4,
-                'active_operators' => 28,
-            ],
-            'recent_transactions' => [
-                ['id' => 1, 'plate_number' => 'BL 1234 AB', 'spbu_name' => 'SPBU 14.201.001', 'fuel_type' => 'Pertalite', 'qr_result' => 'qr_match', 'status' => 'validated', 'transacted_at' => '2026-08-11 22:15'],
-                ['id' => 2, 'plate_number' => 'BL 5678 CD', 'spbu_name' => 'SPBU 14.201.002', 'fuel_type' => 'Solar', 'qr_result' => 'qr_not_match', 'status' => 'rejected', 'transacted_at' => '2026-08-11 22:02'],
-                ['id' => 3, 'plate_number' => 'BL 9012 EF', 'spbu_name' => 'SPBU 14.201.001', 'fuel_type' => 'Pertalite', 'qr_result' => 'qr_match', 'status' => 'validated', 'transacted_at' => '2026-08-11 21:58'],
-                ['id' => 4, 'plate_number' => 'BL 3456 GH', 'spbu_name' => 'SPBU 14.201.003', 'fuel_type' => 'Pertalite', 'qr_result' => 'qr_match', 'status' => 'manual_review', 'transacted_at' => '2026-08-11 21:43'],
-                ['id' => 5, 'plate_number' => 'BL 7890 IJ', 'spbu_name' => 'SPBU 14.201.002', 'fuel_type' => 'Solar', 'qr_result' => 'qr_match', 'status' => 'validated', 'transacted_at' => '2026-08-11 21:30'],
-            ],
-        ]);
+        $role = request()->user()->role;
+        if ($role === 'admin') return redirect()->route('admin.dashboard');
+        if ($role === 'operator') return redirect()->route('operator.dashboard');
+        if ($role === 'auditor') return redirect()->route('auditor.dashboard');
+        return redirect()->route('registrations.index');
     })->name('dashboard');
 
-    // Transaksi
-    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    // Admin Routes
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminRegistrationController::class, 'dashboard'])->name('dashboard');
+        Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations');
+        Route::post('/registrations/{id}/review', [AdminRegistrationController::class, 'review'])->name('registrations.review');
+        Route::get('/spbu', [FuelStockController::class, 'adminIndex'])->name('spbu');
+    });
 
-    // Example of route with role middleware
-    Route::middleware(['role:admin'])->group(function () {
-        // Admin only routes
-        Route::get('/admin/registrations', [\App\Http\Controllers\AdminRegistrationController::class, 'index'])->name('admin.registrations');
-        Route::post('/admin/registrations/{id}/review', [\App\Http\Controllers\AdminRegistrationController::class, 'review'])->name('admin.registrations.review');
+    // Dummy resource routes for admin/operator to avoid 404
+    Route::get('/vehicles', function() {
+        return Inertia::render('Admin/Vehicles', [
+            'vehicles' => \App\Models\Vehicle::with('user')->get()
+        ]);
+    })->name('vehicles.index');
+
+    Route::get('/users', function() {
+        if (request()->user()->role !== 'admin') abort(403);
+        return Inertia::render('Admin/Users', [
+            'users' => \App\Models\User::all()
+        ]);
+    })->name('users.index');
+
+    Route::get('/blockchain', function() {
+        return Inertia::render('Admin/Blockchain', [
+            'transactions' => \App\Models\Transaction::with(['spbu', 'vehicle'])->orderBy('id', 'desc')->get()
+        ]);
+    })->name('blockchain.index');
+
+    // Operator Routes
+    Route::middleware(['role:operator'])->prefix('operator')->name('operator.')->group(function () {
+        Route::get('/dashboard', [OperatorController::class, 'dashboard'])->name('dashboard');
+        Route::get('/validation', [OperatorController::class, 'validation'])->name('validation');
+        Route::post('/validation/process', [OperatorController::class, 'processValidation'])->name('validation.process');
+        Route::get('/stock', [FuelStockController::class, 'operatorIndex'])->name('stock');
+        Route::post('/stock/update', [FuelStockController::class, 'operatorUpdate'])->name('stock.update');
+    });
+
+    // Auditor Routes
+    Route::middleware(['role:auditor'])->prefix('auditor')->name('auditor.')->group(function () {
+        Route::get('/dashboard', [AuditorController::class, 'dashboard'])->name('dashboard');
+        Route::get('/transactions', [AuditorController::class, 'transactions'])->name('transactions');
     });
 
     // Public User Registration Routes
-    Route::get('/registrations', [\App\Http\Controllers\UserRegistrationController::class, 'index'])->name('registrations.index');
-    Route::get('/registrations/create', [\App\Http\Controllers\UserRegistrationController::class, 'create'])->name('registrations.create');
-    Route::post('/registrations', [\App\Http\Controllers\UserRegistrationController::class, 'store'])->name('registrations.store');
+    Route::get('/registrations', [UserRegistrationController::class, 'index'])->name('registrations.index');
+    Route::get('/registrations/create', [UserRegistrationController::class, 'create'])->name('registrations.create');
+    Route::post('/registrations', [UserRegistrationController::class, 'store'])->name('registrations.store');
+    
+    // Transaksi History for all authenticated users
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
 });
 
 require __DIR__.'/auth.php';

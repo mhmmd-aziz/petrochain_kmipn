@@ -27,7 +27,7 @@ const statusColor = (status: string) => {
 
 export default function Index({ applications }: { applications: Application[] }) {
     return (
-        <AppLayout title="Pendaftaran Kendaraan">
+        <>
             <Head title="Pendaftaran Kendaraan" />
 
             <div className="flex justify-between items-center mb-6">
@@ -91,6 +91,8 @@ export default function Index({ applications }: { applications: Application[] })
                     </table>
                 )}
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Index.layout = (page: any) => <AppLayout title="Pendaftaran Kendaraan">{page}</AppLayout>;

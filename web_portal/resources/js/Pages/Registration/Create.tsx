@@ -26,7 +26,7 @@ export default function Create() {
     };
 
     return (
-        <AppLayout title="Pendaftaran Baru">
+        <>
             <Head title="Pendaftaran Baru" />
 
             <div className="mb-6 flex items-center gap-4">
@@ -153,6 +153,8 @@ export default function Create() {
                     </div>
                 </form>
             </div>
-        </AppLayout>
+        </>
     );
 }
+
+Create.layout = (page: any) => <AppLayout title="Pendaftaran Baru">{page}</AppLayout>;
