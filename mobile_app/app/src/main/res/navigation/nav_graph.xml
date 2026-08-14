@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- ═══════ MASYARAKAT (PUBLIC) FLOW ═══════ -->
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.petrochain.app.ui.home.HomeFragment"
+        android:label="Beranda"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_vehicles"
+            app:destination="@id/myVehiclesFragment" />
+        <action
+            android:id="@+id/action_home_to_register"
+            app:destination="@id/registerVehicleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/myVehiclesFragment"
+        android:name="com.petrochain.app.ui.vehicles.MyVehiclesFragment"
+        android:label="Kendaraan Saya"
+        tools:layout="@layout/fragment_my_vehicles">
+        <action
+            android:id="@+id/action_vehicles_to_qr"
+            app:destination="@id/qrCodeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerVehicleFragment"
+        android:name="com.petrochain.app.ui.register.RegisterVehicleFragment"
+        android:label="Daftar Kendaraan"
+        tools:layout="@layout/fragment_register_vehicle" />
+
+    <fragment
+        android:id="@+id/qrCodeFragment"
+        android:name="com.petrochain.app.ui.qrcode.QrCodeFragment"
+        android:label="QR Code"
+        tools:layout="@layout/fragment_qr_code" />
+
+    <!-- ═══════ OPERATOR SPBU FLOW ═══════ -->
+
+    <fragment
+        android:id="@+id/spbuDashboardFragment"
+        android:name="com.petrochain.app.ui.spbu.SpbuDashboardFragment"
+        android:label="Dashboard SPBU"
+        tools:layout="@layout/fragment_spbu_dashboard">
+        <action
+            android:id="@+id/action_spbu_to_scan"
+            app:destination="@id/scanQrFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/scanQrFragment"
+        android:name="com.petrochain.app.ui.spbu.ScanQrFragment"
+        android:label="Scan QR"
+        tools:layout="@layout/fragment_scan_qr">
+        <action
+            android:id="@+id/action_scan_to_validate"
+            app:destination="@id/validateVehicleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/validateVehicleFragment"
+        android:name="com.petrochain.app.ui.spbu.ValidateVehicleFragment"
+        android:label="Validasi Kendaraan"
+        tools:layout="@layout/fragment_validate_vehicle" />
+
+    <!-- ═══════ SHARED ═══════ -->
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.petrochain.app.ui.profile.ProfileFragment"
+        android:label="Profil"
+        tools:layout="@layout/fragment_profile" />
+
+</navigation>

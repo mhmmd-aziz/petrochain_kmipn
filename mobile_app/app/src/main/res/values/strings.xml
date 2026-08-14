@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PETROCHAIN</string>
+
+    <!-- Login -->
+    <string name="login_title">Masuk ke Akun</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Masuk</string>
+    <string name="login_error">Email atau password salah</string>
+
+    <!-- Home -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_vehicles">Kendaraan</string>
+    <string name="nav_register">Daftar</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- SPBU -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_scan_qr">Scan QR</string>
+
+    <!-- Register -->
+    <string name="register_title">Pendaftaran Kendaraan</string>
+    <string name="hint_plate">Nomor Plat</string>
+    <string name="hint_type">Tipe Kendaraan</string>
+    <string name="hint_brand">Merek</string>
+    <string name="hint_model">Model</string>
+    <string name="btn_submit">Daftarkan Kendaraan</string>
+
+    <!-- General -->
+    <string name="loading">Memuat…</string>
+    <string name="error_connection">Tidak dapat terhubung ke server</string>
+    <string name="btn_logout">Keluar</string>
+    <string name="btn_retry">Coba Lagi</string>
+</resources>

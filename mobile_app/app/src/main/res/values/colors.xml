@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Palette -->
+    <color name="primary">#1A237E</color>
+    <color name="primary_dark">#0D1642</color>
+    <color name="primary_light">#534BAE</color>
+
+    <!-- Secondary Palette -->
+    <color name="secondary">#00897B</color>
+    <color name="secondary_dark">#005B4F</color>
+    <color name="secondary_light">#4EBAAA</color>
+
+    <!-- Accent -->
+    <color name="accent">#FFB300</color>
+
+    <!-- Neutrals -->
+    <color name="background">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Text -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+
+    <!-- Grays -->
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_400">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="status_pending">#F57F17</color>
+    <color name="status_approved">#2E7D32</color>
+    <color name="status_rejected">#C62828</color>
+
+    <!-- Feedback -->
+    <color name="error">#D32F2F</color>
+    <color name="success_bg">#E8F5E9</color>
+    <color name="error_bg">#FFEBEE</color>
+
+    <!-- Ripple -->
+    <color name="ripple_primary">#331A237E</color>
+
+    <!-- Bottom Nav -->
+    <color name="bottom_nav_active">#1A237E</color>
+    <color name="bottom_nav_inactive">#9E9E9E</color>
+</resources>

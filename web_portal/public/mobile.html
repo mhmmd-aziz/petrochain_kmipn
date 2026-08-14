@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PETROCHAIN Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════ */
+        /* RESET & BASE                                */
+        /* ═══════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --primary: #1A237E;
+            --primary-dark: #0D1642;
+            --primary-light: #534BAE;
+            --secondary: #00897B;
+            --secondary-dark: #005B4F;
+            --accent: #FFB300;
+            --bg: #F5F5F5;
+            --surface: #FFFFFF;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --text-hint: #9E9E9E;
+            --gray-200: #EEEEEE;
+            --gray-300: #E0E0E0;
+            --status-pending: #F57F17;
+            --status-approved: #2E7D32;
+            --status-rejected: #C62828;
+            --error: #D32F2F;
+            --success-bg: #E8F5E9;
+            --error-bg: #FFEBEE;
+            --radius: 16px;
+            --radius-sm: 12px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* PHONE FRAME                                 */
+        /* ═══════════════════════════════════════════ */
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: var(--bg);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 0 8px #333, 0 0 0 10px #555, 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 28px;
+            background: #333;
+            border-radius: 0 0 20px 20px;
+            z-index: 100;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* SCREENS                                     */
+        /* ═══════════════════════════════════════════ */
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .screen-content::-webkit-scrollbar { width: 0; }
+
+        /* ═══════════════════════════════════════════ */
+        /* LOGIN SCREEN                                */
+        /* ═══════════════════════════════════════════ */
+        #loginScreen {
+            background: linear-gradient(135deg, #0D1642 0%, #1A237E 50%, #00695C 100%);
+        }
+
+        .login-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+        }
+
+        .login-logo { text-align: center; margin-bottom: 40px; padding-top: 40px; }
+        .login-logo .emoji { font-size: 56px; margin-bottom: 8px; }
+        .login-logo h1 { color: white; font-size: 32px; font-weight: 800; letter-spacing: 3px; }
+        .login-logo p { color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 4px; }
+
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-card h2 { font-size: 22px; color: var(--text-primary); margin-bottom: 24px; font-weight: 700; }
+
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .form-group .error { 
+            color: var(--error); font-size: 12px; margin-top: 4px; display: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+        
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary:hover:not(:disabled) { background: var(--secondary-dark); }
+
+        .btn-outline { 
+            background: transparent; border: 2px solid var(--primary); 
+            color: var(--primary); 
+        }
+
+        .btn-danger-outline {
+            background: transparent; border: 2px solid var(--error);
+            color: var(--error);
+        }
+
+        .login-footer { text-align: center; margin-top: 24px; color: rgba(255,255,255,0.4); font-size: 12px; }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ═══════════════════════════════════════════ */
+        /* BOTTOM NAVIGATION                           */
+        /* ═══════════════════════════════════════════ */
+        .bottom-nav {
+            display: flex;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            padding: 8px 0 20px;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+
+        .nav-item .nav-icon { font-size: 22px; }
+        .nav-item .nav-label { font-size: 11px; font-weight: 500; color: var(--text-hint); }
+        .nav-item.active .nav-label { color: var(--primary); font-weight: 600; }
+        .nav-item.active .nav-icon { 
+            background: rgba(26,35,126,0.1); 
+            border-radius: 16px; 
+            padding: 2px 16px;
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* CARDS                                       */
+        /* ═══════════════════════════════════════════ */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+        }
+
+        .card-header {
+            background: var(--primary);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .card-header.secondary { background: var(--secondary); }
+        .card-header h2 { font-size: 24px; font-weight: 700; }
+        .card-header p { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 4px; }
+
+        .card-action {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: var(--radius);
+        }
+
+        .card-action:hover { background: var(--gray-200); }
+
+        .card-action .icon-circle {
+            width: 48px; height: 48px;
+            background: #E8EAF6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .card-action .info { flex: 1; }
+        .card-action .info h4 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .card-action .info p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+        .card-action .arrow { color: var(--primary); font-size: 20px; }
+
+        /* ═══════════════════════════════════════════ */
+        /* STATS ROW                                   */
+        /* ═══════════════════════════════════════════ */
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-card .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* ═══════════════════════════════════════════ */
+        /* CHIPS & BADGES                              */
+        /* ═══════════════════════════════════════════ */
+        .chip {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .chip-pending { background: var(--status-pending); }
+        .chip-approved { background: var(--status-approved); }
+        .chip-rejected { background: var(--status-rejected); }
+        .chip-default { background: var(--text-hint); }
+
+        /* ═══════════════════════════════════════════ */
+        /* VEHICLE LIST                                */
+        /* ═══════════════════════════════════════════ */
+        .vehicle-item {
+            background: white;
+            border-radius: var(--radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .vehicle-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vehicle-icon {
+            width: 48px; height: 48px;
+            background: #E8EAF6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .vehicle-info { flex: 1; }
+        .vehicle-plate { font-size: 18px; font-weight: 700; font-family: 'Courier New', monospace; color: var(--text-primary); }
+        .vehicle-detail { font-size: 14px; color: var(--text-secondary); }
+        .vehicle-type { font-size: 12px; color: var(--text-hint); }
+
+        .vehicle-notes {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .btn-qr {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* PHOTO CAPTURE                               */
+        /* ═══════════════════════════════════════════ */
+        .photo-card {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius);
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 12px;
+            background: #FAFAFA;
+        }
+
+        .photo-card:hover { border-color: var(--primary); background: #F0F0FF; }
+        .photo-card .emoji { font-size: 36px; margin-bottom: 8px; }
+        .photo-card p { font-size: 14px; color: var(--text-secondary); }
+        .photo-card img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-card input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* QR CODE DISPLAY                             */
+        /* ═══════════════════════════════════════════ */
+        .qr-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+            text-align: center;
+            min-height: 100%;
+        }
+
+        .qr-display h2 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .qr-display .plate { font-size: 28px; font-weight: 800; color: var(--primary); font-family: monospace; margin-bottom: 4px; }
+        .qr-display .vehicle-name { font-size: 16px; color: var(--text-secondary); margin-bottom: 32px; }
+
+        .qr-frame {
+            width: 240px;
+            height: 240px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            padding: 16px;
+        }
+
+        .qr-frame img { width: 100%; height: 100%; object-fit: contain; }
+        .qr-frame .qr-placeholder { font-size: 120px; }
+        .qr-display .instruction { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ═══════════════════════════════════════════ */
+        /* SPBU SCAN                                   */
+        /* ═══════════════════════════════════════════ */
+        .scan-area {
+            background: #000;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .scan-viewfinder {
+            width: 220px;
+            height: 220px;
+            border: 3px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .scan-viewfinder::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 2px;
+            animation: scanLine 2s ease-in-out infinite;
+        }
+
+        @keyframes scanLine {
+            0%, 100% { top: -1px; }
+            50% { top: calc(100% - 2px); }
+        }
+
+        .scan-hint {
+            position: absolute;
+            bottom: 24px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .scan-input-area {
+            background: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+        }
+
+        .scan-input-area h4 { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease;
+        }
+
+        .result-card .match { color: var(--status-approved); font-size: 20px; font-weight: 700; }
+        .result-card .mismatch { color: var(--status-rejected); font-size: 20px; font-weight: 700; }
+        .result-card .detail { font-size: 14px; color: var(--text-primary); margin-top: 8px; font-family: monospace; }
+        .result-card .confidence { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* ═══════════════════════════════════════════ */
+        /* PROFILE                                     */
+        /* ═══════════════════════════════════════════ */
+        .profile-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 40px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .avatar span { color: white; font-size: 36px; font-weight: 700; }
+
+        .profile-name { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .profile-email { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+
+        .role-badge {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 32px;
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* EMPTY STATE & LOADING                       */
+        /* ═══════════════════════════════════════════ */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 32px;
+            text-align: center;
+        }
+
+        .empty-state .emoji { font-size: 64px; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+        .empty-state p { font-size: 14px; color: var(--text-secondary); }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            gap: 12px;
+        }
+
+        .loading-overlay .spinner {
+            border-color: rgba(26,35,126,0.2);
+            border-top-color: var(--primary);
+            width: 36px;
+            height: 36px;
+        }
+
+        .loading-overlay p { color: var(--text-secondary); font-size: 14px; }
+
+        /* ═══════════════════════════════════════════ */
+        /* TOAST NOTIFICATION                          */
+        /* ═══════════════════════════════════════════ */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { background: var(--status-approved); }
+        .toast.error { background: var(--error); }
+
+        /* ═══════════════════════════════════════════ */
+        /* SECTION HEADER                              */
+        /* ═══════════════════════════════════════════ */
+        .section-header { 
+            padding: 16px 20px 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-header .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-primary);
+        }
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ═══════════════════════════════════════════ */
+        /* RESPONSIVE                                  */
+        /* ═══════════════════════════════════════════ */
+        @media (max-width: 430px) {
+            body { padding: 0; }
+            .phone-frame {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            .phone-frame::before { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <div class="app-container">
+
+        <!-- ═══════ LOGIN SCREEN ═══════ -->
+        <div id="loginScreen" class="screen active">
+            <div class="login-content">
+                <div class="login-logo">
+                    <div class="emoji">⛽</div>
+                    <h1>PETROCHAIN</h1>
+                    <p>Intelligent Verification Platform</p>
+                </div>
+                <div class="login-card">
+                    <h2>Masuk ke Akun</h2>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="email@example.com">
+                        <div class="error" id="loginEmailError">Email wajib diisi</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                        <div class="error" id="loginPasswordError">Password wajib diisi</div>
+                    </div>
+                    <button class="btn btn-primary" id="btnLogin" onclick="doLogin()">
+                        Masuk
+                    </button>
+                </div>
+                <div class="login-footer">© 2026 TIMBERAPA — PNL</div>
+            </div>
+        </div>
+
+        <!-- ═══════ HOME SCREEN (PUBLIC) ═══════ -->
+        <div id="homeScreen" class="screen">
+            <div class="screen-content" style="padding: 20px; padding-top: 40px;">
+                <div class="card-header">
+                    <h2 id="homeWelcome">Halo, User!</h2>
+                    <p>Selamat datang di PETROCHAIN</p>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:var(--primary)" id="statTotal">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:var(--status-pending)" id="statPending">0</div>
+                        <div class="stat-label">Menunggu</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color:var(--status-approved)" id="statApproved">0</div>
+                        <div class="stat-label">Disetujui</div>
+                    </div>
+                </div>
+                <div class="card card-action" onclick="navigateTo('vehiclesScreen')">
+                    <div class="icon-circle">🚗</div>
+                    <div class="info">
+                        <h4>Kendaraan Saya</h4>
+                        <p>Lihat daftar kendaraan terdaftar</p>
+                    </div>
+                    <div class="arrow">→</div>
+                </div>
+                <div class="card card-action" onclick="navigateTo('registerScreen')">
+                    <div class="icon-circle">📝</div>
+                    <div class="info">
+                        <h4>Daftarkan Kendaraan</h4>
+                        <p>Daftar baru + upload STNK</p>
+                    </div>
+                    <div class="arrow" style="color:var(--secondary)">→</div>
+                </div>
+            </div>
+            <div class="bottom-nav" id="publicNav">
+                <button class="nav-item active" onclick="navTo('homeScreen')">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Beranda</span>
+                </button>
+                <button class="nav-item" onclick="navTo('vehiclesScreen')">
+                    <span class="nav-icon">🚗</span>
+                    <span class="nav-label">Kendaraan</span>
+                </button>
+                <button class="nav-item" onclick="navTo('registerScreen')">
+                    <span class="nav-icon">➕</span>
+                    <span class="nav-label">Daftar</span>
+                </button>
+                <button class="nav-item" onclick="navTo('profileScreen')">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Profil</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════ MY VEHICLES SCREEN ═══════ -->
+        <div id="vehiclesScreen" class="screen">
+            <div class="section-header" style="padding-top: 40px;">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h3>Kendaraan Saya</h3>
+            </div>
+            <div class="screen-content" style="padding: 12px 20px;" id="vehiclesList">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="bottom-nav" id="vehiclesNav"></div>
+        </div>
+
+        <!-- ═══════ REGISTER VEHICLE SCREEN ═══════ -->
+        <div id="registerScreen" class="screen">
+            <div class="section-header" style="padding-top: 40px;">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h3>Pendaftaran Kendaraan</h3>
+            </div>
+            <div class="screen-content" style="padding: 12px 20px;">
+                <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">
+                    Isi data dan unggah foto STNK untuk verifikasi
+                </p>
+                <div class="card">
+                    <div class="form-group">
+                        <label>Nomor Plat</label>
+                        <input type="text" id="regPlate" placeholder="BL 1234 AB" style="text-transform:uppercase;font-family:monospace;">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipe Kendaraan</label>
+                        <select id="regType">
+                            <option value="">-- Pilih --</option>
+                            <option value="motorcycle">Motor</option>
+                            <option value="car">Mobil</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Merek</label>
+                        <input type="text" id="regBrand" placeholder="Honda, Toyota, dll">
+                    </div>
+                    <div class="form-group">
+                        <label>Model</label>
+                        <input type="text" id="regModel" placeholder="Vario, Avanza, dll">
+                    </div>
+                </div>
+
+                <p style="font-size:16px;font-weight:600;margin-bottom:12px;color:var(--text-primary);">Unggah Foto</p>
+
+                <div class="photo-card" id="stnkCard">
+                    <span class="emoji">📄</span>
+                    <p>Tap untuk foto STNK</p>
+                    <input type="file" accept="image/*" capture="camera" onchange="previewPhoto(this, 'stnkCard', 'stnkFile')">
+                    <img id="stnkPreview" style="display:none;">
+                </div>
+
+                <div class="photo-card" id="carCard">
+                    <span class="emoji">📸</span>
+                    <p>Tap untuk foto kendaraan</p>
+                    <input type="file" accept="image/*" capture="camera" onchange="previewPhoto(this, 'carCard', 'carFile')">
+                    <img id="carPreview" style="display:none;">
+                </div>
+
+                <button class="btn btn-secondary" id="btnRegister" onclick="doRegister()" style="margin-top:8px;margin-bottom:24px;">
+                    Daftarkan Kendaraan
+                </button>
+            </div>
+            <div class="bottom-nav" id="registerNav"></div>
+        </div>
+
+        <!-- ═══════ QR CODE SCREEN ═══════ -->
+        <div id="qrScreen" class="screen">
+            <div class="section-header" style="padding-top: 40px;">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h3>QR Code</h3>
+            </div>
+            <div class="screen-content">
+                <div class="qr-display">
+                    <h2>QR Code Kendaraan</h2>
+                    <div class="plate" id="qrPlate">BL 1234 ABC</div>
+                    <div class="vehicle-name" id="qrVehicleName">Toyota Avanza</div>
+                    <div class="qr-frame">
+                        <img id="qrImage" src="" style="display:none;">
+                        <span class="qr-placeholder" id="qrPlaceholder">📱</span>
+                    </div>
+                    <p class="instruction">
+                        Tunjukkan QR Code ini ke operator SPBU<br>saat mengisi BBM bersubsidi
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ SPBU DASHBOARD ═══════ -->
+        <div id="spbuDashboardScreen" class="screen">
+            <div class="screen-content" style="padding: 20px; padding-top: 40px;">
+                <div class="card-header secondary">
+                    <h2 id="spbuWelcome">Halo, Operator!</h2>
+                    <p>Panel Verifikasi SPBU</p>
+                </div>
+                <div class="card card-action" onclick="navigateTo('scanQrScreen')" style="margin-top:8px;">
+                    <div class="icon-circle" style="background:#E0F2F1;">📱</div>
+                    <div class="info">
+                        <h4>Scan QR Pelanggan</h4>
+                        <p>Validasi QR Code pelanggan untuk verifikasi kendaraan</p>
+                    </div>
+                    <div class="arrow" style="color:var(--secondary)">→</div>
+                </div>
+            </div>
+            <div class="bottom-nav" id="spbuNav">
+                <button class="nav-item active" onclick="navTo('spbuDashboardScreen')">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Dashboard</span>
+                </button>
+                <button class="nav-item" onclick="navTo('scanQrScreen')">
+                    <span class="nav-icon">📷</span>
+                    <span class="nav-label">Scan QR</span>
+                </button>
+                <button class="nav-item" onclick="navTo('profileScreen')">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Profil</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════ SCAN QR SCREEN ═══════ -->
+        <div id="scanQrScreen" class="screen">
+            <div class="section-header" style="padding-top: 40px;">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h3>Scan QR Pelanggan</h3>
+            </div>
+            <div class="scan-area">
+                <div class="scan-viewfinder"></div>
+                <div class="scan-hint">Arahkan kamera ke QR Code pelanggan</div>
+            </div>
+            <div class="scan-input-area">
+                <h4>Atau masukkan kode QR manual:</h4>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" id="qrInput" placeholder="Masukkan kode QR..." style="flex:1;padding:12px 16px;border:2px solid var(--gray-300);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;">
+                    <button class="btn btn-secondary" style="width:auto;padding:12px 20px;" onclick="doValidateQr()">Cek</button>
+                </div>
+                <div id="qrResultArea" style="margin-top:16px;display:none;"></div>
+            </div>
+            <div class="bottom-nav" id="scanNav"></div>
+        </div>
+
+        <!-- ═══════ VALIDATE VEHICLE SCREEN ═══════ -->
+        <div id="validateVehicleScreen" class="screen">
+            <div class="section-header" style="padding-top: 40px;">
+                <button class="back-btn" onclick="goBack()">←</button>
+                <h3>Validasi Kendaraan</h3>
+            </div>
+            <div class="screen-content" style="padding: 12px 20px;">
+                <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">
+                    Foto plat nomor fisik untuk dicocokkan AI
+                </p>
+                <div class="card">
+                    <div style="font-size:14px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Data Terdaftar</div>
+                    <div style="font-size:22px;font-weight:700;color:var(--primary);font-family:monospace;" id="valRegisteredPlate">BL 1234 ABC</div>
+                    <div style="font-size:14px;color:var(--text-secondary);" id="valRegisteredVehicle">Toyota Avanza</div>
+                </div>
+
+                <div class="photo-card" id="platCard">
+                    <span class="emoji">📷</span>
+                    <p>Tap untuk foto plat nomor</p>
+                    <input type="file" accept="image/*" capture="camera" onchange="previewPhoto(this, 'platCard', 'platFile')">
+                    <img id="platPreview" style="display:none;">
+                </div>
+
+                <button class="btn btn-primary" id="btnValidateVehicle" onclick="doValidateVehicle()" disabled>
+                    Validasi Kendaraan
+                </button>
+
+                <div id="validateResultArea" style="margin-top:16px;display:none;"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ PROFILE SCREEN ═══════ -->
+        <div id="profileScreen" class="screen">
+            <div class="screen-content">
+                <div class="profile-content">
+                    <div class="avatar">
+                        <span id="profileInitials">PC</span>
+                    </div>
+                    <div class="profile-name" id="profileName">Nama Pengguna</div>
+                    <div class="profile-email" id="profileEmail">email@example.com</div>
+                    <div class="role-badge" id="profileRole">Masyarakat</div>
+
+                    <div class="card" style="width:100%;">
+                        <div style="font-size:16px;font-weight:600;color:var(--text-primary);margin-bottom:12px;">Informasi Aplikasi</div>
+                        <div style="font-size:14px;color:var(--text-secondary);">PETROCHAIN v1.0.0</div>
+                        <div style="font-size:13px;color:var(--text-hint);margin-top:4px;line-height:1.5;">
+                            Intelligent Verification Platform<br>untuk Distribusi BBM Bersubsidi
+                        </div>
+                    </div>
+
+                    <button class="btn btn-danger-outline" onclick="doLogout()" style="margin-top:24px;">
+                        🔒 Keluar
+                    </button>
+                </div>
+            </div>
+            <div class="bottom-nav" id="profileNav"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const API_BASE = '/api';
+let authToken = localStorage.getItem('petrochain_token');
+let userData = JSON.parse(localStorage.getItem('petrochain_user') || 'null');
+let vehicles = [];
+let currentVehicleId = null;
+let stnkFile = null, carFile = null, platFile = null;
+let screenHistory = [];
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    if (authToken && userData) {
+        showMainScreen();
+    }
+});
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function navigateTo(screenId) {
+    const current = document.querySelector('.screen.active');
+    if (current) screenHistory.push(current.id);
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    
+    // Trigger screen-specific init
+    if (screenId === 'vehiclesScreen') loadVehicles();
+    if (screenId === 'profileScreen') updateProfileUI();
+    
+    updateBottomNav(screenId);
+}
+
+function navTo(screenId) {
+    screenHistory = [];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    
+    if (screenId === 'vehiclesScreen') loadVehicles();
+    if (screenId === 'homeScreen') loadHomeStats();
+    if (screenId === 'profileScreen') updateProfileUI();
+    
+    updateBottomNav(screenId);
+}
+
+function goBack() {
+    const prev = screenHistory.pop();
+    if (prev) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(prev).classList.add('active');
+        updateBottomNav(prev);
+    }
+}
+
+function updateBottomNav(activeScreen) {
+    // Clone bottom nav for sub-screens
+    const isOperator = userData?.role === 'operator';
+    const navScreens = ['vehiclesScreen','registerScreen','profileScreen','scanQrScreen'];
+    
+    navScreens.forEach(ns => {
+        const navEl = document.getElementById(ns.replace('Screen','Nav'));
+        if (navEl) {
+            navEl.innerHTML = isOperator 
+                ? document.getElementById('spbuNav').innerHTML 
+                : document.getElementById('publicNav').innerHTML;
+        }
+    });
+
+    // Update active state
+    document.querySelectorAll('.bottom-nav').forEach(nav => {
+        nav.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            const onclick = item.getAttribute('onclick') || '';
+            if (onclick.includes(activeScreen)) item.classList.add('active');
+        });
+    });
+}
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    
+    let valid = true;
+    if (!email) { showFieldError('loginEmailError'); valid = false; }
+    if (!password) { showFieldError('loginPasswordError'); valid = false; }
+    if (!valid) return;
+
+    const btn = document.getElementById('btnLogin');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div>';
+
+    try {
+        const res = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            authToken = data.data.token;
+            userData = data.data.user;
+            localStorage.setItem('petrochain_token', authToken);
+            localStorage.setItem('petrochain_user', JSON.stringify(userData));
+            showToast(`Selamat datang, ${userData.name}!`, 'success');
+            showMainScreen();
+        } else {
+            showToast(data.message || 'Email atau password salah', 'error');
+        }
+    } catch (e) {
+        showToast('Tidak dapat terhubung ke server', 'error');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Masuk';
+}
+
+function showMainScreen() {
+    if (userData.role === 'operator') {
+        document.getElementById('spbuWelcome').textContent = `Halo, ${userData.name}!`;
+        navigateTo('spbuDashboardScreen');
+    } else {
+        document.getElementById('homeWelcome').textContent = `Halo, ${userData.name}!`;
+        navigateTo('homeScreen');
+        loadHomeStats();
+    }
+}
+
+async function doLogout() {
+    try {
+        await apiFetch('/logout', { method: 'POST' });
+    } catch(e) {}
+    authToken = null;
+    userData = null;
+    localStorage.removeItem('petrochain_token');
+    localStorage.removeItem('petrochain_user');
+    screenHistory = [];
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('loginScreen').classList.add('active');
+    showToast('Berhasil keluar', 'success');
+}
+
+// ═══════════════════════════════════════════
+// HOME STATS
+// ═══════════════════════════════════════════
+async function loadHomeStats() {
+    try {
+        const res = await apiFetch('/my-vehicles');
+        const data = await res.json();
+        if (data.status === 'success') {
+            vehicles = data.data || [];
+            document.getElementById('statTotal').textContent = vehicles.length;
+            document.getElementById('statPending').textContent = vehicles.filter(v =>
+                v.registration_status === 'pending' || v.registration_status === 'pending_review'
+            ).length;
+            document.getElementById('statApproved').textContent = vehicles.filter(v =>
+                v.registration_status === 'approved'
+            ).length;
+        }
+    } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+// VEHICLES
+// ═══════════════════════════════════════════
+async function loadVehicles() {
+    const container = document.getElementById('vehiclesList');
+    container.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Memuat data...</p></div>';
+
+    try {
+        const res = await apiFetch('/my-vehicles');
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            vehicles = data.data || [];
+            if (vehicles.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">🚫</div>
+                        <h3>Belum Ada Kendaraan</h3>
+                        <p>Daftarkan kendaraan Anda untuk mendapatkan QR Code</p>
+                    </div>`;
+            } else {
+                container.innerHTML = vehicles.map((v, i) => {
+                    const icon = v.vehicle_type === 'motorcycle' ? '🏍️' : '🚗';
+                    const typeName = v.vehicle_type === 'motorcycle' ? 'Motor' : 
+                                    v.vehicle_type === 'car' ? 'Mobil' : v.vehicle_type;
+                    let chipClass = 'chip-default', chipText = 'Belum Terdaftar';
+                    if (['approved'].includes(v.registration_status)) { chipClass = 'chip-approved'; chipText = 'Disetujui'; }
+                    else if (['pending','pending_review','ocr_processing'].includes(v.registration_status)) { chipClass = 'chip-pending'; chipText = 'Menunggu'; }
+                    else if (v.registration_status === 'rejected') { chipClass = 'chip-rejected'; chipText = 'Ditolak'; }
+                    
+                    const qrBtn = v.registration_status === 'approved' 
+                        ? `<button class="btn btn-outline btn-qr" onclick="showQr(${i})">📱 Lihat QR Code</button>` 
+                        : '';
+                    const notes = v.admin_notes 
+                        ? `<div class="vehicle-notes">Catatan: ${v.admin_notes}</div>` 
+                        : '';
+                    
+                    return `
+                        <div class="vehicle-item" style="animation-delay:${i*0.05}s">
+                            <div class="vehicle-header">
+                                <div class="vehicle-icon">${icon}</div>
+                                <div class="vehicle-info">
+                                    <div class="vehicle-plate">${v.plate_number}</div>
+                                    <div class="vehicle-detail">${v.brand || ''} ${v.model || ''}</div>
+                                    <div class="vehicle-type">${typeName}</div>
+                                </div>
+                                <span class="chip ${chipClass}">${chipText}</span>
+                            </div>
+                            ${notes}${qrBtn}
+                        </div>`;
+                }).join('');
+            }
+        }
+    } catch(e) {
+        container.innerHTML = `<div class="empty-state"><div class="emoji">⚠️</div><h3>Gagal Memuat</h3><p>${e.message}</p></div>`;
+    }
+}
+
+function showQr(index) {
+    const v = vehicles[index];
+    document.getElementById('qrPlate').textContent = v.plate_number;
+    document.getElementById('qrVehicleName').textContent = `${v.brand || ''} ${v.model || ''}`.trim();
+    
+    if (v.qr_code_url) {
+        document.getElementById('qrImage').src = v.qr_code_url;
+        document.getElementById('qrImage').style.display = 'block';
+        document.getElementById('qrPlaceholder').style.display = 'none';
+    } else {
+        document.getElementById('qrImage').style.display = 'none';
+        document.getElementById('qrPlaceholder').style.display = 'block';
+    }
+    navigateTo('qrScreen');
+}
+
+// ═══════════════════════════════════════════
+// REGISTER VEHICLE
+// ═══════════════════════════════════════════
+function previewPhoto(input, cardId, fileVar) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    window[fileVar] = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const card = document.getElementById(cardId);
+        const img = card.querySelector('img');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        card.querySelector('.emoji').style.display = 'none';
+        card.querySelector('p').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+    
+    // Enable validate button if this is plate photo
+    if (fileVar === 'platFile') {
+        document.getElementById('btnValidateVehicle').disabled = false;
+    }
+}
+
+async function doRegister() {
+    const plate = document.getElementById('regPlate').value.trim().toUpperCase();
+    const type = document.getElementById('regType').value;
+    const brand = document.getElementById('regBrand').value.trim();
+    const model = document.getElementById('regModel').value.trim();
+
+    if (!plate || !type || !brand || !model) { showToast('Semua field wajib diisi', 'error'); return; }
+    if (!stnkFile) { showToast('Ambil foto STNK terlebih dahulu', 'error'); return; }
+    if (!carFile) { showToast('Ambil foto kendaraan terlebih dahulu', 'error'); return; }
+
+    const btn = document.getElementById('btnRegister');
+    btn.disabled = true;
+    btn.textContent = 'Mengirim...';
+
+    const formData = new FormData();
+    formData.append('plate_number', plate);
+    formData.append('vehicle_type', type);
+    formData.append('brand', brand);
+    formData.append('model', model);
+    formData.append('stnk_image', stnkFile);
+    formData.append('car_image', carFile);
+
+    try {
+        const res = await fetch(`${API_BASE}/register-vehicle`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}`, 'Accept': 'application/json' },
+            body: formData
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            showToast('Pendaftaran berhasil! Menunggu verifikasi admin.', 'success');
+            // Reset form
+            ['regPlate','regBrand','regModel'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('regType').value = '';
+            stnkFile = carFile = null;
+            resetPhotoCard('stnkCard');
+            resetPhotoCard('carCard');
+            goBack();
+        } else {
+            showToast(data.message || 'Pendaftaran gagal', 'error');
+        }
+    } catch(e) {
+        showToast('Koneksi gagal: ' + e.message, 'error');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Daftarkan Kendaraan';
+}
+
+function resetPhotoCard(cardId) {
+    const card = document.getElementById(cardId);
+    const img = card.querySelector('img');
+    img.style.display = 'none';
+    img.src = '';
+    card.querySelector('.emoji').style.display = '';
+    card.querySelector('p').style.display = '';
+}
+
+// ═══════════════════════════════════════════
+// SPBU - QR VALIDATION
+// ═══════════════════════════════════════════
+async function doValidateQr() {
+    const qrCode = document.getElementById('qrInput').value.trim();
+    if (!qrCode) { showToast('Masukkan kode QR', 'error'); return; }
+
+    const area = document.getElementById('qrResultArea');
+    area.style.display = 'block';
+    area.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner" style="border-color:rgba(26,35,126,0.2);border-top-color:var(--primary);margin:0 auto;"></div></div>';
+
+    try {
+        const res = await apiFetch('/spbu/validate-qr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qr_code: qrCode })
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            const d = data.data;
+            currentVehicleId = d.vehicle_id;
+            area.innerHTML = `
+                <div class="result-card">
+                    <div class="match">✅ QR Code Valid</div>
+                    <div class="detail">Plat: ${d.plate_number}</div>
+                    <div style="font-size:14px;color:var(--text-secondary);">${d.brand || ''} ${d.model || ''} — ${d.vehicle_type}</div>
+                    <button class="btn btn-primary" style="margin-top:16px;" onclick="goToValidateVehicle('${d.plate_number}','${d.brand||''}','${d.model||''}')">
+                        Lanjut Validasi Kendaraan →
+                    </button>
+                    <button class="btn btn-outline" style="margin-top:8px;" onclick="resetQrScan()">
+                        Scan Ulang
+                    </button>
+                </div>`;
+        } else {
+            area.innerHTML = `
+                <div class="result-card">
+                    <div class="mismatch">❌ ${data.message || 'QR tidak valid'}</div>
+                    <button class="btn btn-outline" style="margin-top:16px;" onclick="resetQrScan()">Scan Ulang</button>
+                </div>`;
+        }
+    } catch(e) {
+        area.innerHTML = `<div class="result-card"><div class="mismatch">⚠️ Koneksi gagal</div></div>`;
+    }
+}
+
+function resetQrScan() {
+    document.getElementById('qrInput').value = '';
+    document.getElementById('qrResultArea').style.display = 'none';
+}
+
+function goToValidateVehicle(plate, brand, model) {
+    document.getElementById('valRegisteredPlate').textContent = plate;
+    document.getElementById('valRegisteredVehicle').textContent = `${brand} ${model}`.trim();
+    document.getElementById('validateResultArea').style.display = 'none';
+    document.getElementById('btnValidateVehicle').disabled = true;
+    platFile = null;
+    resetPhotoCard('platCard');
+    navigateTo('validateVehicleScreen');
+}
+
+// ═══════════════════════════════════════════
+// SPBU - VEHICLE VALIDATION
+// ═══════════════════════════════════════════
+async function doValidateVehicle() {
+    if (!platFile || !currentVehicleId) { showToast('Ambil foto plat nomor terlebih dahulu', 'error'); return; }
+
+    const btn = document.getElementById('btnValidateVehicle');
+    btn.disabled = true;
+    btn.textContent = 'Memvalidasi...';
+
+    const formData = new FormData();
+    formData.append('vehicle_id', currentVehicleId);
+    formData.append('vehicle_image', platFile);
+
+    const area = document.getElementById('validateResultArea');
+    area.style.display = 'block';
+    area.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner" style="border-color:rgba(26,35,126,0.2);border-top-color:var(--primary);margin:0 auto;"></div><p style="color:var(--text-secondary);margin-top:8px;">AI sedang memproses...</p></div>';
+
+    try {
+        const res = await fetch(`${API_BASE}/spbu/validate-vehicle`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}`, 'Accept': 'application/json' },
+            body: formData
+        });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            const d = data.data;
+            const bg = d.is_match ? 'var(--success-bg)' : 'var(--error-bg)';
+            area.innerHTML = `
+                <div class="result-card" style="background:${bg}">
+                    <div class="${d.is_match ? 'match' : 'mismatch'}">
+                        ${d.is_match ? '✅ COCOK (MATCH)' : '❌ TIDAK COCOK (MISMATCH)'}
+                    </div>
+                    <div class="detail">Plat Terdeteksi: ${d.detected_plate || '-'}</div>
+                    <div class="detail">Plat Terdaftar: ${d.registered_plate}</div>
+                    <div class="confidence">Confidence: ${(d.confidence * 100).toFixed(1)}%</div>
+                </div>`;
+        } else {
+            area.innerHTML = `<div class="result-card" style="background:var(--error-bg)"><div class="mismatch">⚠️ ${data.message || 'Validasi gagal'}</div></div>`;
+        }
+    } catch(e) {
+        area.innerHTML = `<div class="result-card"><div class="mismatch">⚠️ Koneksi gagal</div></div>`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Validasi Kendaraan';
+}
+
+// ═══════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════
+function updateProfileUI() {
+    if (!userData) return;
+    document.getElementById('profileName').textContent = userData.name;
+    document.getElementById('profileEmail').textContent = userData.email;
+    
+    const roleMap = { public: 'Masyarakat', operator: 'Operator SPBU', admin: 'Administrator', auditor: 'Auditor' };
+    document.getElementById('profileRole').textContent = roleMap[userData.role] || userData.role;
+    
+    const initials = userData.name.split(' ').slice(0,2).map(w => w[0].toUpperCase()).join('');
+    document.getElementById('profileInitials').textContent = initials;
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+async function apiFetch(path, options = {}) {
+    const headers = { 'Accept': 'application/json', ...options.headers };
+    if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+    return fetch(`${API_BASE}${path}`, { ...options, headers });
+}
+
+function showFieldError(id) {
+    const el = document.getElementById(id);
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+}
+
+function showToast(message, type = '') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast ' + type;
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+</script>
+
+</body>
+</html>
