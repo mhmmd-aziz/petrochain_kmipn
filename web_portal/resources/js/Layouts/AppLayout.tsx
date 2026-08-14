@@ -13,8 +13,9 @@ interface Props {
 }
 
 const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: FiHome, roles: ['admin', 'operator', 'auditor'] },
-    { href: '/registrations', label: 'Pendaftaran', icon: FiFileText, roles: ['admin'] },
+    { href: '/dashboard', label: 'Dashboard', icon: FiHome, roles: ['admin', 'operator', 'auditor', 'public'] },
+    { href: '/registrations', label: 'Kendaraan Saya', icon: FiFileText, roles: ['public'] },
+    { href: '/admin/registrations', label: 'Review Pendaftaran', icon: FiFileText, roles: ['admin'] },
     { href: '/vehicles', label: 'Kendaraan', icon: FiTruck, roles: ['admin', 'operator'] },
     { href: '/spbu', label: 'SPBU', icon: FiMapPin, roles: ['admin', 'auditor'] },
     { href: '/transactions', label: 'Transaksi', icon: FiRepeat, roles: ['admin', 'operator', 'auditor'] },
@@ -25,7 +26,10 @@ const navItems = [
 
 export default function AppLayout({ children, title }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const { url } = usePage();
+    const { url, props } = usePage<any>();
+    const user = props.auth.user;
+
+    const visibleNavItems = navItems.filter(item => !user || item.roles.includes(user.role));
 
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50 text-gray-800">
@@ -52,7 +56,7 @@ export default function AppLayout({ children, title }: Props) {
 
                         {/* Nav */}
                         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-                            {navItems.map((item) => {
+                            {visibleNavItems.map((item) => {
                                 const isActive = url.startsWith(item.href);
                                 const Icon = item.icon;
                                 return (
@@ -71,12 +75,12 @@ export default function AppLayout({ children, title }: Props) {
                         {/* User Info */}
                         <div className="px-4 py-4 border-t border-gray-100 bg-gray-50/50">
                             <div className="flex items-center gap-3 p-2">
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-primary shadow-sm">
-                                    AD
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-primary shadow-sm uppercase">
+                                    {user?.name?.substring(0, 2) || 'US'}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-gray-900 text-sm font-semibold truncate">Admin Pusat</div>
-                                    <div className="text-xs text-gray-500 truncate">admin@petrochain.id</div>
+                                    <div className="text-gray-900 text-sm font-semibold truncate">{user?.name || 'Guest User'}</div>
+                                    <div className="text-xs text-gray-500 truncate capitalize">{user?.role || 'Guest'}</div>
                                 </div>
                                 <Link href="/logout" method="post" as="button" className="text-gray-400 hover:text-primary transition-colors p-2">
                                     <FiLogOut size={18} />
