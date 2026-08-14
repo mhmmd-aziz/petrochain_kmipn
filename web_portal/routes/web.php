@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\TransactionController;
 
 // Redirect root ke dashboard
 Route::get('/', function () {
@@ -28,6 +29,9 @@ Route::middleware(['auth'])->group(function () {
             ],
         ]);
     })->name('dashboard');
+
+    // Transaksi
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
 
     // Example of route with role middleware
     Route::middleware(['role:admin'])->group(function () {
