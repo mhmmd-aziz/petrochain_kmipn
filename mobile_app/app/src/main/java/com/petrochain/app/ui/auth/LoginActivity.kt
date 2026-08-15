@@ -50,6 +50,10 @@ class LoginActivity : AppCompatActivity() {
             binding.tilPassword.error = null
             viewModel.login(email, password)
         }
+
+        binding.tvRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
     }
 
     private fun observeViewModel() {

@@ -5,9 +5,8 @@ package com.petrochain.app.util
  * Change BASE_URL to your server IP when testing on a real device.
  */
 object Constants {
-    // Default: Android emulator alias for host machine's localhost
-    // Change to your PC's IP (e.g. "http://192.168.1.5:8000/api/") for real device testing
-    const val BASE_URL = "http://10.0.2.2:8000/api/"
+    // Changed to local Wi-Fi IP since ADB reverse is unavailable in PATH
+    const val BASE_URL = "http://192.168.1.6:8000/api/"
 
     // SharedPreferences keys
     const val PREFS_NAME = "petrochain_prefs"

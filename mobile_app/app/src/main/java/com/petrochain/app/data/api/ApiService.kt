@@ -18,6 +18,9 @@ interface ApiService {
     @POST("login")
     suspend fun login(@Body request: LoginRequest): Response<ApiResponse<LoginData>>
 
+    @POST("register")
+    suspend fun register(@Body request: RegisterRequest): Response<ApiResponse<LoginData>>
+
     @GET("user")
     suspend fun getUser(): Response<ApiResponse<UserData>>
 

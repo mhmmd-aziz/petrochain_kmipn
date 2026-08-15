@@ -3,7 +3,7 @@ import os
 import time
 import sqlite3
 import uuid
-from utils import extract_plate_from_car, extract_plate_from_stnk, generate_qr_code
+from utils import extract_plate_from_car, extract_info_from_stnk, generate_qr_code, validate_stnk_document, validate_car_photo
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -113,8 +113,8 @@ def process():
     car_file.save(car_path)
 
     # Process STNK
-    stnk_plate, stnk_conf = extract_plate_from_stnk(stnk_path)
-    logger.info(f"STNK: {stnk_plate} (Conf: {stnk_conf})")
+    stnk_plate, stnk_conf, stnk_cc = extract_info_from_stnk(stnk_path)
+    logger.info(f"STNK: {stnk_plate} (Conf: {stnk_conf}) CC: {stnk_cc}")
 
     # Process Car Image
     car_plate, car_conf = extract_plate_from_car(car_path)
@@ -136,11 +136,11 @@ def process():
         return redirect(url_for('index'))
     
     if stnk_conf < CONF_THRESHOLD or car_conf < CONF_THRESHOLD:
-        ai_conclusion = "BURAM"
+        ai_conclusion = "low_confidence"
     elif stnk_plate.replace(" ", "") == car_plate.replace(" ", ""):
-        ai_conclusion = "SAMA"
+        ai_conclusion = "match"
     else:
-        ai_conclusion = "TIDAK SAMA"
+        ai_conclusion = "mismatch"
 
     # Generate a unique submission ID
     sub_id = str(uuid.uuid4())
@@ -178,26 +178,81 @@ def api_extract():
     stnk_file.save(stnk_path)
     car_file.save(car_path)
 
-    # Process
-    stnk_plate, stnk_conf = extract_plate_from_stnk(stnk_path)
+    # Step 1: Validate the STNK document first
+    doc_validation = validate_stnk_document(stnk_path)
+    logger.info(f"[API] Doc validation: {doc_validation}")
+
+    if not doc_validation['is_valid']:
+        return jsonify({
+            "status": "success",
+            "data": {
+                "stnk_plate": None,
+                "stnk_confidence": 0.0,
+                "car_plate": None,
+                "car_confidence": 0.0,
+                "stnk_cc": None,
+                "is_match": False,
+                "conclusion": "mismatch",
+                "document_valid": False,
+                "document_type": doc_validation['document_type'],
+                "validation_message": doc_validation['message'],
+            }
+        })
+
+    # Step 2: Validate the vehicle photo shows a CAR
+    car_validation = validate_car_photo(car_path)
+    logger.info(f"[API] Car photo validation: {car_validation}")
+
+    if not car_validation['is_valid']:
+        return jsonify({
+            "status": "success",
+            "data": {
+                "stnk_plate": None,
+                "stnk_confidence": 0.0,
+                "car_plate": None,
+                "car_confidence": 0.0,
+                "stnk_cc": None,
+                "is_match": False,
+                "conclusion": "mismatch",
+                "document_valid": False,
+                "document_type": car_validation['detected_type'],
+                "validation_message": car_validation['message'],
+            }
+        })
+
+    # Step 3: Extract plates and CC
+    stnk_plate, stnk_conf, stnk_cc = extract_info_from_stnk(stnk_path)
     car_plate, car_conf = extract_plate_from_car(car_path)
     
-    # Dummy mode if AI fails during demo
+    logger.info(f"[API] STNK extracted: plate='{stnk_plate}' conf={stnk_conf:.3f} cc={stnk_cc}")
+    logger.info(f"[API] CAR  extracted: plate='{car_plate}' conf={car_conf:.3f}")
+
     if not stnk_plate and not car_plate:
-        stnk_plate, car_plate = "B 1234 ABC", "B 1234 ABC"
-        stnk_conf, car_conf = 0.99, 0.99
+        # Both failed — return honest error
+        return jsonify({
+            "status": "success",
+            "data": {
+                "stnk_plate": None,
+                "stnk_confidence": 0.0,
+                "car_plate": None,
+                "car_confidence": 0.0,
+                "stnk_cc": stnk_cc,
+                "is_match": False,
+                "conclusion": "low_confidence"
+            }
+        })
 
     is_match = False
-    ai_conclusion = "BURAM"
+    ai_conclusion = "low_confidence"
     
     if stnk_plate and car_plate:
-        if stnk_conf < 0.3 or car_conf < 0.3:
-            ai_conclusion = "BURAM"
+        if stnk_conf < 0.3 and car_conf < 0.3:
+            ai_conclusion = "low_confidence"
         elif stnk_plate.replace(" ", "") == car_plate.replace(" ", ""):
-            ai_conclusion = "SAMA"
+            ai_conclusion = "match"
             is_match = True
         else:
-            ai_conclusion = "TIDAK SAMA"
+            ai_conclusion = "mismatch"
 
     return jsonify({
         "status": "success",
@@ -206,8 +261,14 @@ def api_extract():
             "stnk_confidence": float(stnk_conf),
             "car_plate": car_plate,
             "car_confidence": float(car_conf),
+            "stnk_cc": stnk_cc,
             "is_match": is_match,
-            "conclusion": ai_conclusion
+            "conclusion": ai_conclusion,
+            "document_valid": True,
+            "document_type": doc_validation['document_type'],
+            "validation_message": doc_validation['message'],
+            "is_warning": doc_validation.get('is_warning', False),
+            "car_detected_type": car_validation['detected_type']
         }
     })
 

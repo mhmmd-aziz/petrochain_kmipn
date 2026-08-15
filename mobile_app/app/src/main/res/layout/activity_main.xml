@@ -12,22 +12,44 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigationContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:defaultNavHost="true" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavigation"
+    <FrameLayout
+        android:id="@+id/bottomNavigationContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/surface"
-        app:itemActiveIndicatorStyle="@style/Widget.Petrochain.BottomNav.ActiveIndicator"
-        app:itemIconTint="@color/bottom_nav_color"
-        app:itemTextColor="@color/bottom_nav_color"
-        app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <me.ibrahimsn.lib.SmoothBottomBar
+            android:id="@+id/bottomNavPublic"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            app:backgroundColor="@color/surface"
+            app:indicatorColor="#1AE53935"
+            app:textColor="@color/primary"
+            app:iconTint="@color/text_secondary"
+            app:iconTintActive="@color/primary"
+            app:menu="@menu/bottom_nav_public"
+            android:visibility="gone"
+            app:indicatorRadius="16dp" />
+
+        <me.ibrahimsn.lib.SmoothBottomBar
+            android:id="@+id/bottomNavOperator"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            app:backgroundColor="@color/surface"
+            app:indicatorColor="#1AE53935"
+            app:textColor="@color/primary"
+            app:iconTint="@color/text_secondary"
+            app:iconTintActive="@color/primary"
+            app:menu="@menu/bottom_nav_operator"
+            android:visibility="gone"
+            app:indicatorRadius="16dp" />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

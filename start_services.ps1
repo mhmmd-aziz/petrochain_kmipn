@@ -1,7 +1,14 @@
-# Script untuk menjalankan Blockchain Node & 3 AI Service secara bersamaan
+# Script untuk menjalankan Blockchain Node, Web Portal, & 3 AI Service secara bersamaan
 
 $baseDir = "e:\KMIPN\AI\petrochain\ai_services"
 $blockchainDir = "e:\KMIPN\AI\petrochain\blockchain"
+$webDir = "e:\KMIPN\AI\petrochain\web_portal"
+
+Write-Host "Menjalankan Web Portal (Laravel - Port 8000)..." -ForegroundColor Green
+Start-Process "cmd.exe" -ArgumentList "/c php artisan serve --host=0.0.0.0 --port=8000" -WorkingDirectory $webDir -WindowStyle Normal
+
+Write-Host "Menjalankan Web Portal Frontend (Vite/NPM)..." -ForegroundColor Green
+Start-Process "cmd.exe" -ArgumentList "/c npm run dev" -WorkingDirectory $webDir -WindowStyle Normal
 
 Write-Host "Menjalankan Blockchain Node Lokal (Hardhat - Port 8545)..." -ForegroundColor Blue
 Start-Process "cmd.exe" -ArgumentList "/c npx hardhat node" -WorkingDirectory $blockchainDir -WindowStyle Normal
@@ -15,5 +22,5 @@ Start-Process "python" -ArgumentList "app.py" -WorkingDirectory "$baseDir\ocr_mo
 Write-Host "Menjalankan AI OCR SPBU (Port 5003)..." -ForegroundColor Yellow
 Start-Process "python" -ArgumentList "main.py" -WorkingDirectory "$baseDir\ocr_spbu" -WindowStyle Normal
 
-Write-Host "Semua AI Service telah dihidupkan di jendela terminal terpisah!" -ForegroundColor Magenta
-Write-Host "Tutup jendela tersebut secara manual jika ingin mematikan AI." -ForegroundColor Gray
+Write-Host "Semua Service (Web, Blockchain, AI) telah dihidupkan di jendela terminal terpisah!" -ForegroundColor Magenta
+Write-Host "Tutup jendela tersebut secara manual jika ingin mematikan service." -ForegroundColor Gray

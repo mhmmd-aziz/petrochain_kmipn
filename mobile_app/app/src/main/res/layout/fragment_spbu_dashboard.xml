@@ -1,104 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    android:fillViewport="true">
+    android:background="@color/background">
 
-    <LinearLayout
+    <!-- Curved Gradient Header -->
+    <View
+        android:id="@+id/headerBg"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:background="@drawable/bg_header_curved"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvWelcomeName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Halo, Operator!"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvWelcomeSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Panel Verifikasi SPBU"
+        android:textColor="#E6FFFFFF"
+        android:textSize="15sp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="@id/tvWelcomeName"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcomeName" />
+
+    <!-- Scan QR Card Overlapping -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardScanQr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="12dp"
+        app:rippleColor="@color/ripple_primary"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcomeSubtitle">
 
-        <!-- Welcome Header -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            android:backgroundTint="@color/secondary"
-            android:layout_marginBottom="24dp">
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="32dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_qr_code"
+                android:padding="16dp"
+                app:tint="@color/primary"
+                android:background="@drawable/bg_icon_circle_red"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:text="Scan QR Pelanggan"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
 
-                <TextView
-                    android:id="@+id/tvWelcomeName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Halo, Operator!"
-                    android:textColor="@color/white"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Panel Verifikasi SPBU"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Scan QR Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardScanQr"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp"
-            app:rippleColor="@color/ripple_primary"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:text="Validasi QR Code pelanggan untuk verifikasi kendaraan dan lanjutkan proses pengisian BBM bersubsidi"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
                 android:gravity="center"
-                android:padding="32dp">
+                android:lineSpacingExtra="4dp"
+                android:layout_marginTop="12dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="📱"
-                    android:textSize="48sp"
-                    android:layout_marginBottom="16dp" />
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Mulai Scan"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="14dp"
+                app:backgroundTint="@color/primary"
+                android:layout_marginTop="24dp"
+                android:clickable="false" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Scan QR Pelanggan"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Validasi QR Code pelanggan untuk verifikasi kendaraan dan lanjutkan proses pengisian BBM bersubsidi"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary"
-                    android:gravity="center"
-                    android:layout_marginTop="8dp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mulai Scan"
-                    android:textAllCaps="false"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/secondary"
-                    android:layout_marginTop="16dp"
-                    android:clickable="false" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

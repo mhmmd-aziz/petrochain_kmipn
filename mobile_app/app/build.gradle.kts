@@ -59,6 +59,9 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
+    // Smooth Bottom Bar
+    implementation("com.github.ibrahimsn98:SmoothBottomBar:1.7.9")
+
     // Lifecycle + ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")

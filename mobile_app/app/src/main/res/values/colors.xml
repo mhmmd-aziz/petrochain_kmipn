@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Palette -->
-    <color name="primary">#1A237E</color>
-    <color name="primary_dark">#0D1642</color>
-    <color name="primary_light">#534BAE</color>
+    <color name="primary">#E53935</color>
+    <color name="primary_dark">#B71C1C</color>
+    <color name="primary_light">#FFCDD2</color>
 
     <!-- Secondary Palette -->
-    <color name="secondary">#00897B</color>
-    <color name="secondary_dark">#005B4F</color>
-    <color name="secondary_light">#4EBAAA</color>
+    <color name="secondary">#F5F5F5</color>
+    <color name="secondary_dark">#E0E0E0</color>
+    <color name="secondary_light">#FFFFFF</color>
 
     <!-- Accent -->
     <color name="accent">#FFB300</color>
@@ -43,6 +43,6 @@
     <color name="ripple_primary">#331A237E</color>
 
     <!-- Bottom Nav -->
-    <color name="bottom_nav_active">#1A237E</color>
+    <color name="bottom_nav_active">#E53935</color>
     <color name="bottom_nav_inactive">#9E9E9E</color>
 </resources>

@@ -36,6 +36,11 @@
             android:exported="false"
             android:theme="@style/Theme.Petrochain.NoActionBar" />
 
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Petrochain.NoActionBar" />
+
         <!-- FileProvider for camera intents -->
         <provider
             android:name="androidx.core.content.FileProvider"

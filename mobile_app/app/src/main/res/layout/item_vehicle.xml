@@ -21,12 +21,12 @@
             android:gravity="center_vertical">
 
             <!-- Vehicle Icon -->
-            <TextView
+            <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:text="🚗"
-                android:textSize="24sp"
-                android:gravity="center"
+                android:src="@drawable/ic_car"
+                android:padding="12dp"
+                app:tint="@color/primary"
                 android:background="@drawable/bg_icon_circle"
                 android:layout_marginEnd="12dp" />
 

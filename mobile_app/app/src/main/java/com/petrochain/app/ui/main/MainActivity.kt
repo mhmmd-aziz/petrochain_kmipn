@@ -29,15 +29,6 @@ class MainActivity : AppCompatActivity() {
 
         val role = TokenManager.getUserRole()
 
-        // Set appropriate bottom navigation menu based on user role
-        val menuRes = if (role == "operator") {
-            R.menu.bottom_nav_operator
-        } else {
-            R.menu.bottom_nav_public
-        }
-        binding.bottomNavigation.menu.clear()
-        binding.bottomNavigation.inflateMenu(menuRes)
-
         // Set start destination based on role
         val navGraph = navController.navInflater.inflate(R.navigation.nav_graph)
         navGraph.setStartDestination(
@@ -46,8 +37,23 @@ class MainActivity : AppCompatActivity() {
         )
         navController.graph = navGraph
 
-        // Connect bottom nav with NavController
-        binding.bottomNavigation.setupWithNavController(navController)
+        if (role == "operator") {
+            binding.bottomNavPublic.visibility = android.view.View.GONE
+            binding.bottomNavOperator.visibility = android.view.View.VISIBLE
+            val menu = android.widget.PopupMenu(this, null).apply { inflate(R.menu.bottom_nav_operator) }.menu
+            binding.bottomNavOperator.setupWithNavController(
+                menu,
+                navController
+            )
+        } else {
+            binding.bottomNavOperator.visibility = android.view.View.GONE
+            binding.bottomNavPublic.visibility = android.view.View.VISIBLE
+            val menu = android.widget.PopupMenu(this, null).apply { inflate(R.menu.bottom_nav_public) }.menu
+            binding.bottomNavPublic.setupWithNavController(
+                menu,
+                navController
+            )
+        }
     }
 
     fun logout() {

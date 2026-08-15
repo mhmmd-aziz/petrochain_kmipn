@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/spbuDashboardFragment"
-        android:icon="@android:drawable/ic_menu_today"
+        android:icon="@drawable/ic_home"
         android:title="Dashboard" />
     <item
         android:id="@+id/scanQrFragment"
-        android:icon="@android:drawable/ic_menu_camera"
+        android:icon="@drawable/ic_qr_code"
         android:title="Scan QR" />
     <item
         android:id="@+id/profileFragment"
-        android:icon="@android:drawable/ic_menu_myplaces"
+        android:icon="@drawable/ic_user"
         android:title="Profil" />
 </menu>

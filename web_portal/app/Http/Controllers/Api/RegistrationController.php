@@ -94,12 +94,73 @@ class RegistrationController extends Controller
         $aiResult = $aiService->extractPlates($absStnkPath, $absCarPath);
 
         if ($aiResult) {
+            // Check if document validation failed
+            $documentValid = $aiResult['document_valid'] ?? true;
+            $validationMessage = $aiResult['validation_message'] ?? null;
+            $documentType = $aiResult['document_type'] ?? 'unknown';
+
+            if (!$documentValid) {
+                // Document is invalid — flag the application with a note but keep it pending for human review
+                $application->update([
+                    'status' => 'pending_review',
+                    'admin_notes' => '[AI WARNING] ' . $validationMessage,
+                ]);
+
+                // Save the OCR record with low_confidence/mismatch to show in dashboard
+                \App\Models\OcrResult::create([
+                    'registration_application_id' => $application->id,
+                    'source_type' => 'stnk',
+                    'extracted_plate' => null,
+                    'confidence' => 0.0,
+                    'normalized_result' => 'DOKUMEN_TIDAK_VALID',
+                    'comparison_result' => 'low_confidence',
+                    'engine' => 'easyocr',
+                    'processed_at' => now(),
+                ]);
+                
+                \App\Models\OcrResult::create([
+                    'registration_application_id' => $application->id,
+                    'source_type' => 'vehicle_photo',
+                    'extracted_plate' => null,
+                    'confidence' => 0.0,
+                    'normalized_result' => 'DOKUMEN_TIDAK_VALID',
+                    'comparison_result' => 'low_confidence',
+                    'engine' => 'yolo+easyocr',
+                    'processed_at' => now(),
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Registration submitted successfully (with AI warning)',
+                    'data' => [
+                        'application_id' => $application->id,
+                        'vehicle_id' => $vehicle->id,
+                    ]
+                ]);
+            }
+
+            // Document is valid — save OCR results normally
+            $detectedCc = $aiResult['stnk_cc'] ?? null;
+            $isWarning = $aiResult['is_warning'] ?? false;
+            
+            if ($isWarning && !empty($aiResult['validation_message'])) {
+                $docWarning = "[AI WARNING] " . $aiResult['validation_message'];
+                $existingNotes = $application->admin_notes;
+                
+                $application->update([
+                    'admin_notes' => $existingNotes ? $existingNotes . "\n" . $docWarning : $docWarning
+                ]);
+            }
+            
             \App\Models\OcrResult::create([
                 'registration_application_id' => $application->id,
                 'source_type' => 'stnk',
                 'extracted_plate' => $aiResult['stnk_plate'],
                 'confidence' => $aiResult['stnk_confidence'],
-                'normalized_result' => $aiResult['stnk_plate'],
+                // Store both plate, CC, and document type in normalized_result so frontend can parse it
+                'normalized_result' => $aiResult['stnk_plate'] 
+                    . ($detectedCc ? ' | ' . $detectedCc . ' CC' : '')
+                    . (isset($aiResult['document_type']) ? ' | DOC:' . $aiResult['document_type'] : ''),
                 'comparison_result' => $aiResult['conclusion'],
                 'engine' => 'easyocr',
                 'processed_at' => now(),
@@ -110,11 +171,28 @@ class RegistrationController extends Controller
                 'source_type' => 'vehicle_photo',
                 'extracted_plate' => $aiResult['car_plate'],
                 'confidence' => $aiResult['car_confidence'],
-                'normalized_result' => $aiResult['car_plate'],
+                'normalized_result' => $aiResult['car_plate'] . (isset($aiResult['car_detected_type']) ? ' | CAR:' . $aiResult['car_detected_type'] : ''),
                 'comparison_result' => $aiResult['conclusion'],
                 'engine' => 'yolo+easyocr',
                 'processed_at' => now(),
             ]);
+            
+            // Save Engine Capacity (CC) if detected
+            $detectedCc = $aiResult['stnk_cc'] ?? null;
+            if ($detectedCc) {
+                $vehicle->update(['engine_capacity_cc' => $detectedCc]);
+            }
+            
+            // Check Government Rule: Subsidized fuel only for <= 1400 CC
+            $ccToValidate = $detectedCc ?: $vehicle->engine_capacity_cc;
+            if ($ccToValidate && intval($ccToValidate) > 1400) {
+                $ccWarning = "[AI WARNING] Kapasitas mesin " . $ccToValidate . " CC melebihi batas regulasi subsidi (maks 1400 CC). Kendaraan tidak berhak.";
+                $existingNotes = $application->admin_notes;
+                
+                $application->update([
+                    'admin_notes' => $existingNotes ? $existingNotes . "\n" . $ccWarning : $ccWarning
+                ]);
+            }
         }
 
         return response()->json([

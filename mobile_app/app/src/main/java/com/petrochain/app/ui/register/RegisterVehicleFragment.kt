@@ -51,21 +51,34 @@ class RegisterVehicleFragment : Fragment() {
         ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && currentPhotoUri != null) {
-            when (currentPhotoType) {
-                PhotoType.STNK -> {
-                    binding.ivStnkPreview.setImageURI(currentPhotoUri)
-                    binding.ivStnkPreview.visible()
-                    binding.tvStnkPlaceholder.gone()
-                    viewModel.stnkImageFile = uriToFile(currentPhotoUri!!)
-                }
-                PhotoType.CAR -> {
-                    binding.ivCarPreview.setImageURI(currentPhotoUri)
-                    binding.ivCarPreview.visible()
-                    binding.tvCarPlaceholder.gone()
-                    viewModel.carImageFile = uriToFile(currentPhotoUri!!)
-                }
-                null -> {}
+            handleImageSelected(currentPhotoUri!!)
+        }
+    }
+
+    // Gallery picker launcher
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            handleImageSelected(uri)
+        }
+    }
+
+    private fun handleImageSelected(uri: Uri) {
+        when (currentPhotoType) {
+            PhotoType.STNK -> {
+                binding.ivStnkPreview.setImageURI(uri)
+                binding.ivStnkPreview.visible()
+                binding.tvStnkPlaceholder.gone()
+                viewModel.stnkImageFile = uriToFile(uri)
             }
+            PhotoType.CAR -> {
+                binding.ivCarPreview.setImageURI(uri)
+                binding.ivCarPreview.visible()
+                binding.tvCarPlaceholder.gone()
+                viewModel.carImageFile = uriToFile(uri)
+            }
+            null -> {}
         }
     }
 
@@ -84,21 +97,20 @@ class RegisterVehicleFragment : Fragment() {
     }
 
     private fun setupUI() {
-        // Vehicle type dropdown
-        val types = arrayOf("Motor", "Mobil")
-        val typeValues = arrayOf("motorcycle", "car")
+        // Vehicle type dropdown (Mobil only)
+        val types = arrayOf("Mobil")
+        val typeValues = arrayOf("car")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types)
         binding.spinnerVehicleType.setAdapter(adapter)
+        binding.spinnerVehicleType.setText(types[0], false) // Set default
 
-        // Camera buttons
+        // Camera / Gallery buttons
         binding.cardStnk.setOnClickListener {
-            currentPhotoType = PhotoType.STNK
-            checkCameraPermissionAndLaunch(PhotoType.STNK)
+            showImageSourceDialog(PhotoType.STNK)
         }
 
         binding.cardCar.setOnClickListener {
-            currentPhotoType = PhotoType.CAR
-            checkCameraPermissionAndLaunch(PhotoType.CAR)
+            showImageSourceDialog(PhotoType.CAR)
         }
 
         // Submit button
@@ -159,10 +171,48 @@ class RegisterVehicleFragment : Fragment() {
                 showToast("Pendaftaran berhasil! Menunggu verifikasi admin.")
                 findNavController().navigateUp()
             }
-            result.onFailure {
-                showToast(it.message ?: "Pendaftaran gagal")
+            result.onFailure { error ->
+                val message = error.message ?: "Pendaftaran gagal"
+                // Show a more prominent dialog for document validation errors
+                if (message.contains("STNK", ignoreCase = true) || 
+                    message.contains("Motor", ignoreCase = true) ||
+                    message.contains("bukan", ignoreCase = true) ||
+                    message.contains("dokumen", ignoreCase = true)) {
+                    android.app.AlertDialog.Builder(requireContext())
+                        .setTitle("⚠️ Dokumen Tidak Valid")
+                        .setMessage(message)
+                        .setPositiveButton("Ganti Dokumen") { dialog, _ ->
+                            dialog.dismiss()
+                            // Reset STNK image so user re-uploads
+                            viewModel.stnkImageFile = null
+                            binding.ivStnkPreview.setImageResource(android.R.drawable.ic_menu_gallery)
+                        }
+                        .setNegativeButton("Batal", null)
+                        .show()
+                } else {
+                    showToast(message)
+                }
             }
         }
+    }
+
+    private fun showImageSourceDialog(type: PhotoType) {
+        val options = arrayOf("Ambil dari Kamera", "Pilih dari Galeri")
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Pilih Sumber Foto")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        currentPhotoType = type
+                        checkCameraPermissionAndLaunch(type)
+                    }
+                    1 -> {
+                        currentPhotoType = type
+                        pickImageLauncher.launch("image/*")
+                    }
+                }
+            }
+            .show()
     }
 
     private fun checkCameraPermissionAndLaunch(type: PhotoType) {
