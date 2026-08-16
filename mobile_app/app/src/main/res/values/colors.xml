@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Palette -->
-    <color name="primary">#E53935</color>
-    <color name="primary_dark">#B71C1C</color>
-    <color name="primary_light">#FFCDD2</color>
+    <color name="primary">#980F12</color>
+    <color name="primary_dark">#66090B</color>
+    <color name="primary_light">#FFE1E1</color>
+    <color name="primary_container">#FFDADB</color>
+    <color name="on_primary_container">#410004</color>
 
     <!-- Secondary Palette -->
-    <color name="secondary">#F5F5F5</color>
-    <color name="secondary_dark">#E0E0E0</color>
+    <color name="secondary">#F8F9FA</color>
+    <color name="secondary_dark">#E9ECEF</color>
     <color name="secondary_light">#FFFFFF</color>
 
     <!-- Accent -->
-    <color name="accent">#FFB300</color>
+    <color name="accent">#FFC107</color>
 
     <!-- Neutrals -->
-    <color name="background">#F5F5F5</color>
+    <color name="background">#FAFAFA</color>
     <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F4F4F5</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
 
     <!-- Text -->
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="text_hint">#9E9E9E</color>
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="text_hint">#79747E</color>
+    <color name="text_on_primary">#FFFFFF</color>
 
     <!-- Grays -->
-    <color name="gray_200">#EEEEEE</color>
-    <color name="gray_300">#E0E0E0</color>
-    <color name="gray_400">#BDBDBD</color>
+    <color name="gray_200">#EAEAEA</color>
+    <color name="gray_300">#D9D9D9</color>
+    <color name="gray_400">#A6A6A6</color>
 
     <!-- Status Colors -->
-    <color name="status_pending">#F57F17</color>
+    <color name="status_pending">#FF9800</color>
     <color name="status_approved">#2E7D32</color>
-    <color name="status_rejected">#C62828</color>
+    <color name="status_rejected">#D32F2F</color>
 
     <!-- Feedback -->
-    <color name="error">#D32F2F</color>
+    <color name="error">#B3261E</color>
     <color name="success_bg">#E8F5E9</color>
-    <color name="error_bg">#FFEBEE</color>
+    <color name="error_bg">#F9DEDC</color>
 
     <!-- Ripple -->
-    <color name="ripple_primary">#331A237E</color>
-
-    <!-- Bottom Nav -->
-    <color name="bottom_nav_active">#E53935</color>
-    <color name="bottom_nav_inactive">#9E9E9E</color>
+    <color name="ripple_primary">#20980F12</color>
 </resources>

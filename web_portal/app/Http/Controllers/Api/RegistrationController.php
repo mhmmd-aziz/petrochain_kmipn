@@ -32,7 +32,8 @@ class RegistrationController extends Controller
                 'vehicle_type' => $vehicle->vehicle_type,
                 'brand' => $vehicle->brand,
                 'model' => $vehicle->model,
-                'qr_code_url' => $vehicle->qr_code ? asset('storage/qrcodes/' . $vehicle->qr_code) : null,
+                'qr_code_url' => $vehicle->qr_code_token ? "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($vehicle->qr_code_token) : null,
+                'car_image_url' => ($latestApp && $latestApp->vehicle_photo) ? asset('storage/' . $latestApp->vehicle_photo) : null,
                 'registration_status' => $latestApp ? $latestApp->status : 'unregistered',
                 'submitted_at' => $latestApp ? $latestApp->submitted_at : null,
                 'admin_notes' => $latestApp ? $latestApp->admin_notes : null,
@@ -50,11 +51,15 @@ class RegistrationController extends Controller
      */
     public function registerVehicle(Request $request)
     {
+        \Log::info("Mobile Registration Payload: ", $request->except(['stnk_image', 'car_image']));
+
         $request->validate([
             'plate_number' => 'required|string|max:20',
             'vehicle_type' => 'required|string|in:car,motorcycle',
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
+            'engine_capacity_cc' => 'required|integer|min:0|max:20000',
+            'fuel_type' => 'required|string|max:30',
             'stnk_image' => 'required|image|max:5120', // Max 5MB
             'car_image' => 'required|image|max:5120',
         ]);
@@ -68,9 +73,22 @@ class RegistrationController extends Controller
                 'vehicle_type' => $request->vehicle_type,
                 'brand' => $request->brand,
                 'model' => $request->model,
+                'engine_capacity_cc' => $request->engine_capacity_cc,
+                'fuel_type' => $request->fuel_type,
                 'registration_status' => 'pending',
             ]
         );
+
+        // Always update the vehicle's details with the latest user input in case they are re-submitting
+        if (!$vehicle->wasRecentlyCreated) {
+            $vehicle->update([
+                'vehicle_type' => $request->vehicle_type,
+                'brand' => $request->brand,
+                'model' => $request->model,
+                'engine_capacity_cc' => $request->engine_capacity_cc,
+                'fuel_type' => $request->fuel_type,
+            ]);
+        }
 
         // Store images
         $stnkPath = $request->file('stnk_image')->store('registrations', 'public');
@@ -177,11 +195,10 @@ class RegistrationController extends Controller
                 'processed_at' => now(),
             ]);
             
-            // Save Engine Capacity (CC) if detected
+            // Do NOT overwrite $vehicle->engine_capacity_cc with the AI's detected CC!
+            // The AI's detected CC is safely saved in the OcrResult table, while $vehicle->engine_capacity_cc 
+            // should strictly represent the USER'S INPUT from the mobile app.
             $detectedCc = $aiResult['stnk_cc'] ?? null;
-            if ($detectedCc) {
-                $vehicle->update(['engine_capacity_cc' => $detectedCc]);
-            }
             
             // Check Government Rule: Subsidized fuel only for <= 1400 CC
             $ccToValidate = $detectedCc ?: $vehicle->engine_capacity_cc;

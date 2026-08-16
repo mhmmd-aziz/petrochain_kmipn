@@ -41,6 +41,8 @@ interface ApiService {
         @Part("vehicle_type") vehicleType: RequestBody,
         @Part("brand") brand: RequestBody,
         @Part("model") model: RequestBody,
+        @Part("engine_capacity_cc") engineCapacityCc: RequestBody,
+        @Part("fuel_type") fuelType: RequestBody,
         @Part stnkImage: MultipartBody.Part,
         @Part carImage: MultipartBody.Part
     ): Response<ApiResponse<RegisterData>>

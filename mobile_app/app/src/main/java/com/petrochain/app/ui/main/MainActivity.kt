@@ -40,19 +40,11 @@ class MainActivity : AppCompatActivity() {
         if (role == "operator") {
             binding.bottomNavPublic.visibility = android.view.View.GONE
             binding.bottomNavOperator.visibility = android.view.View.VISIBLE
-            val menu = android.widget.PopupMenu(this, null).apply { inflate(R.menu.bottom_nav_operator) }.menu
-            binding.bottomNavOperator.setupWithNavController(
-                menu,
-                navController
-            )
+            binding.bottomNavOperator.setupWithNavController(navController)
         } else {
             binding.bottomNavOperator.visibility = android.view.View.GONE
             binding.bottomNavPublic.visibility = android.view.View.VISIBLE
-            val menu = android.widget.PopupMenu(this, null).apply { inflate(R.menu.bottom_nav_public) }.menu
-            binding.bottomNavPublic.setupWithNavController(
-                menu,
-                navController
-            )
+            binding.bottomNavPublic.setupWithNavController(navController)
         }
     }
 

@@ -20,7 +20,7 @@ class SpbuController extends Controller
             'qr_code' => 'required|string',
         ]);
 
-        $vehicle = Vehicle::where('qr_code', $request->qr_code)->first();
+        $vehicle = Vehicle::where('qr_code_token', $request->qr_code)->first();
 
         if (!$vehicle) {
             return response()->json([

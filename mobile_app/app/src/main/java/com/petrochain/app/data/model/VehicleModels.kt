@@ -12,6 +12,7 @@ data class VehicleData(
     @SerializedName("brand") val brand: String?,
     @SerializedName("model") val model: String?,
     @SerializedName("qr_code_url") val qrCodeUrl: String?,
+    @SerializedName("car_image_url") val carImageUrl: String?,
     @SerializedName("registration_status") val registrationStatus: String,
     @SerializedName("submitted_at") val submittedAt: String?,
     @SerializedName("admin_notes") val adminNotes: String?

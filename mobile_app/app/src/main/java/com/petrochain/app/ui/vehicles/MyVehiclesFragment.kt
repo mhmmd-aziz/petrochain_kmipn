@@ -8,7 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.petrochain.app.R
 import com.petrochain.app.databinding.FragmentMyVehiclesBinding
 import com.petrochain.app.util.gone
@@ -21,6 +21,7 @@ class MyVehiclesFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: MyVehiclesViewModel by viewModels()
     private lateinit var adapter: VehicleAdapter
+    private var currentTab = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +34,7 @@ class MyVehiclesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupTabs()
         setupSwipeRefresh()
         observeViewModel()
         viewModel.loadVehicles()
@@ -52,8 +54,37 @@ class MyVehiclesFragment : Fragment() {
                 showToast("Kendaraan belum disetujui untuk mendapatkan QR Code")
             }
         }
-        binding.rvVehicles.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvVehicles.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
         binding.rvVehicles.adapter = adapter
+    }
+
+    private fun setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(object : com.google.android.material.tabs.TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: com.google.android.material.tabs.TabLayout.Tab) {
+                currentTab = tab.position
+                updateList()
+            }
+            override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+            override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab?) {}
+        })
+    }
+
+    private fun updateList() {
+        val allVehicles = viewModel.vehicles.value ?: emptyList()
+        val filteredList = if (currentTab == 0) {
+            allVehicles.filter { it.registrationStatus == "approved" }
+        } else {
+            allVehicles.filter { it.registrationStatus != "approved" }
+        }
+        
+        adapter.submitList(filteredList)
+        if (filteredList.isEmpty()) {
+            binding.layoutEmpty.visible()
+            binding.rvVehicles.gone()
+        } else {
+            binding.layoutEmpty.gone()
+            binding.rvVehicles.visible()
+        }
     }
 
     private fun setupSwipeRefresh() {
@@ -68,15 +99,8 @@ class MyVehiclesFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.vehicles.observe(viewLifecycleOwner) { vehicles ->
-            adapter.submitList(vehicles)
-            if (vehicles.isEmpty()) {
-                binding.layoutEmpty.visible()
-                binding.rvVehicles.gone()
-            } else {
-                binding.layoutEmpty.gone()
-                binding.rvVehicles.visible()
-            }
+        viewModel.vehicles.observe(viewLifecycleOwner) {
+            updateList()
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->

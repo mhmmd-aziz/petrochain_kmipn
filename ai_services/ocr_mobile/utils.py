@@ -40,10 +40,21 @@ STNK_KEYWORDS = [
 ]
 
 # Keywords indicating this is a MOTORCYCLE STNK (not car)
-# Only hard-reject if these are found with HIGH confidence (multiple hits)
+# Broad matching: even partial OCR reads like "SEPEDA" or "RODA DUA" should trigger
 MOTOR_KEYWORDS = [
     "SEPEDA MOTOR",
     "RODA DUA",
+    "SEPEDAMOTOR",  # OCR sometimes omits space
+    "SPEDA MOTOR",  # OCR misread
+    "SEPEDA MTR",
+]
+
+# Short single-word fallback for motor (only used when STNK keywords found but car keywords absent)
+MOTOR_SOFT_KEYWORDS = [
+    "SEPEDA",       # Strong signal if STNK doc confirmed
+    "RODA DUA",
+    "SCOOTER",
+    "BEBEK",
 ]
 
 # Keywords indicating this is a CAR STNK
@@ -65,16 +76,23 @@ def validate_stnk_document(image_path: str):
     """
     reader = get_ocr_reader()
     if not reader:
-        return {"is_valid": True, "document_type": "unknown", "message": "Validasi dilewati", "confidence": 0.0}
+        # GPU OCR failed — try CPU fallback
+        try:
+            logger.warning("[VALIDATE] GPU OCR unavailable, trying CPU fallback...")
+            import easyocr as _easyocr
+            reader = _easyocr.Reader(OCR_LANGUAGES, gpu=False, download_enabled=False)
+        except Exception as e:
+            logger.error(f"[VALIDATE] CPU OCR also failed: {e}")
+            return {"is_valid": True, "document_type": "unknown", "message": "Validasi dilewati", "confidence": 0.0}
 
     img = cv2.imread(image_path)
     if img is None:
         return {"is_valid": False, "document_type": "not_stnk", "message": "File gambar tidak bisa dibaca", "confidence": 1.0}
 
-    # Quick OCR on the full document (use smaller image for speed)
+    # Quick OCR on the full document (upscale for clarity if small, cap at 1200px)
     h, w = img.shape[:2]
-    scale = min(1.0, 800 / max(w, h))
-    small = cv2.resize(img, (int(w * scale), int(h * scale)))
+    scale = min(1.5, 1200 / max(w, h))  # allow upscaling small images
+    small = cv2.resize(img, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_CUBIC)
     
     ocr_results = reader.readtext(small, detail=0)  # Just text, no detail needed
     all_text = " ".join(ocr_results).upper()
@@ -84,16 +102,20 @@ def validate_stnk_document(image_path: str):
     # Count STNK keyword matches
     stnk_hits = sum(1 for kw in STNK_KEYWORDS if kw in all_text)
     motor_hits = sum(1 for kw in MOTOR_KEYWORDS if kw in all_text)
+    # Also check soft single-word motor keywords when STNK doc confirmed
+    motor_soft_hits = sum(1 for kw in MOTOR_SOFT_KEYWORDS if kw in all_text)
     car_hits = sum(1 for kw in CAR_KEYWORDS if kw in all_text)
     
     # Count total readable words as a proxy for image clarity
     total_words = len(all_text.split())
     
-    logger.info(f"[VALIDATE] stnk_hits={stnk_hits}, motor_hits={motor_hits}, car_hits={car_hits}, total_words={total_words}")
+    logger.info(f"[VALIDATE] stnk_hits={stnk_hits}, motor_hits={motor_hits}, motor_soft_hits={motor_soft_hits}, car_hits={car_hits}, total_words={total_words}")
 
     # --- Strategy: err on the side of passing through to human admin ---
     # STNK Motor → flag as warning, NOT hard-reject; let human admin decide
-    if motor_hits >= 1 and car_hits == 0:
+    # Use hard keywords OR (soft keywords + confirmed STNK document)
+    is_motor = motor_hits >= 1 or (motor_soft_hits >= 1 and stnk_hits >= 1 and car_hits == 0)
+    if is_motor and car_hits == 0:
         return {
             "is_valid": True,   # Still pass through to dashboard
             "document_type": "motorcycle_stnk",
@@ -530,8 +552,22 @@ def extract_info_from_stnk(image_path: str):
     # Final fallback CC
     if not best_cc:
         best_cc = None  # Don't fake it — let admin know it wasn't found
-                
-    return best_plate, plate_conf, best_cc
+
+    # --- Detect document type from OCR text ---
+    # This serves as a fallback when validate_stnk_document misses it
+    motor_keywords_in_text = ["SEPEDA MOTOR", "RODA DUA", "SEPEDAMOTOR", "SPEDA MOTOR", "SEPEDA"]
+    car_keywords_in_text = ["MOBIL", "SEDAN", "MPV", "SUV", "MINIBUS", "STATION WAGON"]
+    detected_doc_type = None
+    m_hits = sum(1 for kw in motor_keywords_in_text if kw in all_text)
+    c_hits = sum(1 for kw in car_keywords_in_text if kw in all_text)
+    if m_hits > 0 and c_hits == 0:
+        detected_doc_type = "motorcycle_stnk"
+    elif c_hits > 0 and m_hits == 0:
+        detected_doc_type = "car_stnk"
+
+    logger.info(f"[EXTRACT] doc_type from text: {detected_doc_type} (motor={m_hits}, car={c_hits})")
+
+    return best_plate, plate_conf, best_cc, detected_doc_type
 
 def generate_qr_code(data: str, save_dir="static/qrcodes"):
     """Generate QR code and return the path."""

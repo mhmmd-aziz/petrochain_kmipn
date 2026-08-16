@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.petrochain.app.R
 import com.petrochain.app.data.model.VehicleData
 import com.petrochain.app.databinding.ItemVehicleBinding
@@ -32,58 +33,73 @@ class VehicleAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(vehicle: VehicleData) {
-            binding.tvPlateNumber.text = vehicle.plateNumber
-            binding.tvVehicleInfo.text = buildString {
+            val isApproved = vehicle.registrationStatus == "approved"
+            val hasImage = !vehicle.carImageUrl.isNullOrEmpty()
+
+            val vehicleName = buildString {
                 append(vehicle.brand ?: "")
                 if (vehicle.model != null) append(" ${vehicle.model}")
-            }
-            binding.tvVehicleType.text = when (vehicle.vehicleType) {
-                "car" -> "Mobil"
-                "motorcycle" -> "Motor"
-                "truck" -> "Truk"
-                "bus" -> "Bus"
-                else -> vehicle.vehicleType
-            }
+            }.trim().ifEmpty { "Kendaraan" }
 
-            // Status chip
-            val context = binding.root.context
-            when (vehicle.registrationStatus) {
-                "approved" -> {
-                    binding.chipStatus.text = "Disetujui"
-                    binding.chipStatus.setChipBackgroundColorResource(R.color.status_approved)
-                    binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    binding.btnShowQr.visible()
+            if (isApproved && hasImage) {
+                // Show large image card layout
+                binding.layoutApproved.visible()
+                binding.layoutSimple.gone()
+                
+                binding.tvApprovedTitle.text = vehicleName
+                binding.tvApprovedSubtitle.text = vehicle.plateNumber
+                
+                binding.ivCarBackground.load(vehicle.carImageUrl) {
+                    crossfade(true)
                 }
-                "pending", "pending_review", "ocr_processing" -> {
-                    binding.chipStatus.text = "Menunggu"
-                    binding.chipStatus.setChipBackgroundColorResource(R.color.status_pending)
-                    binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    binding.btnShowQr.gone()
-                }
-                "rejected" -> {
-                    binding.chipStatus.text = "Ditolak"
-                    binding.chipStatus.setChipBackgroundColorResource(R.color.status_rejected)
-                    binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    binding.btnShowQr.gone()
-                }
-                else -> {
-                    binding.chipStatus.text = "Belum Terdaftar"
-                    binding.chipStatus.setChipBackgroundColorResource(R.color.gray_400)
-                    binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    binding.btnShowQr.gone()
-                }
-            }
 
-            // Admin notes
-            if (!vehicle.adminNotes.isNullOrBlank()) {
-                binding.tvAdminNotes.visible()
-                binding.tvAdminNotes.text = "Catatan: ${vehicle.adminNotes}"
+                binding.root.setOnClickListener {
+                    onQrClick(vehicle)
+                }
             } else {
-                binding.tvAdminNotes.gone()
-            }
+                // Show simple list layout
+                binding.layoutApproved.gone()
+                binding.layoutSimple.visible()
 
-            binding.btnShowQr.setOnClickListener {
-                onQrClick(vehicle)
+                binding.tvSimpleTitle.text = vehicleName
+                binding.tvSimpleSubtitle.text = vehicle.plateNumber
+
+                val context = binding.root.context
+                when (vehicle.registrationStatus) {
+                    "approved" -> {
+                        binding.chipStatus.text = "Disetujui"
+                        binding.chipStatus.setChipBackgroundColorResource(R.color.status_approved)
+                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    "pending", "pending_review", "ocr_processing" -> {
+                        binding.chipStatus.text = "Menunggu"
+                        binding.chipStatus.setChipBackgroundColorResource(R.color.status_pending)
+                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    "rejected" -> {
+                        binding.chipStatus.text = "Ditolak"
+                        binding.chipStatus.setChipBackgroundColorResource(R.color.status_rejected)
+                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                    else -> {
+                        binding.chipStatus.text = "Belum Terdaftar"
+                        binding.chipStatus.setChipBackgroundColorResource(R.color.gray_400)
+                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
+                    }
+                }
+
+                if (!vehicle.adminNotes.isNullOrBlank()) {
+                    binding.tvAdminNotes.visible()
+                    binding.tvAdminNotes.text = "Catatan Admin: ${vehicle.adminNotes}"
+                } else {
+                    binding.tvAdminNotes.gone()
+                }
+
+                binding.root.setOnClickListener {
+                    if (isApproved) {
+                        onQrClick(vehicle)
+                    }
+                }
             }
         }
     }

@@ -97,12 +97,11 @@ class RegisterVehicleFragment : Fragment() {
     }
 
     private fun setupUI() {
-        // Vehicle type dropdown (Mobil only)
-        val types = arrayOf("Mobil")
-        val typeValues = arrayOf("car")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types)
-        binding.spinnerVehicleType.setAdapter(adapter)
-        binding.spinnerVehicleType.setText(types[0], false) // Set default
+
+        // Fuel type dropdown
+        val fuelTypes = arrayOf("Pertalite", "Bio Solar")
+        val fuelAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, fuelTypes)
+        binding.actvFuelType.setAdapter(fuelAdapter)
 
         // Camera / Gallery buttons
         binding.cardStnk.setOnClickListener {
@@ -116,10 +115,11 @@ class RegisterVehicleFragment : Fragment() {
         // Submit button
         binding.btnSubmit.setOnClickListener {
             val plateNumber = binding.etPlateNumber.text.toString().trim().uppercase()
-            val typeIndex = types.indexOf(binding.spinnerVehicleType.text.toString())
-            val vehicleType = if (typeIndex >= 0) typeValues[typeIndex] else ""
+            val vehicleType = "car"
             val brand = binding.etBrand.text.toString().trim()
             val model = binding.etModel.text.toString().trim()
+            val engineCapacity = binding.etEngineCapacity.text.toString().trim()
+            val fuelType = binding.actvFuelType.text.toString().trim()
 
             // Validation
             var isValid = true
@@ -128,10 +128,6 @@ class RegisterVehicleFragment : Fragment() {
                 isValid = false
             } else binding.tilPlateNumber.error = null
 
-            if (vehicleType.isEmpty()) {
-                binding.tilVehicleType.error = "Pilih tipe kendaraan"
-                isValid = false
-            } else binding.tilVehicleType.error = null
 
             if (brand.isEmpty()) {
                 binding.tilBrand.error = "Merek wajib diisi"
@@ -142,6 +138,17 @@ class RegisterVehicleFragment : Fragment() {
                 binding.tilModel.error = "Model wajib diisi"
                 isValid = false
             } else binding.tilModel.error = null
+
+            if (engineCapacity.isEmpty()) {
+                binding.tilEngineCapacity.error = "CC wajib diisi"
+                isValid = false
+            } else binding.tilEngineCapacity.error = null
+
+            if (fuelType.isEmpty()) {
+                binding.tilFuelType.error = "Pilih tipe bensin"
+                isValid = false
+            } else binding.tilFuelType.error = null
+
 
             if (viewModel.stnkImageFile == null) {
                 showToast("Ambil foto STNK terlebih dahulu")
@@ -154,7 +161,7 @@ class RegisterVehicleFragment : Fragment() {
             }
 
             if (isValid) {
-                viewModel.registerVehicle(plateNumber, vehicleType, brand, model)
+                viewModel.registerVehicle(plateNumber, vehicleType, brand, model, engineCapacity, fuelType)
             }
         }
     }

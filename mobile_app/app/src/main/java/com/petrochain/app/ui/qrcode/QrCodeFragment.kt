@@ -43,6 +43,12 @@ class QrCodeFragment : Fragment() {
                 crossfade(true)
                 error(android.R.drawable.ic_dialog_alert)
             }
+            binding.btnDownloadQr.visibility = View.VISIBLE
+            binding.btnDownloadQr.setOnClickListener {
+                downloadQrCode(qrCodeUrl, plateNumber)
+            }
+        } else {
+            binding.btnDownloadQr.visibility = View.GONE
         }
 
         // Increase brightness for QR scanning
@@ -55,6 +61,23 @@ class QrCodeFragment : Fragment() {
             previousBrightness = layoutParams.screenBrightness
             layoutParams.screenBrightness = brightness
             window.attributes = layoutParams
+        }
+    }
+
+    private fun downloadQrCode(url: String, plateNumber: String) {
+        try {
+            val request = android.app.DownloadManager.Request(android.net.Uri.parse(url))
+                .setTitle("QR_Code_$plateNumber.png")
+                .setDescription("Mengunduh QR Code $plateNumber")
+                .setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_PICTURES, "QR_Code_$plateNumber.png")
+
+            val downloadManager = requireContext().getSystemService(android.content.Context.DOWNLOAD_SERVICE) as android.app.DownloadManager
+            downloadManager.enqueue(request)
+            
+            android.widget.Toast.makeText(requireContext(), "Mulai mengunduh...", android.widget.Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(requireContext(), "Gagal mengunduh: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 

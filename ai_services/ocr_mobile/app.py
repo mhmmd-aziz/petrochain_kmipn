@@ -113,7 +113,7 @@ def process():
     car_file.save(car_path)
 
     # Process STNK
-    stnk_plate, stnk_conf, stnk_cc = extract_info_from_stnk(stnk_path)
+    stnk_plate, stnk_conf, stnk_cc, _ = extract_info_from_stnk(stnk_path)
     logger.info(f"STNK: {stnk_plate} (Conf: {stnk_conf}) CC: {stnk_cc}")
 
     # Process Car Image
@@ -221,11 +221,22 @@ def api_extract():
         })
 
     # Step 3: Extract plates and CC
-    stnk_plate, stnk_conf, stnk_cc = extract_info_from_stnk(stnk_path)
+    stnk_plate, stnk_conf, stnk_cc, extract_doc_type = extract_info_from_stnk(stnk_path)
     car_plate, car_conf = extract_plate_from_car(car_path)
     
-    logger.info(f"[API] STNK extracted: plate='{stnk_plate}' conf={stnk_conf:.3f} cc={stnk_cc}")
+    logger.info(f"[API] STNK extracted: plate='{stnk_plate}' conf={stnk_conf:.3f} cc={stnk_cc} doc={extract_doc_type}")
     logger.info(f"[API] CAR  extracted: plate='{car_plate}' conf={car_conf:.3f}")
+
+    # If validate_stnk_document returned unverified/unknown, use the doc type
+    # detected directly from extract_info OCR text as a more reliable fallback
+    final_doc_type = doc_validation['document_type']
+    if final_doc_type in ('unverified', 'unknown') and extract_doc_type:
+        logger.info(f"[API] Overriding doc_type from '{final_doc_type}' to '{extract_doc_type}' via extract fallback")
+        final_doc_type = extract_doc_type
+        # If we detected motorcycle via fallback, also set is_warning
+        if final_doc_type == 'motorcycle_stnk':
+            doc_validation['is_warning'] = True
+            doc_validation['validation_message'] = "Dokumen terdeteksi sebagai STNK Motor (bukan Mobil). Harap periksa manual sebelum menyetujui."
 
     if not stnk_plate and not car_plate:
         # Both failed — return honest error
@@ -265,8 +276,8 @@ def api_extract():
             "is_match": is_match,
             "conclusion": ai_conclusion,
             "document_valid": True,
-            "document_type": doc_validation['document_type'],
-            "validation_message": doc_validation['message'],
+            "document_type": final_doc_type,
+            "validation_message": doc_validation.get('validation_message', doc_validation.get('message', '')),
             "is_warning": doc_validation.get('is_warning', False),
             "car_detected_type": car_validation['detected_type']
         }

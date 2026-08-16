@@ -18,6 +18,7 @@ class Vehicle extends Model
         'color',
         'year',
         'engine_capacity_cc',
+        'fuel_type',
         'registration_status',
         'qr_code_path',
         'qr_code_token',

@@ -41,6 +41,8 @@ class VehicleRepository {
         vehicleType: String,
         brand: String,
         model: String,
+        engineCapacity: String,
+        fuelType: String,
         stnkImageFile: File,
         carImageFile: File
     ): Result<RegisterData> {
@@ -49,6 +51,8 @@ class VehicleRepository {
             val typeBody = vehicleType.toRequestBody("text/plain".toMediaTypeOrNull())
             val brandBody = brand.toRequestBody("text/plain".toMediaTypeOrNull())
             val modelBody = model.toRequestBody("text/plain".toMediaTypeOrNull())
+            val engineCapacityBody = engineCapacity.toRequestBody("text/plain".toMediaTypeOrNull())
+            val fuelTypeBody = fuelType.toRequestBody("text/plain".toMediaTypeOrNull())
 
             val stnkRequestBody = stnkImageFile.asRequestBody("image/*".toMediaTypeOrNull())
             val stnkPart = MultipartBody.Part.createFormData(
@@ -65,6 +69,8 @@ class VehicleRepository {
                 vehicleType = typeBody,
                 brand = brandBody,
                 model = modelBody,
+                engineCapacityCc = engineCapacityBody,
+                fuelType = fuelTypeBody,
                 stnkImage = stnkPart,
                 carImage = carPart
             )

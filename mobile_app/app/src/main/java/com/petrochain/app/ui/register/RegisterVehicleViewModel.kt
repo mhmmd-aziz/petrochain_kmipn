@@ -26,7 +26,9 @@ class RegisterVehicleViewModel : ViewModel() {
         plateNumber: String,
         vehicleType: String,
         brand: String,
-        model: String
+        model: String,
+        engineCapacity: String,
+        fuelType: String
     ) {
         val stnk = stnkImageFile
         val car = carImageFile
@@ -45,6 +47,8 @@ class RegisterVehicleViewModel : ViewModel() {
                 vehicleType = vehicleType,
                 brand = brand,
                 model = model,
+                engineCapacity = engineCapacity,
+                fuelType = fuelType,
                 stnkImageFile = stnk,
                 carImageFile = car
             )
