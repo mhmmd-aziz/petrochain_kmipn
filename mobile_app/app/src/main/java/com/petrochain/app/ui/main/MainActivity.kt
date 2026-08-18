@@ -46,6 +46,20 @@ class MainActivity : AppCompatActivity() {
             binding.bottomNavPublic.visibility = android.view.View.VISIBLE
             binding.bottomNavPublic.setupWithNavController(navController)
         }
+
+        // Hide bottom navigation on certain screens
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.qrCodeFragment,
+                R.id.scanQrFragment,
+                R.id.validateVehicleFragment -> {
+                    binding.bottomNavigationContainer.visibility = android.view.View.GONE
+                }
+                else -> {
+                    binding.bottomNavigationContainer.visibility = android.view.View.VISIBLE
+                }
+            }
+        }
     }
 
     fun logout() {

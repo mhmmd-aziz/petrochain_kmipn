@@ -78,12 +78,20 @@ class MyVehiclesFragment : Fragment() {
         }
         
         adapter.submitList(filteredList)
+        
+        // Don't show empty state if currently loading or there's an error
+        if (viewModel.isLoading.value == true || viewModel.error.value != null) return
+
         if (filteredList.isEmpty()) {
             binding.layoutEmpty.visible()
             binding.rvVehicles.gone()
+            binding.layoutError.gone()
+            binding.layoutLoading.gone()
         } else {
             binding.layoutEmpty.gone()
             binding.rvVehicles.visible()
+            binding.layoutError.gone()
+            binding.layoutLoading.gone()
         }
     }
 
@@ -105,10 +113,30 @@ class MyVehiclesFragment : Fragment() {
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.swipeRefresh.isRefreshing = isLoading
+            if (isLoading && viewModel.vehicles.value.isNullOrEmpty()) {
+                binding.layoutLoading.visible()
+                binding.layoutEmpty.gone()
+                binding.layoutError.gone()
+                binding.rvVehicles.gone()
+            } else if (!isLoading) {
+                binding.layoutLoading.gone()
+                updateList() // Refresh list state after loading finishes
+            }
         }
 
         viewModel.error.observe(viewLifecycleOwner) { error ->
-            error?.let { showToast(it) }
+            error?.let { 
+                showToast(it) 
+                if (viewModel.vehicles.value.isNullOrEmpty()) {
+                    binding.layoutError.visible()
+                    binding.tvErrorMessage.text = it
+                    binding.layoutEmpty.gone()
+                    binding.layoutLoading.gone()
+                    binding.rvVehicles.gone()
+                }
+            } ?: run {
+                binding.layoutError.gone()
+            }
         }
     }
 

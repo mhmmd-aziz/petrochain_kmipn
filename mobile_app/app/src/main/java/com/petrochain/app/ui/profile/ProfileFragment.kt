@@ -51,6 +51,13 @@ class ProfileFragment : Fragment() {
                 (activity as? MainActivity)?.logout()
             }
         }
+
+        val toastListener = View.OnClickListener {
+            android.widget.Toast.makeText(requireContext(), "Fitur ini akan segera hadir!", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        binding.btnEditProfile.setOnClickListener(toastListener)
+        binding.btnSecurity.setOnClickListener(toastListener)
+        binding.btnHelp.setOnClickListener(toastListener)
     }
 
     override fun onDestroyView() {

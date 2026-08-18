@@ -1,134 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background"
-    android:gravity="center_horizontal"
-    android:padding="24dp">
+    android:fillViewport="true"
+    android:background="@color/background">
 
-    <!-- Avatar Circle -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        app:cardCornerRadius="50dp"
-        app:cardElevation="4dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="24dp">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/primary">
-
-            <TextView
-                android:id="@+id/tvAvatarInitials"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="PC"
-                android:textSize="36sp"
-                android:textStyle="bold"
-                android:textColor="@color/white" />
-        </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- User Name -->
-    <TextView
-        android:id="@+id/tvUserName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nama Pengguna"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:layout_marginBottom="4dp" />
-
-    <!-- Email -->
-    <TextView
-        android:id="@+id/tvUserEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="email@example.com"
-        android:textSize="14sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Role Badge -->
-    <com.google.android.material.chip.Chip
-        android:id="@+id/tvUserRole"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Masyarakat"
-        android:textColor="@color/white"
-        app:chipBackgroundColor="@color/secondary"
-        app:chipCornerRadius="16dp"
-        app:chipMinTouchTargetSize="0dp"
-        android:layout_marginBottom="48dp" />
-
-    <!-- Info Card -->
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        android:layout_marginBottom="24dp">
+        android:orientation="vertical"
+        android:paddingBottom="100dp">
 
+        <!-- Header Area (Blue Background) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/primary"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingTop="56dp"
+            android:paddingBottom="48dp"
+            android:elevation="8dp">
+
+            <!-- Avatar Circle -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:cardCornerRadius="50dp"
+                app:cardElevation="12dp"
+                app:strokeWidth="4dp"
+                app:strokeColor="@color/white"
+                android:layout_marginBottom="16dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                    <TextView
+                        android:id="@+id/tvAvatarInitials"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="PC"
+                        android:textSize="36sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/primary" />
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- User Name -->
+            <TextView
+                android:id="@+id/tvUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nama Pengguna"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Email -->
+            <TextView
+                android:id="@+id/tvUserEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="email@example.com"
+                android:textSize="14sp"
+                android:textColor="#E0E0E0"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Role Badge -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tvUserRole"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Masyarakat"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                app:chipBackgroundColor="@color/white"
+                app:chipCornerRadius="16dp"
+                app:chipMinTouchTargetSize="0dp"
+                app:chipStrokeWidth="0dp" />
+
+        </LinearLayout>
+
+        <!-- Main Content Area -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Informasi Aplikasi"
+                android:text="Navigasi Menu"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="12dp" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Navigation Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="PETROCHAIN v1.0.0"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary" />
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/white">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Intelligent Verification Platform\nuntuk Distribusi BBM Bersubsidi"
-                android:textSize="13sp"
-                android:textColor="@color/text_hint"
-                android:layout_marginTop="4dp"
-                android:lineSpacingMultiplier="1.3" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Edit Profile -->
+                    <TextView
+                        android:id="@+id/btnEditProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="20dp"
+                        android:text="Edit Profil"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:drawableStartCompat="@android:drawable/ic_menu_edit"
+                        android:drawablePadding="16dp"
+                        app:drawableTint="@color/text_secondary" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/gray_200"
+                        android:layout_marginHorizontal="20dp" />
+
+                    <!-- Security -->
+                    <TextView
+                        android:id="@+id/btnSecurity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="20dp"
+                        android:text="Pengaturan Keamanan"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:drawableStartCompat="@android:drawable/ic_secure"
+                        android:drawablePadding="16dp"
+                        app:drawableTint="@color/text_secondary" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/gray_200"
+                        android:layout_marginHorizontal="20dp" />
+
+                    <!-- Help -->
+                    <TextView
+                        android:id="@+id/btnHelp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="20dp"
+                        android:text="Pusat Bantuan"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:drawableStartCompat="@android:drawable/ic_menu_help"
+                        android:drawablePadding="16dp"
+                        app:drawableTint="@color/text_secondary" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="32dp" />
+
+            <!-- Logout Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Keluar dari Akun"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/error"
+                app:backgroundTint="#FFF0F0"
+                app:cornerRadius="16dp"
+                app:elevation="0dp"
+                app:icon="@android:drawable/ic_lock_power_off"
+                app:iconTint="@color/error"
+                app:iconGravity="textStart" />
+
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <!-- Logout Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogout"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="Keluar"
-        android:textSize="16sp"
-        android:textAllCaps="false"
-        android:textColor="@color/error"
-        app:cornerRadius="12dp"
-        app:strokeColor="@color/error"
-        app:icon="@android:drawable/ic_lock_power_off"
-        app:iconTint="@color/error"
-        app:iconGravity="textStart"
-        android:layout_marginBottom="16dp" />
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

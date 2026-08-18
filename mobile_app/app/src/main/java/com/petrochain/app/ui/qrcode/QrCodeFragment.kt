@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import coil.load
 import com.petrochain.app.databinding.FragmentQrCodeBinding
 
@@ -38,14 +39,19 @@ class QrCodeFragment : Fragment() {
         binding.tvPlateNumber.text = plateNumber
         binding.tvVehicleInfo.text = "$brand $model".trim()
 
+        binding.btnBack.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         if (qrCodeUrl != null) {
             binding.ivQrCode.load(qrCodeUrl) {
                 crossfade(true)
+                allowHardware(false)
                 error(android.R.drawable.ic_dialog_alert)
             }
             binding.btnDownloadQr.visibility = View.VISIBLE
             binding.btnDownloadQr.setOnClickListener {
-                downloadQrCode(qrCodeUrl, plateNumber)
+                downloadQrCode(plateNumber)
             }
         } else {
             binding.btnDownloadQr.visibility = View.GONE
@@ -64,20 +70,43 @@ class QrCodeFragment : Fragment() {
         }
     }
 
-    private fun downloadQrCode(url: String, plateNumber: String) {
+    private fun downloadQrCode(plateNumber: String) {
         try {
-            val request = android.app.DownloadManager.Request(android.net.Uri.parse(url))
-                .setTitle("QR_Code_$plateNumber.png")
-                .setDescription("Mengunduh QR Code $plateNumber")
-                .setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_PICTURES, "QR_Code_$plateNumber.png")
+            val view = binding.exportableArea
+            // Ensure the view is laid out before capturing
+            if (view.width == 0 || view.height == 0) {
+                android.widget.Toast.makeText(requireContext(), "Menunggu tampilan siap...", android.widget.Toast.LENGTH_SHORT).show()
+                return
+            }
 
-            val downloadManager = requireContext().getSystemService(android.content.Context.DOWNLOAD_SERVICE) as android.app.DownloadManager
-            downloadManager.enqueue(request)
-            
-            android.widget.Toast.makeText(requireContext(), "Mulai mengunduh...", android.widget.Toast.LENGTH_SHORT).show()
+            val bitmap = android.graphics.Bitmap.createBitmap(view.width, view.height, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(bitmap)
+            // Ensure the blue background is drawn even if the LinearLayout assumes a transparent background on some devices
+            canvas.drawColor(android.graphics.Color.parseColor("#980F12")) // Primary color
+            view.draw(canvas)
+
+            val filename = "Kartu_QR_${System.currentTimeMillis()}_$plateNumber.png"
+            val contentValues = android.content.ContentValues().apply {
+                put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, filename)
+                put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                    put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_PICTURES + "/Petrochain")
+                }
+            }
+
+            val uri = requireContext().contentResolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            if (uri != null) {
+                requireContext().contentResolver.openOutputStream(uri).use { outputStream ->
+                    if (outputStream != null) {
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream)
+                    }
+                }
+                android.widget.Toast.makeText(requireContext(), "Kartu QR Code berhasil disimpan ke Galeri (Pictures/Petrochain)!", android.widget.Toast.LENGTH_LONG).show()
+            } else {
+                android.widget.Toast.makeText(requireContext(), "Gagal menyimpan gambar", android.widget.Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
-            android.widget.Toast.makeText(requireContext(), "Gagal mengunduh: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+            android.widget.Toast.makeText(requireContext(), "Gagal menyimpan: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -35,11 +35,13 @@ class HomeFragment : Fragment() {
         binding.tvWelcomeName.text = "Halo, ${viewModel.userName}!"
 
         binding.cardMyVehicles.setOnClickListener {
-            findNavController().navigate(R.id.myVehiclesFragment)
+            requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavPublic)
+                ?.selectedItemId = R.id.myVehiclesFragment
         }
 
         binding.cardRegister.setOnClickListener {
-            findNavController().navigate(R.id.registerVehicleFragment)
+            requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavPublic)
+                ?.selectedItemId = R.id.registerVehicleFragment
         }
     }
 
