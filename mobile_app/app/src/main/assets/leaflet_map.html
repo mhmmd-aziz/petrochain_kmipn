@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Leaflet Map</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { padding: 0; margin: 0; }
+        html, body, #map { height: 100%; width: 100vw; }
+        .leaflet-control-attribution { display: none !important; }
+        .custom-marker {
+            background-color: #980f12;
+            color: white;
+            border-radius: 50%;
+            border: 2px solid white;
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var map = L.map('map', { zoomControl: false }).setView([5.180, 97.150], 13);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        function setSpbus(spbuListJson) {
+            var spbus = JSON.parse(spbuListJson);
+            var coords = [
+                [5.180, 97.150],
+                [5.175, 97.145],
+                [5.185, 97.160],
+                [5.182, 97.155],
+                [5.178, 97.148]
+            ];
+            
+            spbus.forEach(function(spbu, index) {
+                var latlng = coords[index % coords.length];
+                
+                var icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: 'P',
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
+                });
+
+                L.marker(latlng, {icon: icon})
+                 .addTo(map)
+                 .bindPopup("<b>" + spbu.name + "</b><br>" + spbu.address);
+            });
+            
+            if(coords.length > 0) {
+                map.setView(coords[0], 14);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -18,6 +18,32 @@
         <action
             android:id="@+id/action_home_to_register"
             app:destination="@id/registerVehicleFragment" />
+        <action
+            android:id="@+id/action_home_to_map"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_home_to_detail"
+            app:destination="@id/spbuDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.petrochain.app.ui.home.MapFragment"
+        android:label="Cari SPBU"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_map_to_detail"
+            app:destination="@id/spbuDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/spbuDetailFragment"
+        android:name="com.petrochain.app.ui.home.SpbuDetailFragment"
+        android:label="Detail SPBU"
+        tools:layout="@layout/fragment_spbu_detail">
+        <argument
+            android:name="spbuJson"
+            app:argType="string" />
     </fragment>
 
     <fragment

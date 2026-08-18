@@ -234,8 +234,8 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                     },
                                                     {
                                                         label: 'Tipe Bensin',
-                                                        user: selectedApp.vehicle.fuel_type
-                                                            ? <span className="font-bold text-blue-700 bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-xs whitespace-nowrap uppercase">{selectedApp.vehicle.fuel_type}</span>
+                                                        user: (selectedApp.vehicle as any).fuel_type
+                                                            ? <span className="font-bold text-blue-700 bg-blue-100 border border-blue-200 px-2 py-0.5 rounded text-xs whitespace-nowrap uppercase">{(selectedApp.vehicle as any).fuel_type}</span>
                                                             : <span className="text-gray-400 text-xs whitespace-nowrap italic">tdk diinput</span>,
                                                         ai: <span className="text-gray-400 text-xs whitespace-nowrap">— tidak dicek</span>,
                                                     },

@@ -31,6 +31,13 @@ class User extends Authenticatable
         ];
     }
 
+    public function operator()
+    {
+        // Assuming Operator model doesn't exist yet, we can use relation via DB or create Operator model
+        // We will define it as hasOne on the 'operators' table
+        return $this->hasOne(\App\Models\Operator::class);
+    }
+
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class);

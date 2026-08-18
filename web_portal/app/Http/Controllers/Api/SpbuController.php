@@ -11,6 +11,18 @@ use Illuminate\Support\Facades\Log;
 class SpbuController extends Controller
 {
     /**
+     * Get list of active SPBUs with fuel stocks for mobile app homepage
+     */
+    public function publicList()
+    {
+        $spbus = \App\Models\Spbu::with('fuelStocks')->where('status', 'active')->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $spbus
+        ]);
+    }
+
+    /**
      * Validate QR Code from User's app
      * Expects qr_code string
      */

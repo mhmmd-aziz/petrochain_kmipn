@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F3F4F6">
+
+    <!-- Fullscreen Map -->
+    <WebView
+        android:id="@+id/fullscreenMap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Top App Bar Overlay -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbarMap"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_menu" 
+            app:title="Cari SPBU"
+            app:titleTextColor="#111827" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Bottom Sheet for Details -->
+    <LinearLayout
+        android:id="@+id/bottomSheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_sheet"
+        android:orientation="vertical"
+        android:padding="20dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="280dp">
+
+        <!-- Drag handle -->
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:background="#D1D5DB"
+            android:layout_marginBottom="16dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SPBU terdekat"
+                android:textColor="#111827"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="Lihat sebagai list"
+                android:textColor="#0047BA"
+                android:textSize="14sp" />
+        </RelativeLayout>
+
+        <!-- Filter Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:scrollbars="none">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                
+                <TextView
+                    android:id="@+id/chipFilterSemua"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Semua"
+                    android:background="@drawable/bg_badge_available"
+                    android:backgroundTint="#980f12"
+                    android:textColor="#FFFFFF"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+                    
+                <TextView
+                    android:id="@+id/chipFilterPertalite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pertalite"
+                    android:background="@drawable/bg_search_bar"
+                    android:textColor="#4B5563"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:id="@+id/chipFilterSolar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Solar"
+                    android:background="@drawable/bg_search_bar"
+                    android:textColor="#4B5563"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="8dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Selected SPBU Display -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMapSpbu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:clipToPadding="false"
+            android:paddingBottom="100dp"
+            android:nestedScrollingEnabled="true"
+            tools:listitem="@layout/item_spbu" />
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

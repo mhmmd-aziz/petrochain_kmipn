@@ -35,19 +35,19 @@ export default function AuditorTransactions({ transactions }: any) {
                                             {new Date(tx.transacted_at).toLocaleString('id-ID')}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 font-medium text-gray-700">{tx.spbu?.name || '-'}</td>
-                                    <td className="px-6 py-4 font-mono font-bold text-gray-900">
+                                    <td className="px-6 py-4 font-medium text-gray-700 whitespace-nowrap">{tx.spbu?.name || '-'}</td>
+                                    <td className="px-6 py-4 font-mono font-bold text-gray-900 whitespace-nowrap">
                                         {tx.plate_result}
                                     </td>
-                                    <td className="px-6 py-4 text-gray-700">
+                                    <td className="px-6 py-4 text-gray-700 whitespace-nowrap">
                                         {tx.fuel_type} <span className="text-gray-400 font-normal">({tx.volume}L)</span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold ${tx.qr_result === 'qr_match' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                             {tx.qr_result === 'qr_match' ? <><FiCheck/> Match</> : <><FiX/> Mismatch</>}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${
                                             tx.transaction_status === 'validated' ? 'bg-green-50 text-green-700' :
                                             tx.transaction_status === 'manual_review' ? 'bg-yellow-50 text-yellow-700' :

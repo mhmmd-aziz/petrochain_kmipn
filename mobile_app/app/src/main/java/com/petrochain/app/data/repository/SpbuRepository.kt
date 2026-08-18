@@ -18,6 +18,19 @@ class SpbuRepository {
 
     private val api = RetrofitClient.apiService
 
+    suspend fun getPublicSpbus(): Result<List<com.petrochain.app.data.model.Spbu>> {
+        return try {
+            val response = api.getPublicSpbus()
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                Result.success(response.body()!!.data ?: emptyList())
+            } else {
+                Result.failure(Exception(response.body()?.message ?: "Gagal memuat daftar SPBU"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Koneksi gagal: ${e.message}"))
+        }
+    }
+
     /**
      * Validate a scanned QR code against the database.
      * Returns vehicle data if the QR is valid and the vehicle is approved.

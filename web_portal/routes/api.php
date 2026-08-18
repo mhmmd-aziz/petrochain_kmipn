@@ -10,6 +10,9 @@ use App\Http\Controllers\Api\SpbuController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
+// Public endpoints
+Route::get('/public/spbus', [SpbuController::class, 'publicList']);
+
 // Protected routes (Requires Sanctum Token)
 Route::middleware('auth:sanctum')->group(function () {
     

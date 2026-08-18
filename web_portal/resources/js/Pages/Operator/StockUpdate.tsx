@@ -2,9 +2,26 @@ import React from 'react';
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { motion } from 'framer-motion';
-import { FiDroplet, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiDroplet, FiCheckCircle, FiAlertCircle, FiTrash2, FiPlus } from 'react-icons/fi';
+import { useState } from 'react';
 
 export default function OperatorStockUpdate({ spbu, stocks }: any) {
+    const allFuelTypes = [
+        { value: 'pertalite', label: 'Pertalite' },
+        { value: 'solar', label: 'Solar' },
+        { value: 'pertamax', label: 'Pertamax' },
+        { value: 'pertamax_turbo', label: 'Pertamax Turbo' },
+        { value: 'dex', label: 'Dex' },
+        { value: 'dexlite', label: 'Dexlite' }
+    ];
+    
+    // Filter available fuels
+    const existingFuels = stocks.map((s: any) => s.fuel_type);
+    const availableFuels = allFuelTypes.filter(f => !existingFuels.includes(f.value));
+
+    const [newFuelType, setNewFuelType] = useState(availableFuels.length > 0 ? availableFuels[0].value : '');
+    const [isAdding, setIsAdding] = useState(false);
+
     const updateStock = (stockId: number, status: string) => {
         router.post(route('operator.stock.update'), {
             stock_id: stockId,
@@ -14,15 +31,82 @@ export default function OperatorStockUpdate({ spbu, stocks }: any) {
         });
     };
 
+    const deleteStock = (stockId: number) => {
+        if (confirm('Apakah Anda yakin ingin menghapus jenis bahan bakar ini?')) {
+            router.delete(route('operator.stock.destroy', stockId), {
+                preserveScroll: true
+            });
+        }
+    };
+
+    const addStock = (e: React.FormEvent) => {
+        e.preventDefault();
+        router.post(route('operator.stock.store'), {
+            fuel_type: newFuelType,
+            status: 'available'
+        }, {
+            preserveScroll: true,
+            onSuccess: () => setIsAdding(false)
+        });
+    };
+
     return (
         <>
             <Head title={`Update Stok - ${spbu?.name || 'Operator'}`} />
 
             <div className="max-w-4xl mx-auto">
-                <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900">Manajemen Stok BBM</h2>
-                    <p className="text-gray-500 mt-1 text-sm">Perbarui ketersediaan stok BBM di SPBU Anda secara real-time.</p>
+                <div className="mb-8 flex justify-between items-center">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-900">Manajemen Stok BBM</h2>
+                        <p className="text-gray-500 mt-1 text-sm">Kelola daftar dan status ketersediaan stok BBM di SPBU Anda.</p>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            if (availableFuels.length > 0) {
+                                setNewFuelType(availableFuels[0].value);
+                            }
+                            setIsAdding(!isAdding);
+                        }}
+                        disabled={availableFuels.length === 0}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-colors ${
+                            availableFuels.length === 0 
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
+                    >
+                        <FiPlus /> {availableFuels.length === 0 ? 'Semua BBM Tersedia' : 'Tambah BBM'}
+                    </button>
                 </div>
+
+                {isAdding && (
+                    <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mb-8 p-6 bg-white rounded-2xl border border-gray-200 shadow-sm"
+                    >
+                        <h3 className="font-bold text-gray-900 mb-4">Tambah Jenis BBM Baru</h3>
+                        <form onSubmit={addStock} className="flex gap-4 items-end">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Bahan Bakar</label>
+                                <select 
+                                    value={newFuelType}
+                                    onChange={(e) => setNewFuelType(e.target.value)}
+                                    className="w-full rounded-xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                >
+                                    {availableFuels.map(fuel => (
+                                        <option key={fuel.value} value={fuel.value}>{fuel.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button type="submit" className="bg-green-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-green-700 transition-colors">
+                                Simpan
+                            </button>
+                            <button type="button" onClick={() => setIsAdding(false)} className="bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+                                Batal
+                            </button>
+                        </form>
+                    </motion.div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {stocks.map((stock: any, index: number) => (
@@ -49,7 +133,14 @@ export default function OperatorStockUpdate({ spbu, stocks }: any) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right flex flex-col items-end gap-2">
+                                    <button 
+                                        onClick={() => deleteStock(stock.id)}
+                                        className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                                        title="Hapus BBM"
+                                    >
+                                        <FiTrash2 size={18} />
+                                    </button>
                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                                         stock.status === 'available' ? 'bg-green-100 text-green-700' : 
                                         stock.status === 'empty' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'

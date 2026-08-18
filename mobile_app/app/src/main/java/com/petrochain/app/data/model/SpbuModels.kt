@@ -31,3 +31,28 @@ data class VehicleValidationData(
     @SerializedName("is_match") val isMatch: Boolean,
     @SerializedName("annotated_image") val annotatedImage: String?
 )
+
+/**
+ * Fuel Stock representation for an SPBU
+ */
+data class FuelStock(
+    @SerializedName("id") val id: Int,
+    @SerializedName("fuel_type") val fuelType: String,
+    @SerializedName("status") val status: String,
+    @SerializedName("last_updated_at") val lastUpdatedAt: String?
+)
+
+/**
+ * SPBU representation for public listing
+ */
+data class Spbu(
+    @SerializedName("id") val id: Int,
+    @SerializedName("code") val code: String,
+    @SerializedName("name") val name: String,
+    @SerializedName("address") val address: String,
+    @SerializedName("city") val city: String,
+    @SerializedName("image_url") val imageUrl: String?,
+    @SerializedName("latitude") val latitude: Double?,
+    @SerializedName("longitude") val longitude: Double?,
+    @SerializedName("fuel_stocks") val fuelStocks: List<FuelStock>?
+)

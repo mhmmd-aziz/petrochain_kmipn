@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Leaflet Fullscreen Map</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { padding: 0; margin: 0; }
+        html, body, #map { height: 100%; width: 100vw; }
+        .leaflet-control-attribution { display: none !important; }
+        
+        /* Red Gas Station Marker (MyPertamina style) */
+        .spbu-marker {
+            background-color: #EF4444; /* Red */
+            color: white;
+            border-radius: 50% 50% 50% 0; /* Teardrop shape */
+            transform: rotate(-45deg);
+            border: 2px solid white;
+            box-shadow: -2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .spbu-marker span {
+            transform: rotate(45deg); /* Keep text upright */
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* User Location Marker (Blue Dot) */
+        .user-marker {
+            background-color: #3B82F6; /* Blue */
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Custom padding to account for the Bottom Sheet at the bottom
+        var map = L.map('map', { zoomControl: false }).setView([5.180, 97.150], 13);
+        
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add dummy user location (Blue Dot)
+        var userIcon = L.divIcon({
+            className: 'user-marker',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+        L.marker([5.180, 97.150], {icon: userIcon}).addTo(map);
+
+        function setSpbus(spbuListJson) {
+            var spbus = JSON.parse(spbuListJson);
+            // Dummy coordinates surrounding user
+            var coords = [
+                [5.185, 97.155],
+                [5.172, 97.142],
+                [5.188, 97.140]
+            ];
+            
+            var bounds = L.latLngBounds([[5.180, 97.150]]); // Include user
+            
+            spbus.forEach(function(spbu, index) {
+                var latlng = coords[index % coords.length];
+                bounds.extend(latlng);
+                
+                var icon = L.divIcon({
+                    className: 'spbu-marker',
+                    html: '<span>P</span>',
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 36] // Anchor at the tip of the teardrop
+                });
+
+                var marker = L.marker(latlng, {icon: icon}).addTo(map);
+                
+                // MyPertamina style: When marker is clicked, open Android native detail screen
+                marker.on('click', function() {
+                    if (window.Android && window.Android.onMarkerClick) {
+                        window.Android.onMarkerClick(spbu.id);
+                    } else {
+                        // Fallback popup if not running in Android WebView
+                        marker.bindPopup("<b>" + spbu.name + "</b><br>" + spbu.address).openPopup();
+                    }
+                });
+            });
+            
+            // Adjust map view to fit all markers, with padding for the bottom sheet (approx 250px)
+            if(coords.length > 0) {
+                map.fitBounds(bounds, {
+                    paddingBottomRight: [0, 280], // Leave space for bottom sheet
+                    paddingTopLeft: [50, 50]
+                });
+            }
+        }
+    </script>
+</body>
+</html>

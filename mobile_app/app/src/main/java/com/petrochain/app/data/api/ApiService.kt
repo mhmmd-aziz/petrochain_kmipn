@@ -31,6 +31,9 @@ interface ApiService {
     // VEHICLE / REGISTRATION ENDPOINTS
     // ═══════════════════════════════════════
 
+    @GET("public/spbus")
+    suspend fun getPublicSpbus(): Response<ApiResponse<List<Spbu>>>
+
     @GET("my-vehicles")
     suspend fun getMyVehicles(): Response<ApiResponse<List<VehicleData>>>
 

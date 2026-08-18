@@ -32,22 +32,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [AdminRegistrationController::class, 'dashboard'])->name('dashboard');
         Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations');
         Route::post('/registrations/{id}/review', [AdminRegistrationController::class, 'review'])->name('registrations.review');
-        Route::get('/spbu', [FuelStockController::class, 'adminIndex'])->name('spbu');
+        Route::get('/spbu', [\App\Http\Controllers\SpbuController::class, 'index'])->name('spbu');
+        Route::post('/spbu', [\App\Http\Controllers\SpbuController::class, 'store'])->name('spbu.store');
+        Route::put('/spbu/{spbu}', [\App\Http\Controllers\SpbuController::class, 'update'])->name('spbu.update');
+        Route::delete('/spbu/{spbu}', [\App\Http\Controllers\SpbuController::class, 'destroy'])->name('spbu.destroy');
     });
 
     // Dummy resource routes for admin/operator to avoid 404
-    Route::get('/vehicles', function() {
-        return Inertia::render('Admin/Vehicles', [
-            'vehicles' => \App\Models\Vehicle::with('user')->get()
-        ]);
-    })->name('vehicles.index');
+    Route::get('/vehicles', [\App\Http\Controllers\VehicleController::class, 'index'])->name('vehicles.index');
+    Route::post('/vehicles', [\App\Http\Controllers\VehicleController::class, 'store'])->name('vehicles.store');
+    Route::put('/vehicles/{vehicle}', [\App\Http\Controllers\VehicleController::class, 'update'])->name('vehicles.update');
+    Route::delete('/vehicles/{vehicle}', [\App\Http\Controllers\VehicleController::class, 'destroy'])->name('vehicles.destroy');
 
-    Route::get('/users', function() {
-        if (request()->user()->role !== 'admin') abort(403);
-        return Inertia::render('Admin/Users', [
-            'users' => \App\Models\User::all()
-        ]);
-    })->name('users.index');
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::post('/users', [\App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/blockchain', function() {
         return Inertia::render('Admin/Blockchain', [
@@ -62,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/validation/process', [OperatorController::class, 'processValidation'])->name('validation.process');
         Route::get('/stock', [FuelStockController::class, 'operatorIndex'])->name('stock');
         Route::post('/stock/update', [FuelStockController::class, 'operatorUpdate'])->name('stock.update');
+        Route::post('/stock/add', [FuelStockController::class, 'operatorStore'])->name('stock.store');
+        Route::delete('/stock/{id}', [FuelStockController::class, 'operatorDestroy'])->name('stock.destroy');
     });
 
     // Auditor Routes

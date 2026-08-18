@@ -240,7 +240,7 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                             <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                                 <tr>
                                     {['Plat Nomor', 'SPBU', 'BBM', 'QR Check', 'Status', 'Waktu'].map((h) => (
-                                        <th key={h} className="px-6 py-4 font-semibold">{h}</th>
+                                        <th key={h} className="px-6 py-4 font-semibold whitespace-nowrap">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -253,12 +253,12 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                                         transition={{ delay: 0.4 + i * 0.06 }}
                                         className="hover:bg-gray-50/50 transition-colors"
                                     >
-                                        <td className="px-6 py-4 font-mono font-bold text-gray-900">{tx.plate_number}</td>
-                                        <td className="px-6 py-4 text-gray-600 font-medium">{tx.spbu_name}</td>
-                                        <td className="px-6 py-4 text-gray-500 capitalize">{tx.fuel_type}</td>
-                                        <td className="px-6 py-4">{qrBadge(tx.qr_result)}</td>
-                                        <td className="px-6 py-4">{statusBadge(tx.status)}</td>
-                                        <td className="px-6 py-4 text-gray-400 text-xs">{tx.transacted_at}</td>
+                                        <td className="px-6 py-4 font-mono font-bold text-gray-900 whitespace-nowrap">{tx.plate_number}</td>
+                                        <td className="px-6 py-4 text-gray-600 font-medium whitespace-nowrap">{tx.spbu_name}</td>
+                                        <td className="px-6 py-4 text-gray-500 capitalize whitespace-nowrap">{tx.fuel_type}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{qrBadge(tx.qr_result)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{statusBadge(tx.status)}</td>
+                                        <td className="px-6 py-4 text-gray-400 text-xs whitespace-nowrap">{tx.transacted_at}</td>
                                     </motion.tr>
                                 ))}
                             </tbody>

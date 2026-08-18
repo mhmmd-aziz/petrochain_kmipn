@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { motion } from 'framer-motion';
-import { FiCamera, FiCheck, FiX, FiRefreshCcw, FiAlertTriangle } from 'react-icons/fi';
+import { FiCamera, FiCheck, FiX, FiRefreshCcw, FiAlertTriangle, FiActivity } from 'react-icons/fi';
 
 export default function OperatorValidation({ spbu }: any) {
     const [step, setStep] = useState<1 | 2 | 3>(1);
