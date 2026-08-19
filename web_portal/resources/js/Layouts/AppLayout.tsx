@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FiHome, FiFileText, FiTruck, FiMapPin, 
     FiRepeat, FiLink, FiDatabase, FiUsers, 
-    FiMenu, FiX, FiLogOut 
+    FiMenu, FiX, FiLogOut, FiCpu
 } from 'react-icons/fi';
+import { FaMotorcycle } from 'react-icons/fa';
 
 interface Props {
     children: ReactNode;
@@ -31,7 +32,8 @@ const navItems = [
     { href: '/blockchain', label: 'Blockchain', icon: FiLink, roles: ['admin', 'auditor'] },
 
     // Operator features
-    { href: '/operator/validation', label: 'Validasi Kendaraan', icon: FiTruck, roles: ['operator'] },
+    { href: '/operator/validation', label: 'Validasi Kendaraan (QR)', icon: FiTruck, roles: ['operator'] },
+    { href: '/operator/validation-motor', label: 'Validasi Motor (AI)', icon: FaMotorcycle, roles: ['operator'] },
     { href: '/operator/stock', label: 'Update Stok BBM', icon: FiDatabase, roles: ['operator'] },
     { href: '/transactions', label: 'Riwayat Transaksi', icon: FiRepeat, roles: ['operator'] },
 
@@ -69,7 +71,7 @@ export default function AppLayout({ children, title }: Props) {
                         {/* Nav */}
                         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                             {visibleNavItems.map((item) => {
-                                const isActive = url.startsWith(item.href);
+                                const isActive = url === item.href || url.startsWith(item.href + '/');
                                 const Icon = item.icon;
                                 return (
                                     <Link

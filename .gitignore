@@ -2,6 +2,8 @@
 /dataset*/
 /uploads/
 /crops/
+/ai_services/klasifikasi_motor/static/uploads/
+/ai_services/klasifikasi_motor/static/results/
 
 # Python
 __pycache__/

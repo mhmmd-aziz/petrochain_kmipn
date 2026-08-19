@@ -59,6 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:operator'])->prefix('operator')->name('operator.')->group(function () {
         Route::get('/dashboard', [OperatorController::class, 'dashboard'])->name('dashboard');
         Route::get('/validation', [OperatorController::class, 'validation'])->name('validation');
+        Route::get('/validation-motor', [OperatorController::class, 'validationMotor'])->name('validation.motor');
         Route::post('/validation/process', [OperatorController::class, 'processValidation'])->name('validation.process');
         Route::get('/stock', [FuelStockController::class, 'operatorIndex'])->name('stock');
         Route::post('/stock/update', [FuelStockController::class, 'operatorUpdate'])->name('stock.update');

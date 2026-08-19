@@ -41,6 +41,16 @@ class OperatorController extends Controller
         ]);
     }
 
+    public function validationMotor(Request $request)
+    {
+        $operator = $request->user()->operatorProfile;
+        $spbu = $operator ? $operator->spbu : null;
+
+        return Inertia::render('Operator/ValidationMotor', [
+            'spbu' => $spbu
+        ]);
+    }
+
     public function processValidation(Request $request)
     {
         $request->validate([
