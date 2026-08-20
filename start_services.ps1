@@ -1,8 +1,8 @@
 # Script untuk menjalankan Blockchain Node, Web Portal, & 3 AI Service secara bersamaan
 
-$baseDir = "e:\KMIPN\AI\petrochain\ai_services"
-$blockchainDir = "e:\KMIPN\AI\petrochain\blockchain"
-$webDir = "e:\KMIPN\AI\petrochain\web_portal"
+$baseDir = "$PSScriptRoot\ai_services"
+$blockchainDir = "$PSScriptRoot\blockchain"
+$webDir = "$PSScriptRoot\web_portal"
 
 Write-Host "Menjalankan Web Portal (Laravel - Port 8000)..." -ForegroundColor Green
 Start-Process "cmd.exe" -ArgumentList "/c php artisan serve --host=0.0.0.0 --port=8000" -WorkingDirectory $webDir -WindowStyle Normal

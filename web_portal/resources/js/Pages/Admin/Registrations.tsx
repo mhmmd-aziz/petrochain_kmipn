@@ -16,6 +16,7 @@ interface Vehicle {
     brand: string;
     model: string;
     engine_capacity_cc: number;
+    fuel_type?: string;
 }
 
 interface Application {
