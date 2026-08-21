@@ -3,8 +3,8 @@
     <!-- Primary Palette -->
     <color name="primary">#980F12</color>
     <color name="primary_dark">#66090B</color>
-    <color name="primary_light">#FFE1E1</color>
-    <color name="primary_container">#FFDADB</color>
+    <color name="primary_light">#FFEBEE</color>
+    <color name="primary_container">#FFEBEE</color>
     <color name="on_primary_container">#410004</color>
 
     <!-- Secondary Palette -->
@@ -41,7 +41,7 @@
     <!-- Feedback -->
     <color name="error">#B3261E</color>
     <color name="success_bg">#E8F5E9</color>
-    <color name="error_bg">#F9DEDC</color>
+    <color name="error_bg">#FFEBEE</color>
 
     <!-- Ripple -->
     <color name="ripple_primary">#20980F12</color>

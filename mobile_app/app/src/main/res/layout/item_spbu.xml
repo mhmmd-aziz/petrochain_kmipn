@@ -5,12 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="8dp"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#F3F4F6"
     app:cardBackgroundColor="#FFFFFF"
-    app:strokeWidth="0dp"
     android:clickable="true"
     android:focusable="true">
 
@@ -29,13 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:src="@drawable/bg_placeholder" />
-
-            <!-- Dark gradient overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_card_gradient" />
+                android:src="@drawable/img_spbu_placeholder" />
 
             <!-- Status pill top-right -->
             <LinearLayout
@@ -43,97 +37,87 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|end"
                 android:layout_margin="12dp"
-                android:background="@drawable/bg_badge_available"
+                android:background="@drawable/bg_pill_green"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="5dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
                 android:orientation="horizontal">
 
-                <View
-                    android:layout_width="6dp"
-                    android:layout_height="6dp"
-                    android:background="@drawable/bg_notification_dot"
-                    android:backgroundTint="#22c55e"
-                    android:layout_marginEnd="5dp"/>
-
-                <TextView
-                    android:id="@+id/tvSpbuStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Aktif"
-                    android:textColor="#166534"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-medium"/>
-            </LinearLayout>
-
-            <!-- SPBU Name on image bottom-left -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:orientation="vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="12dp">
-
-                <TextView
-                    android:id="@+id/tvSpbuName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-bold"
-                    android:textColor="#FFFFFF"
-                    android:textSize="17sp"
-                    android:textStyle="bold"
-                    android:shadowColor="#AA000000"
-                    android:shadowDx="0"
-                    android:shadowDy="1"
-                    android:shadowRadius="4"
-                    tools:text="SPBU Utama Lhokseumawe" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="2dp">
-
                     <ImageView
-                        android:layout_width="12dp"
-                        android:layout_height="12dp"
-                        android:src="@drawable/ic_search"
-                        app:tint="#CCFFFFFF"
-                        android:layout_marginEnd="4dp"/>
+                        android:id="@+id/ivSpbuStatus"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/ic_check"
+                        app:tint="#10B981" />
 
                     <TextView
-                        android:id="@+id/tvSpbuAddress"
-                        android:layout_width="match_parent"
+                        android:id="@+id/tvSpbuStatus"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="12sp"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        tools:text="Jl. Merdeka No. 12, Lhokseumawe" />
-                </LinearLayout>
+                        android:text="Aktif"
+                        android:textColor="#10B981"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
             </LinearLayout>
         </FrameLayout>
 
-        <!-- Fuel Stocks Section -->
+        <!-- Details Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="14dp">
+            android:background="@android:color/white"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvSpbuName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#111827"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="SPBU Utama Lhokseumawe" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_location"
+                    app:tint="#6B7280"
+                    android:layout_marginEnd="4dp"/>
+
+                <TextView
+                    android:id="@+id/tvSpbuAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#6B7280"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="Jl. Merdeka No. 12, Lhokseumawe" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#F3F4F6"
+                android:layout_marginVertical="12dp"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Ketersediaan BBM"
+                android:text="Stok BBM Tersedia"
                 android:textColor="#374151"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <!-- Fuel Stocks Container -->
             <HorizontalScrollView

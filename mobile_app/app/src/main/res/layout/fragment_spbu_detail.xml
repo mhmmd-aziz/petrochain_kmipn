@@ -4,33 +4,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F4F6">
+    android:background="#F9FAFB">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="240dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:background="#980f12">
+        android:background="@color/primary">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="#980f12"
+            app:contentScrim="@color/primary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:toolbarId="@+id/toolbarDetail">
+            app:toolbarId="@+id/toolbarDetail"
+            app:expandedTitleTextColor="@android:color/white"
+            app:collapsedTitleTextColor="@android:color/white"
+            app:expandedTitleMarginBottom="20dp"
+            app:expandedTitleMarginStart="20dp">
 
             <ImageView
                 android:id="@+id/ivDetailBanner"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/bg_placeholder"
+                android:src="@drawable/img_spbu_placeholder"
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax" />
 
+            <!-- Dark gradient overlay for text legibility -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="#66000000"/>
+                android:background="@drawable/bg_card_gradient"/>
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbarDetail"
@@ -45,7 +50,9 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,12 +60,15 @@
             android:orientation="vertical"
             android:padding="20dp">
 
+            <!-- Main Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#E5E7EB"
+                app:cardBackgroundColor="@android:color/white">
                 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -75,43 +85,69 @@
                         android:textStyle="bold"
                         android:textColor="#111827"/>
                         
-                    <TextView
-                        android:id="@+id/tvDetailCode"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Kode: 123.45.67"
-                        android:textSize="14sp"
-                        android:textColor="#980f12"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp"/>
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="12dp">
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_assignment"
+                            app:tint="@color/primary"
+                            android:layout_marginEnd="8dp"/>
+                        <TextView
+                            android:id="@+id/tvDetailCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Kode: 123.45.67"
+                            android:textSize="14sp"
+                            android:textColor="@color/primary"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
                         
-                    <TextView
-                        android:id="@+id/tvDetailAddress"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Alamat lengkap SPBU"
-                        android:textSize="14sp"
-                        android:textColor="#4B5563"
-                        android:layout_marginTop="8dp"/>
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_location"
+                            app:tint="#6B7280"
+                            android:layout_marginEnd="8dp"
+                            android:layout_marginTop="2dp"/>
+                        <TextView
+                            android:id="@+id/tvDetailAddress"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Alamat lengkap SPBU"
+                            android:textSize="14sp"
+                            android:lineSpacingExtra="4dp"
+                            android:textColor="#4B5563"/>
+                    </LinearLayout>
                         
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="#E5E7EB"
-                        android:layout_marginVertical="16dp"/>
+                        android:background="#F3F4F6"
+                        android:layout_marginVertical="20dp"/>
                         
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ketersediaan Stok BBM"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="#111827"
+                        android:textColor="#374151"
                         android:layout_marginBottom="12dp"/>
                         
                     <HorizontalScrollView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clipToPadding="false"
                         android:scrollbars="none">
                         <LinearLayout
                             android:id="@+id/llDetailFuelStocks"
@@ -123,47 +159,214 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Dummy Fasilitas -->
+            <!-- Status Operasional Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#ECFDF5"
+                app:strokeWidth="1dp"
+                app:strokeColor="#A7F3D0">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_assignment"
+                        app:tint="#059669"/>
+                        
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Buka 24 Jam"
+                            android:textColor="#065F46"
+                            android:textSize="15sp"
+                            android:textStyle="bold"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Jadwal operasional normal"
+                            android:textColor="#047857"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Fasilitas & Layanan Tambahan -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Fasilitas"
-                android:textSize="18sp"
+                android:text="Fasilitas SPBU"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#111827"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginBottom="16dp"/>
                 
+            <!-- Row 1 Fasilitas -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:baselineAligned="false"
+                android:weightSum="3">
                 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Musala -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Musala"
-                    android:background="@drawable/bg_search_bar"
-                    android:textColor="#4B5563"
-                    app:drawableStartCompat="@android:drawable/ic_menu_myplaces"
-                    android:drawablePadding="6dp"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:layout_marginEnd="8dp"/>
-                    
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E5E7EB"
+                        app:cardBackgroundColor="@android:color/white">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_menu"
+                            app:tint="#6B7280"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Musala"
+                        android:textColor="#4B5563"
+                        android:textSize="12sp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Toilet -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Toilet"
-                    android:background="@drawable/bg_search_bar"
-                    android:textColor="#4B5563"
-                    app:drawableStartCompat="@android:drawable/ic_menu_info_details"
-                    android:drawablePadding="6dp"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="8dp"
-                    android:layout_marginEnd="8dp"/>
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E5E7EB"
+                        app:cardBackgroundColor="@android:color/white">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_assignment"
+                            app:tint="#6B7280"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Toilet"
+                        android:textColor="#4B5563"
+                        android:textSize="12sp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Minimarket -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E5E7EB"
+                        app:cardBackgroundColor="@android:color/white">
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_search"
+                            app:tint="#6B7280"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Minimarket"
+                        android:textColor="#4B5563"
+                        android:textSize="12sp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E5E7EB"
+                android:layout_marginVertical="24dp"/>
+
+            <!-- Bantuan Navigasi -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bantuan Navigasi"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#111827"
+                android:layout_marginBottom="12dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDirections"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Petunjuk Arah (Google Maps)"
+                android:textColor="#374151"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:backgroundTint="#FFFFFF"
+                app:strokeWidth="1dp"
+                app:strokeColor="#D1D5DB"
+                app:icon="@drawable/ic_location"
+                app:iconTint="#374151"
+                app:iconGravity="textStart"
+                app:elevation="0dp" />
+                
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnScanHere"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="Transaksi di SPBU Ini"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/primary"
+                app:icon="@drawable/ic_qr_code"
+                app:iconTint="#FFFFFF"
+                app:iconGravity="textStart"
+                app:elevation="0dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

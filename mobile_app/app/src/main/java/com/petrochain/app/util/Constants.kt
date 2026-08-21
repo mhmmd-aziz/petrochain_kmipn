@@ -6,7 +6,7 @@ package com.petrochain.app.util
  */
 object Constants {
     // Changed to local Wi-Fi IP since ADB reverse is unavailable in PATH
-    const val BASE_URL = "http://192.168.1.102:8000/api/"
+    const val BASE_URL = "http://192.168.1.147:8000/api/"
 
     // SharedPreferences keys
     const val PREFS_NAME = "petrochain_prefs"
