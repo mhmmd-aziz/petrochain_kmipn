@@ -295,7 +295,7 @@ class HomeFragment : Fragment() {
         })
 
         bannerRunnable = Runnable {
-            if (binding.vpBanner?.adapter != null) {
+            if (_binding != null && binding.vpBanner?.adapter != null) {
                 currentBannerPage = (currentBannerPage + 1) % bannerItems.size
                 binding.vpBanner?.setCurrentItem(currentBannerPage, true)
             }

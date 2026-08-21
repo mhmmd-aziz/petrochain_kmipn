@@ -70,6 +70,16 @@ class ScanQrFragment : Fragment() {
                 findNavController().navigate(R.id.validateVehicleFragment, bundle)
             }
         }
+
+        binding.btnNoQr.setOnClickListener {
+            val bundle = bundleOf(
+                "vehicle_id" to 0,
+                "plate_number" to "TANPA QR",
+                "brand" to "Pelanggan",
+                "model" to "Non-Subsidi Terdaftar"
+            )
+            findNavController().navigate(R.id.validateVehicleFragment, bundle)
+        }
     }
 
     private val barcodeCallback = object : BarcodeCallback {

@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // SPBU Operator Endpoints
     Route::post('/spbu/validate-qr', [SpbuController::class, 'validateQr']);
     Route::post('/spbu/validate-vehicle', [SpbuController::class, 'validateVehicle']);
+    Route::post('/spbu/submit-transaction', [SpbuController::class, 'submitTransaction']);
     
 });
 

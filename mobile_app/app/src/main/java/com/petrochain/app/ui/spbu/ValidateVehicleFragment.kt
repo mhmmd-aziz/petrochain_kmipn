@@ -80,18 +80,60 @@ class ValidateVehicleFragment : Fragment() {
         }
 
         observeViewModel()
+
+        binding.btnSubmitTransaction.setOnClickListener {
+            val volumeStr = binding.etVolume.text.toString()
+            val volume = volumeStr.toDoubleOrNull()
+            
+            if (volume == null || volume <= 0) {
+                showToast("Masukkan volume yang valid")
+                return@setOnClickListener
+            }
+
+            val fuelType = if (binding.rbPertalite.isChecked) "pertalite" else "solar"
+            
+            // Determine QR Result
+            var qrResult = "match"
+            if (vehicleId == 0) {
+                qrResult = "no_qr"
+            } else if (binding.tvMatchStatus.text.toString().contains("MISMATCH")) {
+                qrResult = "mismatch"
+            }
+
+            // Get plate result from UI
+            val plateResultText = binding.tvDetectedPlate.text.toString().replace("Plat Terdeteksi: ", "")
+            val plateResult = if (plateResultText.isNotBlank() && plateResultText != "-") plateResultText else null
+            
+            // Get confidence from UI (extract number)
+            val confStr = binding.tvConfidence.text.toString().replace(Regex("[^0-9.]"), "")
+            val conf = confStr.toDoubleOrNull()?.div(100.0)
+
+            val request = com.petrochain.app.data.model.SubmitTransactionRequest(
+                vehicleId = if (vehicleId > 0) vehicleId else null,
+                fuelType = fuelType,
+                volume = volume,
+                qrResult = qrResult,
+                plateResult = plateResult,
+                plateConfidence = conf
+            )
+
+            viewModel.submitTransaction(request)
+        }
     }
 
     private fun observeViewModel() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             binding.btnValidate.isEnabled = !isLoading && photoFile != null
             binding.btnValidate.text = if (isLoading) "Memvalidasi..." else "Validasi Kendaraan"
+            binding.btnSubmitTransaction.isEnabled = !isLoading
+            binding.btnSubmitTransaction.text = if (isLoading) "Memproses..." else "Simpan Transaksi & Potong Kuota"
             if (isLoading) binding.progressBar.visible() else binding.progressBar.gone()
         }
 
         viewModel.vehicleResult.observe(viewLifecycleOwner) { result ->
             result?.let {
                 binding.cardResult.visible()
+                binding.cardTransaction.visible() // Show transaction block
                 it.onSuccess { data ->
                     if (data.isMatch) {
                         binding.tvMatchStatus.text = "✅ COCOK (MATCH)"
@@ -125,15 +167,72 @@ class ValidateVehicleFragment : Fragment() {
                 }
             }
         }
+
+        viewModel.transactionResult.observe(viewLifecycleOwner) { result ->
+            result?.let {
+                it.onSuccess { data ->
+                    showToast("Transaksi Berhasil!")
+                    viewModel.clearResults()
+                    requireActivity().onBackPressedDispatcher.onBackPressed() // Go back
+                }
+                it.onFailure { error ->
+                    showToast(error.message ?: "Gagal memproses transaksi")
+                }
+            }
+        }
+    }
+
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            photoUri = uri
+            photoFile = uriToFile(uri)
+            if (photoFile != null) {
+                binding.ivVehiclePhoto.setImageURI(uri)
+                binding.ivVehiclePhoto.visible()
+                binding.tvPhotoPlaceholder.gone()
+                binding.btnValidate.isEnabled = true
+            } else {
+                showToast("Gagal memuat gambar dari galeri")
+            }
+        }
+    }
+
+    private fun uriToFile(uri: Uri): File? {
+        return try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val tempFile = File.createTempFile("GALLERY_${timeStamp}", ".jpg", requireContext().cacheDir)
+            tempFile.outputStream().use { output ->
+                inputStream?.copyTo(output)
+            }
+            tempFile
+        } catch (e: Exception) {
+            null
+        }
     }
 
     private fun checkCameraAndLaunch() {
-        when {
-            ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> launchCamera()
-            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        }
+        val options = arrayOf("Ambil Foto (Kamera)", "Pilih dari Galeri")
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Sumber Foto Plat Nomor")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        when {
+                            ContextCompat.checkSelfPermission(
+                                requireContext(), Manifest.permission.CAMERA
+                            ) == PackageManager.PERMISSION_GRANTED -> launchCamera()
+                            else -> requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
+                    1 -> {
+                        pickImageLauncher.launch("image/*")
+                    }
+                }
+            }
+            .show()
     }
 
     private fun launchCamera() {

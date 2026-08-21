@@ -52,4 +52,16 @@ class SpbuViewModel : ViewModel() {
         _vehicleResult.value = null
         currentQrData = null
     }
+
+    private val _transactionResult = MutableLiveData<Result<com.petrochain.app.data.model.TransactionData>>()
+    val transactionResult: LiveData<Result<com.petrochain.app.data.model.TransactionData>> = _transactionResult
+
+    fun submitTransaction(request: com.petrochain.app.data.model.SubmitTransactionRequest) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.submitTransaction(request)
+            _transactionResult.value = result
+            _isLoading.value = false
+        }
+    }
 }

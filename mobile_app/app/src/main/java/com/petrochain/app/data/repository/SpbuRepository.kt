@@ -78,4 +78,18 @@ class SpbuRepository {
             Result.failure(Exception("Koneksi gagal: ${e.message}"))
         }
     }
+
+    suspend fun submitTransaction(request: com.petrochain.app.data.model.SubmitTransactionRequest): Result<com.petrochain.app.data.model.TransactionData> {
+        return try {
+            val response = api.submitTransaction(request)
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                Result.success(response.body()!!.data!!)
+            } else {
+                val errorMsg = response.body()?.message ?: "Gagal memproses transaksi"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Koneksi gagal: ${e.message}"))
+        }
+    }
 }

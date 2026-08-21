@@ -1558,3 +1558,60 @@ The proposal states that the overall integration of OCR, YOLO, and Blockchain is
 kode warna dominan 
 #980f12
 
+Searched web: "aturan lengkap batas pengisian bbm subsidi pertalite solar mobil qr code mypertamina 2024 2026"
+
+Berikut adalah rangkuman **aturan resmi dan lengkap** terkait batas pengisian BBM bersubsidi untuk mobil menggunakan sistem QR Code (MyPertamina) yang berlaku saat ini (berdasarkan Keputusan Kepala BPH Migas terbaru):
+
+### 1. Batas Kuota Harian (Maksimal per Hari)
+**Untuk Pertalite (RON 90):**
+*   **Mobil Pribadi (Roda 4):** Maksimal **50 Liter** per hari.
+*   **Angkutan Umum (Roda 4):** Maksimal **50 Liter** per hari.
+*   **Pelayanan Umum (Ambulans, Pemadam, dll):** Maksimal **50 Liter** per hari.
+
+**Untuk Solar Subsidi (Biosolar):**
+*   **Mobil Pribadi (Roda 4):** Maksimal **50 Liter** per hari.
+*   **Angkutan Umum (Roda 4):** Maksimal **80 Liter** per hari.
+*   **Angkutan Umum/Barang (Roda 6 ke atas):** Maksimal **200 Liter** per hari.
+*   **Pelayanan Umum:** Maksimal **50 Liter** per hari.
+
+### 2. Aturan Tanpa QR Code
+Jika pengguna belum mendaftar atau tidak membawa QR Code, beberapa SPBU menerapkan kebijakan pembatasan darurat yaitu hanya boleh mengisi **maksimal 20 Liter per hari**, atau bahkan **ditolak sepenuhnya** (diarahkan untuk membeli BBM Non-Subsidi seperti Pertamax/Dexlite) tergantung dari kebijakan ketat di region SPBU tersebut.
+
+### 3. Konsekuensi Jika Melebihi Kuota
+Sistem MyPertamina dan Petrochain akan mencatat setiap tetes BBM yang keluar. Jika kuota 50 L tersebut sudah habis di satu SPBU, lalu mobil yang sama mencoba mengisi lagi di SPBU lain pada hari yang sama, maka **sistem akan mengunci dispenser** atau kelebihan pengisiannya otomatis akan **dihargai dengan tarif BBM Non-Subsidi** (harga normal tanpa bantuan pemerintah).
+
+### 4. Fakta Isu Pembatasan CC Mobil
+Sempat beredar isu bahwa mobil di atas 1.400 cc atau merek mewah tertentu dilarang membeli Pertalite. Namun secara resmi, **aturan pembatasan berbasis CC tersebut belum disahkan**. Saat ini pemerintah masih murni mengandalkan **pembatasan volume harian (50 Liter)** dan kewajiban pendaftaran ke sistem Subsidi Tepat untuk penyaringan datanya.
+
+---
+Itulah alasan mengapa UI kapsul indikator kita buat menjadi **50 Liter** untuk jenis mobil pribadi seperti Avanza—karena itu adalah cerminan batas akurat yang paling mutakhir di lapangan! 🚗⛽
+
+resmi diterapkan!
+
+Berdasarkan narasi proposal Anda tersebut, maka logika sistem kita menjadi sangat solid dan mengikat:
+
+Aturan Baku: Kendaraan roda empat dengan kapasitas mesin di atas 1.400 cc dilarang/tidak berhak menggunakan Pertalite.
+
+Filter Pendaftaran Pertalite: Dilarang untuk mobil bensin di atas 1.400 cc.
+
+**Oh, tentu saja ADA!** 😅
+
+Justru, kebijakan wajib menggunakan QR Code dari pemerintah itu **diterapkan pertama kali dan paling ketat untuk pengguna Biosolar (Solar Subsidi)**, jauh sebelum Pertalite! 
+
+Jadi, semua mobil diesel (Innova Diesel, Panther, Truk, Bus, dll) **WAJIB** punya QR Code untuk bisa beli Solar bersubsidi. 
+
+Perbedaannya dengan Pertalite bukanlah pada *punya atau tidak punya QR Code*, melainkan pada **syarat saat mendaftar** dan **batas maksimal hariannya**:
+
+1. **Untuk Pertalite (Bensin):**
+   * Syarat pendaftaran: (Di proposal kita) ditolak jika mesin >1.400 cc.
+   * Batas harian jika lolos dapat QR: **50 Liter/hari**.
+
+2. **Untuk Solar Subsidi (Diesel):**
+   * Syarat pendaftaran: Tidak ditolak berdasarkan CC, karena mesin diesel memang besar-besar (rata-rata 2.400 cc).
+   * Batas harian jika dapat QR: 
+     * **50 Liter/hari** (Mobil diesel pribadi).
+     * **80 Liter/hari** (Angkutan umum orang/barang roda 4).
+     * **200 Liter/hari** (Kendaraan roda 6 ke atas seperti truk/bus besar).
+
+**Kesimpulan:**
+Dua-duanya (Pertalite dan Solar) **SAMA-SAMA WAJIB pakai QR Code** di aplikasi Petrochain kita. Sistem pemotongan kuota harian di SPBU-nya pun sama persis. Bedanya murni cuma di "angka batas liter" dan "aturan saat pendaftaran STNK di awal" saja! 🚛⛽

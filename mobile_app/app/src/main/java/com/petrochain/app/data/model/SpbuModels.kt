@@ -56,3 +56,20 @@ data class Spbu(
     @SerializedName("longitude") val longitude: Double?,
     @SerializedName("fuel_stocks") val fuelStocks: List<FuelStock>?
 )
+
+data class SubmitTransactionRequest(
+    @SerializedName("vehicle_id") val vehicleId: Int?,
+    @SerializedName("fuel_type") val fuelType: String,
+    @SerializedName("volume") val volume: Double,
+    @SerializedName("qr_result") val qrResult: String,
+    @SerializedName("plate_result") val plateResult: String?,
+    @SerializedName("plate_confidence") val plateConfidence: Double?
+)
+
+data class TransactionData(
+    @SerializedName("id") val id: Int,
+    @SerializedName("vehicle_id") val vehicleId: Int?,
+    @SerializedName("fuel_type") val fuelType: String,
+    @SerializedName("volume") val volume: Double,
+    @SerializedName("transaction_status") val transactionStatus: String
+)

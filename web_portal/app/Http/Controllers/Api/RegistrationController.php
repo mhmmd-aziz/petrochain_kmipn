@@ -200,10 +200,10 @@ class RegistrationController extends Controller
             // should strictly represent the USER'S INPUT from the mobile app.
             $detectedCc = $aiResult['stnk_cc'] ?? null;
             
-            // Check Government Rule: Subsidized fuel only for <= 1400 CC
+            // Check Government Rule: Subsidized fuel only for <= 1400 CC (PERTALITE ONLY)
             $ccToValidate = $detectedCc ?: $vehicle->engine_capacity_cc;
-            if ($ccToValidate && intval($ccToValidate) > 1400) {
-                $ccWarning = "[AI WARNING] Kapasitas mesin " . $ccToValidate . " CC melebihi batas regulasi subsidi (maks 1400 CC). Kendaraan tidak berhak.";
+            if ($vehicle->fuel_type === 'pertalite' && $ccToValidate && intval($ccToValidate) > 1400) {
+                $ccWarning = "[AI WARNING] Kapasitas mesin " . $ccToValidate . " CC melebihi batas regulasi Pertalite (maks 1400 CC). Mohon tolak pengajuan ini.";
                 $existingNotes = $application->admin_notes;
                 
                 $application->update([
