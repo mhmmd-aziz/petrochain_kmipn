@@ -24,10 +24,19 @@ class SpbuController extends Controller
             'address' => 'required|string',
             'city' => 'required|string|max:255',
             'province' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
-        $spbu = Spbu::create($request->all());
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('spbu_images', 'public');
+        }
+
+        $spbu = Spbu::create($data);
 
         $fuelTypes = ['pertalite', 'solar', 'pertamax', 'pertamax_turbo', 'dex'];
         foreach ($fuelTypes as $type) {
@@ -50,10 +59,23 @@ class SpbuController extends Controller
             'address' => 'required|string',
             'city' => 'required|string|max:255',
             'province' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
-        $spbu->update($request->all());
+        $data = $request->except('image');
+
+        if ($request->hasFile('image')) {
+            // Optional: Delete old image if exists
+            // if ($spbu->image_path) {
+            //     \Illuminate\Support\Facades\Storage::disk('public')->delete($spbu->image_path);
+            // }
+            $data['image_path'] = $request->file('image')->store('spbu_images', 'public');
+        }
+
+        $spbu->update($data);
 
         return redirect()->back()->with('success', 'SPBU berhasil diperbarui.');
     }

@@ -44,7 +44,10 @@
     <div id="map"></div>
     <script>
         // Custom padding to account for the Bottom Sheet at the bottom
-        var map = L.map('map', { zoomControl: false }).setView([5.180, 97.150], 13);
+        var userLat = 5.104;
+        var userLng = 97.189;
+
+        var map = L.map('map', { zoomControl: false }).setView([userLat, userLng], 14);
         
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19
@@ -56,21 +59,42 @@
             iconSize: [20, 20],
             iconAnchor: [10, 10]
         });
-        L.marker([5.180, 97.150], {icon: userIcon}).addTo(map);
+        var userMarker = L.marker([userLat, userLng], {icon: userIcon}).addTo(map);
+
+        var spbuMarkers = [];
+
+        function setUserLocation(lat, lng) {
+            userLat = lat;
+            userLng = lng;
+            userMarker.setLatLng([lat, lng]);
+            map.setView([lat, lng]);
+        }
 
         function setSpbus(spbuListJson) {
             var spbus = JSON.parse(spbuListJson);
-            // Dummy coordinates surrounding user
+            // Dummy coordinates surrounding user (fallback)
             var coords = [
-                [5.185, 97.155],
-                [5.172, 97.142],
-                [5.188, 97.140]
+                [5.106, 97.192],
+                [5.099, 97.181],
+                [5.108, 97.185]
             ];
             
-            var bounds = L.latLngBounds([[5.180, 97.150]]); // Include user
+            // Clear old markers
+            spbuMarkers.forEach(function(m) {
+                map.removeLayer(m);
+            });
+            spbuMarkers = [];
+
+            var bounds = L.latLngBounds([[userLat, userLng]]); // Include user
             
             spbus.forEach(function(spbu, index) {
-                var latlng = coords[index % coords.length];
+                var latlng;
+                if (spbu.latitude && spbu.longitude) {
+                    latlng = [spbu.latitude, spbu.longitude];
+                } else {
+                    latlng = coords[index % coords.length];
+                }
+                
                 bounds.extend(latlng);
                 
                 var icon = L.divIcon({
@@ -81,6 +105,7 @@
                 });
 
                 var marker = L.marker(latlng, {icon: icon}).addTo(map);
+                spbuMarkers.push(marker);
                 
                 // MyPertamina style: When marker is clicked, open Android native detail screen
                 marker.on('click', function() {

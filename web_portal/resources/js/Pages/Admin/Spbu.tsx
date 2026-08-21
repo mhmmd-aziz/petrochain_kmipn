@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { FiMapPin, FiCheckCircle, FiAlertCircle, FiDroplet, FiPlus, FiEdit2, FiTrash2, FiX, FiSearch, FiFilter } from 'react-icons/fi';
+import { FiMapPin, FiCheckCircle, FiAlertCircle, FiDroplet, FiPlus, FiEdit2, FiTrash2, FiX, FiSearch, FiImage } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import LoadingOverlay from '@/Components/LoadingOverlay';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix leaflet icon
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+function MapEvents({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) {
+    useMapEvents({
+        click(e) {
+            onLocationSelect(e.latlng.lat, e.latlng.lng);
+        },
+    });
+    return null;
+}
 
 export default function AdminSpbu({ spbus }: any) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,18 +31,40 @@ export default function AdminSpbu({ spbus }: any) {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
-    const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
+    const { data, setData, post, delete: destroy, processing, errors, reset, clearErrors } = useForm<any>({
         code: '',
         name: '',
         address: '',
         city: '',
         province: '',
-        status: 'active'
+        status: 'active',
+        latitude: -6.200000,
+        longitude: 106.816666,
+        image: null,
+        _method: 'post'
     });
 
     const openAddModal = () => {
         setEditingSpbu(null);
         reset();
+        
+        // Auto-generate realistic SPBU code (Format: 14.201.XXX)
+        const randomSequence = Math.floor(100 + Math.random() * 899).toString().padStart(3, '0');
+        const generatedCode = `14.201.${randomSequence}`;
+        
+        setData({
+            code: generatedCode,
+            name: '',
+            address: '',
+            city: '',
+            province: '',
+            status: 'active',
+            latitude: -6.200000,
+            longitude: 106.816666,
+            image: null,
+            _method: 'post'
+        });
+        
         clearErrors();
         setIsModalOpen(true);
     };
@@ -35,7 +77,11 @@ export default function AdminSpbu({ spbus }: any) {
             address: spbu.address,
             city: spbu.city,
             province: spbu.province,
-            status: spbu.status
+            status: spbu.status,
+            latitude: spbu.latitude ? parseFloat(spbu.latitude) : -6.200000,
+            longitude: spbu.longitude ? parseFloat(spbu.longitude) : 106.816666,
+            image: null,
+            _method: 'put'
         });
         clearErrors();
         setIsModalOpen(true);
@@ -48,12 +94,14 @@ export default function AdminSpbu({ spbus }: any) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
         if (editingSpbu) {
-            put(route('admin.spbu.update', editingSpbu.id), {
+            post(route('admin.spbu.update', editingSpbu.id), {
                 onSuccess: () => {
                     closeModal();
                     Swal.fire({ title: 'Berhasil!', text: 'Data SPBU berhasil diperbarui.', icon: 'success', confirmButtonColor: '#980f12' });
                 },
+                forceFormData: true
             });
         } else {
             post(route('admin.spbu.store'), {
@@ -61,6 +109,7 @@ export default function AdminSpbu({ spbus }: any) {
                     closeModal();
                     Swal.fire({ title: 'Berhasil!', text: 'SPBU baru berhasil ditambahkan.', icon: 'success', confirmButtonColor: '#980f12' });
                 },
+                forceFormData: true
             });
         }
     };
@@ -187,9 +236,13 @@ export default function AdminSpbu({ spbus }: any) {
                         {/* Left Side: SPBU Details */}
                         <div className="flex-1">
                             <div className="flex items-center gap-3.5 mb-3">
-                                <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#980f12] flex items-center justify-center text-xl shadow-2xs flex-shrink-0">
-                                    <FiMapPin />
-                                </div>
+                                {spbu.image_url ? (
+                                    <img src={spbu.image_url} alt={spbu.name} className="w-16 h-16 rounded-2xl object-cover shadow-sm flex-shrink-0 border border-gray-100" />
+                                ) : (
+                                    <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#980f12] flex items-center justify-center text-xl shadow-2xs flex-shrink-0">
+                                        <FiMapPin />
+                                    </div>
+                                )}
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-extrabold text-lg sm:text-xl text-gray-900">{spbu.name}</h3>
@@ -264,12 +317,12 @@ export default function AdminSpbu({ spbus }: any) {
             {/* Modal Tambah/Edit SPBU */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/70">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200 max-h-[95vh] flex flex-col">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/70 shrink-0">
                             <h3 className="text-base font-extrabold text-gray-900">{editingSpbu ? 'Edit Data SPBU' : 'Tambah SPBU Baru'}</h3>
                             <button onClick={closeModal} className="text-gray-400 hover:text-gray-700 p-1 rounded-lg"><FiX size={20}/></button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs overflow-y-auto">
                             <div>
                                 <label className="block font-bold text-gray-700 mb-1">Kode SPBU (Misal: 31.123.01)</label>
                                 <input type="text" value={data.code} onChange={e => setData('code', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20" required />
@@ -299,13 +352,43 @@ export default function AdminSpbu({ spbus }: any) {
                             </div>
                             <div>
                                 <label className="block font-bold text-gray-700 mb-1">Status Operasional</label>
-                                <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20 font-semibold">
-                                    <option value="active">🟢 Aktif (Melayani)</option>
-                                    <option value="inactive">🔴 Non-Aktif (Tutup/Maintenance)</option>
+                                <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full border-gray-200 rounded-xl py-2.5 pl-3 pr-10 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20 font-semibold appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat">
+                                    <option value="active">Aktif (Melayani)</option>
+                                    <option value="inactive">Non-Aktif (Tutup/Maintenance)</option>
                                 </select>
                             </div>
                             
-                            <div className="mt-6 flex justify-end gap-2.5 pt-4 border-t border-gray-100">
+                            <div className="border-t border-gray-100 pt-4 mt-2">
+                                <label className="block font-bold text-gray-700 mb-2">Koordinat Peta</label>
+                                <p className="text-gray-500 text-[10px] mb-2">Geser peta atau klik pada lokasi untuk menentukan koordinat SPBU.</p>
+                                <div className="h-48 rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0 relative">
+                                    <MapContainer center={[data.latitude, data.longitude]} zoom={13} style={{ height: '100%', width: '100%', zIndex: 0 }}>
+                                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                        <Marker position={[data.latitude, data.longitude]} />
+                                        <MapEvents onLocationSelect={(lat, lng) => { setData('latitude', lat); setData('longitude', lng); }} />
+                                    </MapContainer>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 mt-2">
+                                    <div>
+                                        <label className="text-[10px] font-semibold text-gray-500">Latitude</label>
+                                        <input type="number" step="any" value={data.latitude} onChange={e => setData('latitude', parseFloat(e.target.value))} className="w-full border-gray-200 rounded-lg p-1.5 text-xs" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-semibold text-gray-500">Longitude</label>
+                                        <input type="number" step="any" value={data.longitude} onChange={e => setData('longitude', parseFloat(e.target.value))} className="w-full border-gray-200 rounded-lg p-1.5 text-xs" />
+                                    </div>
+                                </div>
+                                {errors.latitude && <p className="text-red-500 text-[11px] mt-1">{errors.latitude}</p>}
+                                {errors.longitude && <p className="text-red-500 text-[11px] mt-1">{errors.longitude}</p>}
+                            </div>
+
+                            <div className="border-t border-gray-100 pt-4 mt-2">
+                                <label className="block font-bold text-gray-700 mb-2">Gambar SPBU (Opsional)</label>
+                                <input type="file" accept="image/*" onChange={e => setData('image', e.target.files ? e.target.files[0] : null)} className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100" />
+                                {errors.image && <p className="text-red-500 text-[11px] mt-1">{errors.image}</p>}
+                            </div>
+                            
+                            <div className="sticky bottom-0 bg-white mt-6 flex justify-end gap-2.5 pt-4 border-t border-gray-100 pb-2">
                                 <button type="button" onClick={closeModal} className="px-4 py-2 font-bold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">Batal</button>
                                 <button type="submit" disabled={processing} className="px-5 py-2 font-bold text-white bg-[#980f12] hover:bg-red-800 rounded-xl transition-colors disabled:opacity-50 shadow-md">
                                     {processing ? 'Menyimpan...' : 'Simpan Data SPBU'}

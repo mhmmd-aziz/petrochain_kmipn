@@ -9,10 +9,23 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
+import android.os.Handler
+import android.os.Looper
+import android.widget.ImageView
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.petrochain.app.R
 import com.petrochain.app.databinding.FragmentHomeBinding
 import com.petrochain.app.databinding.ItemSpbuBinding
+import coil.load
+
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 class HomeFragment : Fragment() {
 
@@ -20,6 +33,23 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
     private var currentFilter = "Semua"
+
+    private val bannerHandler = Handler(Looper.getMainLooper())
+    private var bannerRunnable: Runnable? = null
+    private var currentBannerPage = 0
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var userLat: Double = 5.104
+    private var userLng: Double = 97.189
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+            if (fineLocationGranted || coarseLocationGranted) {
+                getLastLocation()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,14 +61,48 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
         setupUI()
         setupFilters()
         observeViewModel()
+        
+        checkLocationPermission()
         viewModel.loadSpbus()
+    }
+
+    private fun checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getLastLocation()
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                userLat = location.latitude
+                userLng = location.longitude
+                viewModel.spbus.value?.let { updateUIWithData(it) }
+            }
+        }
     }
 
     private fun setupUI() {
         binding.tvWelcomeName.text = "Selamat datang, ${viewModel.userName}"
+        setupBanner()
 
         binding.btnCariSpbu?.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_map)
@@ -67,13 +131,9 @@ class HomeFragment : Fragment() {
 
     private fun applyFilter(filter: String) {
         currentFilter = filter
-        
-        // Update UI styling for chips
         updateChipStyle(binding.chipFilterSemua, filter == "Semua")
         updateChipStyle(binding.chipFilterPertalite, filter == "Pertalite")
         updateChipStyle(binding.chipFilterSolar, filter == "Solar")
-
-        // Re-trigger observer logic to apply filter
         viewModel.spbus.value?.let { updateUIWithData(it) }
     }
 
@@ -97,7 +157,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateUIWithData(spbuList: List<com.petrochain.app.data.model.Spbu>) {
-        val filteredList = if (currentFilter == "Semua") {
+        val filteredList = (if (currentFilter == "Semua") {
             spbuList
         } else {
             spbuList.filter { spbu ->
@@ -105,6 +165,14 @@ class HomeFragment : Fragment() {
                     it.fuelType.equals(currentFilter, ignoreCase = true) && 
                     (it.status == "available" || it.status == "limited") 
                 } == true
+            }
+        }).sortedBy { spbu ->
+            if (spbu.latitude != null && spbu.longitude != null) {
+                val results = FloatArray(1)
+                android.location.Location.distanceBetween(userLat, userLng, spbu.latitude, spbu.longitude, results)
+                results[0]
+            } else {
+                Float.MAX_VALUE
             }
         }
 
@@ -114,7 +182,25 @@ class HomeFragment : Fragment() {
             val spbuBinding = ItemSpbuBinding.bind(binding.includedSpbu.root)
 
             spbuBinding.tvSpbuName.text = nearestSpbu.name
-            spbuBinding.tvSpbuAddress.text = nearestSpbu.address
+            
+            if (nearestSpbu.latitude != null && nearestSpbu.longitude != null && userLat != 0.0 && userLng != 0.0) {
+                val results = FloatArray(1)
+                android.location.Location.distanceBetween(userLat, userLng, nearestSpbu.latitude, nearestSpbu.longitude, results)
+                val distanceKm = results[0] / 1000f
+                spbuBinding.tvSpbuAddress.text = "${String.format("%.1f", distanceKm)} km • ${nearestSpbu.address}"
+            } else {
+                spbuBinding.tvSpbuAddress.text = nearestSpbu.address
+            }
+
+            if (!nearestSpbu.imageUrl.isNullOrEmpty()) {
+                spbuBinding.ivSpbuImage.load(nearestSpbu.imageUrl) {
+                    crossfade(true)
+                    placeholder(R.drawable.img_spbu_placeholder)
+                    error(R.drawable.img_spbu_placeholder)
+                }
+            } else {
+                spbuBinding.ivSpbuImage.setImageResource(R.drawable.img_spbu_placeholder)
+            }
 
             spbuBinding.llFuelStocks.removeAllViews()
             nearestSpbu.fuelStocks?.forEach { stock ->
@@ -188,8 +274,65 @@ class HomeFragment : Fragment() {
         else -> status.replaceFirstChar { it.uppercase() }
     }
 
+    private fun setupBanner() {
+        val bannerItems = listOf(
+            BannerItem("Layanan Cerdas\nUntuk Kendaraan", "Terintegrasi Blockchain\nPetrochain Network", R.drawable.img_banner_illustration),
+            BannerItem("Ekosistem\nPintar", "Jaringan Kendaraan Cerdas\nPetrochain Project", R.drawable.img_banner_motorcycle)
+        )
+        val adapter = HomeBannerAdapter(bannerItems)
+        binding.vpBanner?.adapter = adapter
+
+        setupDotIndicators(bannerItems.size)
+
+        binding.vpBanner?.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                updateDotIndicators(position, bannerItems.size)
+                currentBannerPage = position
+                bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
+                bannerRunnable?.let { bannerHandler.postDelayed(it, 4000) }
+            }
+        })
+
+        bannerRunnable = Runnable {
+            if (binding.vpBanner?.adapter != null) {
+                currentBannerPage = (currentBannerPage + 1) % bannerItems.size
+                binding.vpBanner?.setCurrentItem(currentBannerPage, true)
+            }
+        }
+        bannerRunnable?.let { bannerHandler.postDelayed(it, 4000) }
+    }
+
+    private fun setupDotIndicators(count: Int) {
+        val dots = arrayOfNulls<ImageView>(count)
+        binding.layoutDots?.removeAllViews()
+        for (i in 0 until count) {
+            dots[i] = ImageView(requireContext())
+            dots[i]?.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.bg_dot))
+            
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            params.setMargins(8, 0, 8, 0)
+            binding.layoutDots?.addView(dots[i], params)
+        }
+    }
+
+    private fun updateDotIndicators(position: Int, count: Int) {
+        for (i in 0 until count) {
+            val imageView = binding.layoutDots?.getChildAt(i) as? ImageView
+            if (i == position) {
+                imageView?.alpha = 1.0f
+            } else {
+                imageView?.alpha = 0.5f
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        bannerRunnable?.let { bannerHandler.removeCallbacks(it) }
         _binding = null
     }
 }

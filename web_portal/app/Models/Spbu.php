@@ -20,7 +20,18 @@ class Spbu extends Model
         'latitude',
         'longitude',
         'status',
+        'image_path',
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image_path) {
+            return asset('storage/' . $this->image_path);
+        }
+        return null;
+    }
 
     public function operators()
     {

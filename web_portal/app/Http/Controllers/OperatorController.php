@@ -21,12 +21,21 @@ class OperatorController extends Controller
             ->take(5)
             ->get();
 
+        $todayTransactions = Transaction::where('spbu_id', $spbu ? $spbu->id : null)
+            ->whereDate('transacted_at', now()->toDateString())
+            ->count();
+            
+        $qrScanned = Transaction::where('spbu_id', $spbu ? $spbu->id : null)
+            ->whereDate('transacted_at', now()->toDateString())
+            ->where('qr_result', 'qr_match')
+            ->count();
+
         return Inertia::render('Operator/Dashboard', [
             'spbu' => $spbu,
             'recent_transactions' => $recentTransactions,
             'stats' => [
-                'today_transactions' => 45, // Dummy stats
-                'qr_scanned' => 50,
+                'today_transactions' => $todayTransactions,
+                'qr_scanned' => $qrScanned,
             ]
         ]);
     }

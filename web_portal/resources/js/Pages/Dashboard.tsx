@@ -58,6 +58,10 @@ interface RecentTransaction {
 interface Props {
     stats: Stats;
     recent_transactions: RecentTransaction[];
+    chart_data?: {
+        labels: string[];
+        data: number[];
+    };
 }
 
 const StatCard = ({
@@ -178,29 +182,29 @@ const chartOptions = {
     },
 };
 
-const chartData = {
-    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-    datasets: [
-        {
-            fill: true,
-            label: 'Transaksi Divalidasi',
-            data: [120, 190, 150, 220, 180, 250, 210],
-            borderColor: '#980f12',
-            backgroundColor: 'rgba(152, 15, 18, 0.08)',
-            tension: 0.4,
-            borderWidth: 3,
-            pointBackgroundColor: '#980f12',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        },
-    ],
-};
-
-export default function Dashboard({ stats = defaultStats, recent_transactions = defaultTransactions }: Partial<Props>) {
+export default function Dashboard({ stats = defaultStats, recent_transactions = defaultTransactions, chart_data }: Partial<Props>) {
     const s = stats ?? defaultStats;
     const transactions = recent_transactions ?? defaultTransactions;
+
+    const dynamicChartData = {
+        labels: chart_data?.labels ?? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+        datasets: [
+            {
+                fill: true,
+                label: 'Transaksi Divalidasi',
+                data: chart_data?.data ?? [120, 190, 150, 220, 180, 250, 210],
+                borderColor: '#980f12',
+                backgroundColor: 'rgba(152, 15, 18, 0.08)',
+                tension: 0.4,
+                borderWidth: 3,
+                pointBackgroundColor: '#980f12',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            },
+        ],
+    };
 
     return (
         <div className="space-y-8">
@@ -296,7 +300,7 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                         </div>
                     </div>
                     <div className="h-64 w-full pt-2">
-                        <Line options={chartOptions} data={chartData} />
+                        <Line options={chartOptions} data={dynamicChartData} />
                     </div>
                 </motion.div>
 

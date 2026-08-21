@@ -13,11 +13,15 @@ import com.petrochain.app.data.model.Spbu
 
 class SpbuAdapter(
     private var spbuList: List<Spbu>,
+    private var userLat: Double = 0.0,
+    private var userLng: Double = 0.0,
     private val onItemClick: ((Spbu) -> Unit)? = null
 ) : RecyclerView.Adapter<SpbuAdapter.SpbuViewHolder>() {
 
-    fun updateData(newList: List<Spbu>) {
-        spbuList = newList
+    fun updateData(newList: List<Spbu>, lat: Double, lng: Double) {
+        this.spbuList = newList
+        this.userLat = lat
+        this.userLng = lng
         notifyDataSetChanged()
     }
 
@@ -28,7 +32,7 @@ class SpbuAdapter(
 
     override fun onBindViewHolder(holder: SpbuViewHolder, position: Int) {
         val spbu = spbuList[position]
-        holder.bind(spbu)
+        holder.bind(spbu, userLat, userLng)
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(spbu)
         }
@@ -42,9 +46,17 @@ class SpbuAdapter(
         private val tvAddress: TextView = itemView.findViewById(R.id.tvSpbuAddress)
         private val llFuelStocks: LinearLayout = itemView.findViewById(R.id.llFuelStocks)
 
-        fun bind(spbu: Spbu) {
+        fun bind(spbu: Spbu, userLat: Double, userLng: Double) {
             tvName.text = spbu.name
-            tvAddress.text = spbu.address
+            
+            if (spbu.latitude != null && spbu.longitude != null && userLat != 0.0 && userLng != 0.0) {
+                val results = FloatArray(1)
+                android.location.Location.distanceBetween(userLat, userLng, spbu.latitude, spbu.longitude, results)
+                val distanceKm = results[0] / 1000f
+                tvAddress.text = "${String.format("%.1f", distanceKm)} km • ${spbu.address}"
+            } else {
+                tvAddress.text = spbu.address
+            }
 
             if (!spbu.imageUrl.isNullOrEmpty()) {
                 ivSpbuImage.load(spbu.imageUrl) {

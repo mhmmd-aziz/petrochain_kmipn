@@ -48,7 +48,7 @@ const navItems: NavItem[] = [
     { href: '/transactions', label: 'Riwayat Transaksi', icon: FiRepeat, roles: ['operator'], section: 'OPERASIONAL' },
 
     // Auditor features
-    { href: '/auditor/transactions', label: 'Audit Transaksi', icon: FiShield, roles: ['auditor'], section: 'PENGAWASAN' },
+    { href: '/transactions', label: 'Audit Transaksi', icon: FiShield, roles: ['auditor'], section: 'PENGAWASAN' },
 ];
 
 const roleBadgeConfig: Record<string, { label: string; bg: string; text: string; border: string }> = {

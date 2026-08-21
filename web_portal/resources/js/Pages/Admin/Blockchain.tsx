@@ -23,6 +23,15 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
         setTimeout(() => setCopiedHash(null), 2000);
     };
 
+    React.useEffect(() => {
+        // Auto-verify ALL transactions on page load to prove real-time audit
+        transactions.forEach(tx => {
+            if (!verificationStatus[tx.id]) {
+                verifyTransaction(tx);
+            }
+        });
+    }, [transactions]);
+
     const verifyTransaction = async (tx: any) => {
         setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'loading' } }));
         try {
@@ -55,11 +64,10 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
             }
         } catch (error) {
             console.error("Verification error:", error);
-            // Simulate verified status for demo when local RPC node is standby
-            const calculatedMockHash = `0x${tx.plate_result?.replace(/\s/g, '').toLowerCase() || '7f2a'}a4e98f023b9cd41e${tx.id}88301`;
+            // Since it's a real Web3 implementation, if it fails to fetch from RPC or reverts (not found), show error/tampered
             setVerificationStatus(prev => ({ 
                 ...prev, 
-                [tx.id]: { status: 'matched', onChainHash: tx.blockchain_reference || calculatedMockHash } 
+                [tx.id]: { status: 'error' } 
             }));
         }
     };
@@ -409,7 +417,7 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                                         ? 'bg-blue-100 text-blue-800'
                                                         : currentStatus === 'matched'
                                                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                                        : currentStatus === 'tampered'
+                                                        : currentStatus === 'tampered' || currentStatus === 'error' || currentStatus === 'not_found'
                                                         ? 'bg-rose-50 text-rose-800 border border-rose-200'
                                                         : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200'
                                                 }`}
@@ -420,6 +428,8 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                                     <span className="text-emerald-700 flex items-center gap-1.5"><FiCheckCircle /> Hash Valid (Match)</span>
                                                 ) : currentStatus === 'tampered' ? (
                                                     <span className="text-rose-700 flex items-center gap-1.5"><FiAlertTriangle /> Dimanipulasi!</span>
+                                                ) : currentStatus === 'error' || currentStatus === 'not_found' ? (
+                                                    <span className="text-rose-700 flex items-center gap-1.5"><FiAlertTriangle /> Tidak Valid / Data Kosong</span>
                                                 ) : (
                                                     <><FiShield /> Cek Integritas On-Chain</>
                                                 )}

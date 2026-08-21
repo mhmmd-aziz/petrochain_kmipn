@@ -11,14 +11,30 @@ class AdminRegistrationController extends Controller
 {
     public function dashboard()
     {
+        $totalTx = \App\Models\Transaction::count();
+        $matchTx = \App\Models\Transaction::where('qr_result', 'qr_match')->count();
+        $qrMatchRate = $totalTx > 0 ? round(($matchTx / $totalTx) * 100, 1) : 100;
+
+        $chartLabels = [];
+        $chartData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = today()->subDays($i);
+            $chartLabels[] = $date->translatedFormat('D');
+            $chartData[] = \App\Models\Transaction::whereDate('transacted_at', $date)->count();
+        }
+
         return Inertia::render('Dashboard', [
             'stats' => [
                 'total_spbu' => \App\Models\Spbu::count(),
                 'daily_transactions' => \App\Models\Transaction::whereDate('transacted_at', today())->count(),
                 'pending_registrations' => \App\Models\RegistrationApplication::where('status', 'pending_review')->count(),
                 'registered_vehicles' => \App\Models\Vehicle::where('registration_status', 'approved')->count(),
-                'qr_match_rate' => 96.4,
+                'qr_match_rate' => $qrMatchRate,
                 'active_operators' => \App\Models\Operator::where('status', 'active')->count(),
+            ],
+            'chart_data' => [
+                'labels' => $chartLabels,
+                'data' => $chartData
             ],
             'recent_transactions' => \App\Models\Transaction::with('spbu')->latest('transacted_at')->take(5)->get()->map(function($tx) {
                 return [

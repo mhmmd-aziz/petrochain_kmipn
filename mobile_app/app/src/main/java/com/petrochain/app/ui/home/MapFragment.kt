@@ -19,6 +19,13 @@ import com.petrochain.app.R
 import com.petrochain.app.databinding.FragmentMapBinding
 import com.petrochain.app.data.model.Spbu
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+
 class MapFragment : Fragment() {
 
     private var _binding: FragmentMapBinding? = null
@@ -26,6 +33,19 @@ class MapFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var spbuAdapter: SpbuAdapter
     private var currentFilter = "Semua"
+    
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var userLat: Double = 5.104
+    private var userLng: Double = 97.189
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+            if (fineLocationGranted || coarseLocationGranted) {
+                getLastLocation()
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,6 +58,8 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
         binding.toolbarMap.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -46,7 +68,38 @@ class MapFragment : Fragment() {
         setupMap()
         setupFilters()
         observeViewModel()
+        
+        checkLocationPermission()
         viewModel.loadSpbus()
+    }
+
+    private fun checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            getLastLocation()
+        } else {
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            if (location != null) {
+                userLat = location.latitude
+                userLng = location.longitude
+                binding.fullscreenMap.evaluateJavascript("javascript:setUserLocation($userLat, $userLng);", null)
+                viewModel.spbus.value?.let { updateUIWithData(it) }
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -68,13 +121,9 @@ class MapFragment : Fragment() {
 
     private fun applyFilter(filter: String) {
         currentFilter = filter
-        
-        // Update UI styling for chips
         updateChipStyle(binding.chipFilterSemua, filter == "Semua")
         updateChipStyle(binding.chipFilterPertalite, filter == "Pertalite")
         updateChipStyle(binding.chipFilterSolar, filter == "Solar")
-
-        // Re-trigger observer logic to apply filter
         viewModel.spbus.value?.let { updateUIWithData(it) }
     }
 
@@ -97,10 +146,7 @@ class MapFragment : Fragment() {
         webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
         webView.settings.domStorageEnabled = true
         webView.webViewClient = WebViewClient()
-        
-        // Expose a bridge to JS
         webView.addJavascriptInterface(WebAppInterface(), "Android")
-        
         webView.loadUrl("file:///android_asset/leaflet_fullscreen.html")
     }
 
@@ -108,7 +154,6 @@ class MapFragment : Fragment() {
         @JavascriptInterface
         fun onMarkerClick(spbuId: Int) {
             activity?.runOnUiThread {
-                // Find SPBU by ID
                 val clickedSpbu = viewModel.spbus.value?.find { it.id == spbuId }
                 if (clickedSpbu != null) {
                     val bundle = Bundle().apply {
@@ -127,7 +172,7 @@ class MapFragment : Fragment() {
     }
 
     private fun updateUIWithData(spbuList: List<Spbu>) {
-        val filteredList = if (currentFilter == "Semua") {
+        val filteredList = (if (currentFilter == "Semua") {
             spbuList
         } else {
             spbuList.filter { spbu ->
@@ -136,9 +181,17 @@ class MapFragment : Fragment() {
                     (it.status == "available" || it.status == "limited") 
                 } == true
             }
+        }).sortedBy { spbu ->
+            if (spbu.latitude != null && spbu.longitude != null) {
+                val results = FloatArray(1)
+                android.location.Location.distanceBetween(userLat, userLng, spbu.latitude, spbu.longitude, results)
+                results[0]
+            } else {
+                Float.MAX_VALUE
+            }
         }
 
-        spbuAdapter.updateData(filteredList)
+        spbuAdapter.updateData(filteredList, userLat, userLng)
         val jsonSpbus = Gson().toJson(filteredList)
         binding.fullscreenMap.evaluateJavascript("javascript:setSpbus('$jsonSpbus');", null)
     }

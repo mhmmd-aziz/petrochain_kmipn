@@ -62,59 +62,21 @@
                     android:layout_centerVertical="true"/>
             </RelativeLayout>
 
-            <!-- Banner Card -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Banner Carousel -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpBanner"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:layout_marginHorizontal="20dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/primary"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="8dp" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/ivBanner">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Layanan Cerdas\nUntuk Kendaraan"
-                            android:textColor="#FFFFFF"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Terintegrasi Blockchain\nPetrochain Network"
-                            android:textColor="#E5E7EB"
-                            android:textSize="12sp"
-                            android:layout_marginTop="8dp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:id="@+id/ivBanner"
-                        android:layout_width="160dp"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/img_banner_illustration"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent" />
-                        
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <!-- Dot Indicators -->
+            <LinearLayout
+                android:id="@+id/layoutDots"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp" />
 
             <TextView
                 android:layout_width="match_parent"
