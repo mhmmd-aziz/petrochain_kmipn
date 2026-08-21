@@ -16,6 +16,9 @@ Route::get('/', function () {
 
 // Public Stock View
 Route::get('/public-stock', [FuelStockController::class, 'publicIndex'])->name('public.stock');
+Route::get('/stock', function () {
+    return redirect()->route('public.stock');
+});
 
 Route::middleware(['auth'])->group(function () {
     // Redirect /dashboard based on role

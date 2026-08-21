@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
-import { FiMapPin, FiCheckCircle, FiAlertCircle, FiDroplet, FiPlus, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
+import { FiMapPin, FiCheckCircle, FiAlertCircle, FiDroplet, FiPlus, FiEdit2, FiTrash2, FiX, FiSearch, FiFilter } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 import LoadingOverlay from '@/Components/LoadingOverlay';
 
 export default function AdminSpbu({ spbus }: any) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingSpbu, setEditingSpbu] = useState<any>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         code: '',
@@ -82,141 +84,240 @@ export default function AdminSpbu({ spbus }: any) {
         });
     };
 
+    const filteredSpbus = spbus.filter((spbu: any) => {
+        const matchesSearch = 
+            spbu.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            spbu.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            spbu.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            spbu.province.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        if (!matchesSearch) return false;
+        if (statusFilter === 'active') return spbu.status === 'active';
+        if (statusFilter === 'inactive') return spbu.status !== 'active';
+        return true;
+    });
+
     return (
-        <>
-            <Head title="Manajemen SPBU" />
+        <div className="space-y-6">
+            <Head title="Manajemen SPBU - Admin" />
             <LoadingOverlay isVisible={processing} text="Menyimpan data SPBU..." />
 
-            <div className="mb-8 flex items-center justify-between">
+            {/* Header & Add Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Manajemen SPBU</h2>
-                    <p className="text-gray-500 mt-1 text-sm">Pantau daftar SPBU terdaftar dan status stok BBM.</p>
+                    <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Manajemen SPBU</h2>
+                    <p className="text-gray-500 mt-1 text-sm">Pantau daftar SPBU terdaftar, operator dispenser, dan status stok BBM real-time.</p>
                 </div>
-                <button onClick={openAddModal} className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition flex items-center gap-2 text-sm">
-                    <FiPlus /> Tambah SPBU
+                <button 
+                    onClick={openAddModal} 
+                    className="bg-[#980f12] text-white px-5 py-2.5 rounded-2xl font-bold hover:bg-red-800 transition flex items-center justify-center gap-2 text-xs shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+                >
+                    <FiPlus size={16} /> Tambah SPBU Baru
                 </button>
             </div>
 
+            {/* Search & Filter Toolbar */}
+            <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2 bg-gray-100/80 p-1 rounded-2xl">
+                    <button
+                        onClick={() => setStatusFilter('all')}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                            statusFilter === 'all' ? 'bg-white text-[#980f12] shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                    >
+                        Semua ({spbus.length})
+                    </button>
+                    <button
+                        onClick={() => setStatusFilter('active')}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                            statusFilter === 'active' ? 'bg-white text-emerald-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                    >
+                        Aktif ({spbus.filter((s: any) => s.status === 'active').length})
+                    </button>
+                    <button
+                        onClick={() => setStatusFilter('inactive')}
+                        className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                            statusFilter === 'inactive' ? 'bg-white text-red-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                    >
+                        Non-Aktif ({spbus.filter((s: any) => s.status !== 'active').length})
+                    </button>
+                </div>
+
+                <div className="relative w-full sm:w-72">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                        <FiSearch size={16} />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Cari nama, kode, atau kota SPBU..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-3.5 py-2 text-xs rounded-xl border border-gray-200 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#980f12]/20 focus:border-[#980f12] transition-all"
+                    />
+                </div>
+            </div>
+
+            {/* SPBU Cards Grid */}
             <div className="grid grid-cols-1 gap-6">
-                {spbus.map((spbu: any) => (
-                    <div key={spbu.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col md:flex-row gap-6 relative group">
-                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => openEditModal(spbu)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100" title="Edit"><FiEdit2 /></button>
-                            <button onClick={() => handleDelete(spbu)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100" title="Hapus"><FiTrash2 /></button>
+                {filteredSpbus.map((spbu: any) => (
+                    <div 
+                        key={spbu.id} 
+                        className="bg-white rounded-3xl border border-gray-100 hover:border-red-200 shadow-xs hover:shadow-lg transition-all duration-300 p-6 flex flex-col lg:flex-row gap-6 relative group"
+                    >
+                        {/* Action Buttons Top Right */}
+                        <div className="absolute top-5 right-5 flex gap-1.5">
+                            <button 
+                                onClick={() => openEditModal(spbu)} 
+                                className="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors shadow-2xs" 
+                                title="Edit SPBU"
+                            >
+                                <FiEdit2 size={15} />
+                            </button>
+                            <button 
+                                onClick={() => handleDelete(spbu)} 
+                                className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors shadow-2xs" 
+                                title="Hapus SPBU"
+                            >
+                                <FiTrash2 size={15} />
+                            </button>
                         </div>
+
+                        {/* Left Side: SPBU Details */}
                         <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-10 h-10 rounded-full bg-red-50 text-[#980f12] flex items-center justify-center">
-                                    <FiMapPin size={20} />
+                            <div className="flex items-center gap-3.5 mb-3">
+                                <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#980f12] flex items-center justify-center text-xl shadow-2xs flex-shrink-0">
+                                    <FiMapPin />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-xl text-gray-900">{spbu.name}</h3>
-                                    <div className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded inline-block mt-1">Kode: {spbu.code}</div>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-extrabold text-lg sm:text-xl text-gray-900">{spbu.name}</h3>
+                                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                            spbu.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                        }`}>
+                                            {spbu.status === 'active' ? 'Aktif' : 'Non-Aktif'}
+                                        </span>
+                                    </div>
+                                    <div className="text-xs font-mono bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-md inline-block mt-1 font-semibold">
+                                        Kode: {spbu.code}
+                                    </div>
                                 </div>
                             </div>
-                            <p className="text-gray-500 text-sm mb-4">{spbu.address}, {spbu.city}, {spbu.province}</p>
+                            
+                            <p className="text-gray-600 text-xs sm:text-sm mb-4 leading-relaxed">
+                                {spbu.address}, {spbu.city}, {spbu.province}
+                            </p>
                             
                             <div className="mb-2">
-                                <span className="text-sm font-semibold text-gray-700">Operator Bertugas:</span>
+                                <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Operator Bertugas:</span>
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {spbu.operators?.length > 0 ? spbu.operators.map((op: any) => (
-                                    <span key={op.id} className="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-100">
-                                        {op.user?.name}
+                                    <span key={op.id} className="text-xs font-semibold bg-blue-50 text-blue-800 px-3 py-1.5 rounded-xl border border-blue-200">
+                                        👤 {op.user?.name}
                                     </span>
                                 )) : (
-                                    <span className="text-xs text-gray-400 italic">Belum ada operator</span>
+                                    <span className="text-xs text-gray-400 italic bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-100">
+                                        Belum ada operator terdaftar
+                                    </span>
                                 )}
                             </div>
                         </div>
                         
-                        <div className="flex-1 bg-gray-50 rounded-xl p-4 border border-gray-100">
-                            <h4 className="font-bold text-sm text-gray-700 mb-3 flex items-center gap-2">
-                                <FiDroplet className="text-gray-400" /> Status Stok BBM
-                            </h4>
-                            <div className="space-y-2">
-                                {spbu.fuel_stocks?.length > 0 ? spbu.fuel_stocks.map((stock: any) => (
-                                    <div key={stock.id} className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm text-sm">
-                                        <span className="font-semibold text-gray-800 capitalize">{stock.fuel_type.replace('_', ' ')}</span>
-                                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold ${
-                                            stock.status === 'available' ? 'bg-green-100 text-green-700' : 
-                                            stock.status === 'empty' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'
-                                        }`}>
-                                            {stock.status === 'available' ? <FiCheckCircle size={12}/> : <FiAlertCircle size={12}/>}
-                                            {stock.status === 'available' ? 'Tersedia' : stock.status === 'empty' ? 'Habis' : 'Terbatas'}
-                                        </span>
-                                    </div>
-                                )) : (
-                                    <p className="text-sm text-gray-500 italic text-center py-4">Data stok tidak tersedia.</p>
-                                )}
+                        {/* Right Side: Fuel Stock Status */}
+                        <div className="lg:w-80 bg-gray-50/80 rounded-2xl p-4 border border-gray-100 flex flex-col justify-between">
+                            <div>
+                                <h4 className="font-extrabold text-xs text-gray-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <FiDroplet className="text-[#980f12]" /> Status Stok Tangki BBM
+                                </h4>
+                                <div className="space-y-2">
+                                    {spbu.fuel_stocks?.length > 0 ? spbu.fuel_stocks.map((stock: any) => (
+                                        <div key={stock.id} className="flex items-center justify-between bg-white p-2.5 rounded-xl border border-gray-100 shadow-2xs text-xs">
+                                            <span className="font-bold text-gray-800 capitalize">{stock.fuel_type.replace('_', ' ')}</span>
+                                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold ${
+                                                stock.status === 'available' ? 'bg-emerald-100 text-emerald-800' : 
+                                                stock.status === 'empty' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                            }`}>
+                                                {stock.status === 'available' ? <FiCheckCircle size={12}/> : <FiAlertCircle size={12}/>}
+                                                {stock.status === 'available' ? 'Tersedia' : stock.status === 'empty' ? 'Habis' : 'Menipis'}
+                                            </span>
+                                        </div>
+                                    )) : (
+                                        <p className="text-xs text-gray-400 italic text-center py-4">Data stok tangki belum diisi.</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
                 ))}
 
-                {spbus.length === 0 && (
-                    <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-                        <p className="text-gray-500">Belum ada data SPBU.</p>
+                {filteredSpbus.length === 0 && (
+                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-xs">
+                        <FiMapPin size={36} className="mx-auto mb-2 text-gray-300" />
+                        <p className="font-bold text-gray-700">Tidak ada SPBU yang sesuai dengan filter.</p>
+                        <p className="text-xs text-gray-400 mt-1">Coba sesuaikan kata kunci pencarian atau status operasional.</p>
                     </div>
                 )}
             </div>
 
-            {/* Modal */}
+            {/* Modal Tambah/Edit SPBU */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                            <h3 className="text-lg font-bold text-gray-900">{editingSpbu ? 'Edit SPBU' : 'Tambah SPBU'}</h3>
-                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-600"><FiX size={24}/></button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/70">
+                            <h3 className="text-base font-extrabold text-gray-900">{editingSpbu ? 'Edit Data SPBU' : 'Tambah SPBU Baru'}</h3>
+                            <button onClick={closeModal} className="text-gray-400 hover:text-gray-700 p-1 rounded-lg"><FiX size={20}/></button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Kode SPBU (Pasti Pas)</label>
-                                <input type="text" value={data.code} onChange={e => setData('code', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm" required />
-                                {errors.code && <p className="text-red-500 text-xs mt-1">{errors.code}</p>}
+                                <label className="block font-bold text-gray-700 mb-1">Kode SPBU (Misal: 31.123.01)</label>
+                                <input type="text" value={data.code} onChange={e => setData('code', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20" required />
+                                {errors.code && <p className="text-red-500 text-[11px] mt-1">{errors.code}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Nama SPBU</label>
-                                <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm" required />
-                                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                <label className="block font-bold text-gray-700 mb-1">Nama SPBU</label>
+                                <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20" required />
+                                {errors.name && <p className="text-red-500 text-[11px] mt-1">{errors.name}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
-                                <textarea value={data.address} onChange={e => setData('address', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm" rows={2} required></textarea>
-                                {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                                <label className="block font-bold text-gray-700 mb-1">Alamat Lengkap</label>
+                                <textarea value={data.address} onChange={e => setData('address', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20" rows={2} required></textarea>
+                                {errors.address && <p className="text-red-500 text-[11px] mt-1">{errors.address}</p>}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kota/Kabupaten</label>
-                                    <input type="text" value={data.city} onChange={e => setData('city', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm" required />
-                                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                                    <label className="block font-bold text-gray-700 mb-1">Kota/Kabupaten</label>
+                                    <input type="text" value={data.city} onChange={e => setData('city', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20" required />
+                                    {errors.city && <p className="text-red-500 text-[11px] mt-1">{errors.city}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
-                                    <input type="text" value={data.province} onChange={e => setData('province', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm" required />
-                                    {errors.province && <p className="text-red-500 text-xs mt-1">{errors.province}</p>}
+                                    <label className="block font-bold text-gray-700 mb-1">Provinsi</label>
+                                    <input type="text" value={data.province} onChange={e => setData('province', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20" required />
+                                    {errors.province && <p className="text-red-500 text-[11px] mt-1">{errors.province}</p>}
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status Operasional</label>
-                                <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm">
-                                    <option value="active">Aktif</option>
-                                    <option value="inactive">Tidak Aktif</option>
+                                <label className="block font-bold text-gray-700 mb-1">Status Operasional</label>
+                                <select value={data.status} onChange={e => setData('status', e.target.value)} className="w-full border-gray-200 rounded-xl p-2.5 focus:border-[#980f12] focus:ring-2 focus:ring-[#980f12]/20 font-semibold">
+                                    <option value="active">🟢 Aktif (Melayani)</option>
+                                    <option value="inactive">🔴 Non-Aktif (Tutup/Maintenance)</option>
                                 </select>
                             </div>
                             
-                            <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
-                                <button type="button" onClick={closeModal} className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
-                                <button type="submit" disabled={processing} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50">
-                                    {processing ? 'Menyimpan...' : 'Simpan'}
+                            <div className="mt-6 flex justify-end gap-2.5 pt-4 border-t border-gray-100">
+                                <button type="button" onClick={closeModal} className="px-4 py-2 font-bold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">Batal</button>
+                                <button type="submit" disabled={processing} className="px-5 py-2 font-bold text-white bg-[#980f12] hover:bg-red-800 rounded-xl transition-colors disabled:opacity-50 shadow-md">
+                                    {processing ? 'Menyimpan...' : 'Simpan Data SPBU'}
                                 </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 
 AdminSpbu.layout = (page: any) => <AppLayout title="Manajemen SPBU">{page}</AppLayout>;
+
