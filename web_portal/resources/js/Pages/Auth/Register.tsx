@@ -1,10 +1,8 @@
 import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import React, { FormEventHandler, useState } from 'react';
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiCheck } from 'react-icons/fi';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -12,7 +10,11 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        agree: true,
     });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -22,100 +24,205 @@ export default function Register() {
         });
     };
 
+    const isEmailValid = data.email.includes('@') && data.email.includes('.');
+
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Create Account - Petrochain" />
 
-            <form onSubmit={submit}>
+            <div className="mb-3.5 sm:mb-4">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                    Create your account
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                    Daftar akun untuk registrasi kendaraan & kuota BBM subsidi
+                </p>
+            </div>
+
+            <form onSubmit={submit} className="space-y-2.5 sm:space-y-3">
+                {/* Name Field */}
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <label
+                        htmlFor="name"
+                        className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1"
+                    >
+                        Name
+                    </label>
 
-                    <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
-                        className="mt-1 block w-full"
-                        autoComplete="name"
-                        isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            value={data.name}
+                            placeholder="Enter your name"
+                            autoComplete="name"
+                            autoFocus
+                            onChange={(e) => setData('name', e.target.value)}
+                            required
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 sm:py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-[#980f12] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#980f12]/15"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-400">
+                            <FiUser className="w-4 h-4" />
+                        </div>
+                    </div>
 
-                    <InputError message={errors.name} className="mt-2" />
+                    <InputError message={errors.name} className="mt-1 text-xs" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                {/* Email Field */}
+                <div>
+                    <label
+                        htmlFor="email"
+                        className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1"
+                    >
+                        E-mail Address
+                    </label>
 
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        onChange={(e) => setData('email', e.target.value)}
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            value={data.email}
+                            placeholder="Enter your email"
+                            autoComplete="username"
+                            onChange={(e) => setData('email', e.target.value)}
+                            required
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 sm:py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-[#980f12] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#980f12]/15"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-400">
+                            {isEmailValid ? (
+                                <FiCheck className="w-4 h-4 text-emerald-500" />
+                            ) : (
+                                <FiMail className="w-4 h-4" />
+                            )}
+                        </div>
+                    </div>
 
-                    <InputError message={errors.email} className="mt-2" />
+                    <InputError message={errors.email} className="mt-1 text-xs" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                {/* Password Field */}
+                <div>
+                    <label
+                        htmlFor="password"
+                        className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1"
+                    >
+                        Password
+                    </label>
 
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            id="password"
+                            type={showPassword ? 'text' : 'password'}
+                            name="password"
+                            value={data.password}
+                            placeholder="Enter your password"
+                            autoComplete="new-password"
+                            onChange={(e) => setData('password', e.target.value)}
+                            required
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 sm:py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-[#980f12] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#980f12]/15"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+                            tabIndex={-1}
+                        >
+                            {showPassword ? (
+                                <FiEyeOff className="w-4 h-4" />
+                            ) : (
+                                <FiEye className="w-4 h-4" />
+                            )}
+                        </button>
+                    </div>
 
-                    <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-1 text-xs" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel
+                {/* Confirm Password Field */}
+                <div>
+                    <label
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
+                        className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1"
+                    >
+                        Confirm Password
+                    </label>
 
-                    <TextInput
-                        id="password_confirmation"
-                        type="password"
-                        name="password_confirmation"
-                        value={data.password_confirmation}
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        required
-                    />
+                    <div className="relative">
+                        <input
+                            id="password_confirmation"
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            name="password_confirmation"
+                            value={data.password_confirmation}
+                            placeholder="Confirm your password"
+                            autoComplete="new-password"
+                            onChange={(e) =>
+                                setData('password_confirmation', e.target.value)
+                            }
+                            required
+                            className="w-full rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 sm:py-3 pr-10 text-sm text-gray-900 placeholder-gray-400 transition-all focus:border-[#980f12] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#980f12]/15"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+                            tabIndex={-1}
+                        >
+                            {showConfirmPassword ? (
+                                <FiEyeOff className="w-4 h-4" />
+                            ) : (
+                                <FiEye className="w-4 h-4" />
+                            )}
+                        </button>
+                    </div>
 
                     <InputError
                         message={errors.password_confirmation}
-                        className="mt-2"
+                        className="mt-1 text-xs"
                     />
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                {/* Terms and Conditions Checkbox */}
+                <div className="pt-1">
+                    <label className="flex items-center cursor-pointer select-none">
+                        <input
+                            type="checkbox"
+                            checked={data.agree}
+                            onChange={(e) => setData('agree', e.target.checked)}
+                            className="rounded border-gray-300 text-[#980f12] focus:ring-[#980f12] h-4 w-4"
+                        />
+                        <span className="ms-2 text-xs text-gray-600">
+                            By Signing Up, I agree with{' '}
+                            <span className="text-[#980f12] font-semibold hover:underline">
+                                Terms & Conditions
+                            </span>
+                        </span>
+                    </label>
+                </div>
+
+                {/* Dual Pill Action Buttons */}
+                <div className="flex items-center gap-3 sm:gap-4 pt-3">
+                    {/* Primary Button: Solid Red Pill */}
+                    <button
+                        type="submit"
+                        disabled={processing}
+                        className="flex-1 py-3 px-6 rounded-full bg-gradient-to-r from-[#980f12] to-[#c9181b] text-white text-sm sm:text-base font-bold shadow-lg shadow-red-900/20 hover:shadow-red-900/35 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 text-center flex items-center justify-center"
+                    >
+                        {processing ? 'Signing Up...' : 'Sign Up'}
+                    </button>
+
+                    {/* Secondary Button: Outlined Pill to Login */}
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="flex-1 py-3 px-6 rounded-full bg-white border border-gray-300 text-gray-700 hover:text-[#980f12] hover:border-[#980f12] hover:bg-red-50/40 text-sm sm:text-base font-semibold shadow-sm hover:shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-center flex items-center justify-center"
                     >
-                        Already registered?
+                        Sign In
                     </Link>
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
                 </div>
             </form>
         </GuestLayout>
     );
 }
+
