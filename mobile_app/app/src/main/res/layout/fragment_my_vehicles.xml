@@ -5,18 +5,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/bg_glass_gradient">
+    android:background="#F9FAFB">
+
+    <!-- Modern Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:paddingTop="48dp"
+        android:paddingBottom="24dp"
+        android:paddingHorizontal="24dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kendaraan Saya"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daftar armada dan kode QR Anda"
+            android:textColor="#FCA5A5"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="#FFFFFF"
         app:tabIndicatorColor="@color/primary"
         app:tabSelectedTextColor="@color/primary"
-        app:tabTextColor="@color/text_secondary"
+        app:tabTextColor="#6B7280"
         app:tabMode="fixed"
-        app:tabGravity="fill">
+        app:tabGravity="fill"
+        android:elevation="4dp">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -26,7 +52,7 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Riwayat / Proses" />
+            android:text="Proses / Riwayat" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -43,8 +69,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="16dp"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="100dp"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="120dp"
                 android:clipToPadding="false" />
 
             <!-- Loading State -->
@@ -76,7 +102,7 @@
                         android:text="Tunggu Sebentar..."
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#111827"
                         android:layout_marginTop="8dp" />
 
                     <TextView
@@ -84,7 +110,7 @@
                         android:layout_height="wrap_content"
                         android:text="Sedang mengambil data Anda"
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#6B7280"
                         android:gravity="center"
                         android:layout_marginTop="8dp"
                         android:paddingHorizontal="24dp" />
@@ -120,7 +146,7 @@
                         android:text="Masih Kosong Nih!"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#111827"
                         android:layout_marginTop="8dp" />
 
                     <TextView
@@ -128,7 +154,7 @@
                         android:layout_height="wrap_content"
                         android:text="Sepertinya belum ada kendaraan di sini. Yuk, tambahkan sekarang!"
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#6B7280"
                         android:gravity="center"
                         android:layout_marginTop="8dp"
                         android:paddingHorizontal="24dp" />
@@ -164,7 +190,7 @@
                         android:text="Ups! Terjadi Kesalahan"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#111827"
                         android:layout_marginTop="8dp" />
 
                     <TextView
@@ -173,7 +199,7 @@
                         android:layout_height="wrap_content"
                         android:text="Gagal terhubung ke server."
                         android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#6B7280"
                         android:gravity="center"
                         android:layout_marginTop="8dp"
                         android:paddingHorizontal="24dp" />

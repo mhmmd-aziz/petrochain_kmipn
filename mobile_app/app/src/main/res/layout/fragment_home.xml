@@ -1,89 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F4F8">
-
-    <!-- Header Gradient Background -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@drawable/bg_header_curved"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="#F9FAFB">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="16dp">
+            android:orientation="vertical">
 
             <!-- Top App Bar -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="20dp"
-                android:paddingVertical="12dp">
+                android:paddingTop="24dp"
+                android:paddingBottom="24dp">
 
-                <!-- Real Logo -->
-                <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/logo_web_navbar"
-                    android:scaleType="fitStart"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_toStartOf="@+id/ivNotification"
+                    android:layout_marginEnd="16dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Halo,"
+                        android:textColor="#6B7280"
+                        android:textSize="14sp" />
+                        
+                    <TextView
+                        android:id="@+id/tvWelcomeName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Selamat datang"
+                        android:textColor="#111827"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <!-- Icons Right -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                <ImageView
+                    android:id="@+id/ivNotification"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_notifications"
+                    app:tint="#4B5563"
                     android:layout_alignParentEnd="true"
-                    android:gravity="center_vertical">
-                    
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_notifications"
-                        app:tint="#FFFFFF"
-                        android:layout_marginEnd="16dp"/>
-                        
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:src="@drawable/ic_menu"
-                        app:tint="#FFFFFF" />
-                </LinearLayout>
+                    android:layout_centerVertical="true"/>
             </RelativeLayout>
 
-            <!-- Greeting -->
+            <!-- Banner Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginHorizontal="20dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/primary"
+                android:layout_marginBottom="24dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/ivBanner">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Layanan Cerdas\nUntuk Kendaraan"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Terintegrasi Blockchain\nPetrochain Network"
+                            android:textColor="#E5E7EB"
+                            android:textSize="12sp"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/ivBanner"
+                        android:layout_width="160dp"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/img_banner_illustration"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+                        
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
             <TextView
-                android:id="@+id/tvWelcomeName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="20dp"
-                android:layout_marginTop="16dp"
-                android:text="Selamat datang, User"
-                android:textColor="#FFFFFF"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:text="Menu Cepat"
+                android:textColor="#111827"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
 
-            <!-- Quick Actions (Petrochain Features) -->
+            <!-- Grid Menu 4 items -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingHorizontal="20dp"
-                android:layout_marginTop="24dp"
-                android:weightSum="2">
+                android:weightSum="4"
+                android:baselineAligned="false">
 
-                <!-- Kendaraan Saya -->
+                <!-- Item 1 -->
                 <LinearLayout
                     android:id="@+id/btnNavVehicles"
                     android:layout_width="0dp"
@@ -95,30 +147,33 @@
                     android:clickable="true"
                     android:focusable="true">
                     
-                    <FrameLayout
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_circle_white"
-                        android:elevation="2dp">
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F3F4F6">
                         <ImageView
                             android:layout_width="28dp"
                             android:layout_height="28dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_car"
-                            app:tint="#0047BA"/>
-                    </FrameLayout>
+                            app:tint="@color/primary"/>
+                    </com.google.android.material.card.MaterialCardView>
                     
                     <TextView 
-                        android:text="Kendaraan Saya" 
-                        android:textSize="13sp" 
-                        android:textColor="#FFFFFF" 
+                        android:text="Kendaraan" 
+                        android:textSize="12sp" 
+                        android:textColor="#4B5563" 
                         android:textStyle="bold"
+                        android:gravity="center"
                         android:layout_width="wrap_content" 
                         android:layout_height="wrap_content" 
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
 
-                <!-- Daftar Baru -->
+                <!-- Item 2 -->
                 <LinearLayout
                     android:id="@+id/btnNavRegister"
                     android:layout_width="0dp"
@@ -130,166 +185,203 @@
                     android:clickable="true"
                     android:focusable="true">
                     
-                    <FrameLayout
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/bg_circle_white"
-                        android:elevation="2dp">
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F3F4F6">
                         <ImageView
                             android:layout_width="28dp"
                             android:layout_height="28dp"
                             android:layout_gravity="center"
                             android:src="@drawable/ic_assignment"
-                            app:tint="#0047BA"/>
-                    </FrameLayout>
+                            app:tint="@color/primary"/>
+                    </com.google.android.material.card.MaterialCardView>
                     
                     <TextView 
-                        android:text="Daftar Baru" 
-                        android:textSize="13sp" 
-                        android:textColor="#FFFFFF" 
+                        android:text="Daftar" 
+                        android:textSize="12sp" 
+                        android:textColor="#4B5563" 
                         android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Item 3 -->
+                <LinearLayout
+                    android:id="@+id/btnCariSpbu"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+                    
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F3F4F6">
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_search"
+                            app:tint="@color/primary"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    
+                    <TextView 
+                        android:text="Cari SPBU" 
+                        android:textSize="12sp" 
+                        android:textColor="#4B5563" 
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_width="wrap_content" 
+                        android:layout_height="wrap_content" 
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <!-- Item 4 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+                    
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="#F3F4F6">
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_menu"
+                            app:tint="@color/primary"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    
+                    <TextView 
+                        android:text="Lainnya" 
+                        android:textSize="12sp" 
+                        android:textColor="#4B5563" 
+                        android:textStyle="bold"
+                        android:gravity="center"
                         android:layout_width="wrap_content" 
                         android:layout_height="wrap_content" 
                         android:layout_marginTop="8dp"/>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Main Interactive Card (White) -->
-            <com.google.android.material.card.MaterialCardView
+
+            <!-- SPBU Terdekat Info -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
+                android:paddingHorizontal="20dp"
+                android:text="Ketersediaan BBM"
+                android:textColor="#111827"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:layout_marginTop="32dp"
-                android:layout_marginBottom="32dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#FFFFFF">
+                android:layout_marginBottom="16dp" />
 
+            <!-- Filter Chips -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:clipToPadding="false"
+                android:scrollbars="none">
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <!-- Search Bar "SPBU Terdekat" -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                    android:orientation="horizontal">
+                    
+                    <TextView
+                        android:id="@+id/chipFilterSemua"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Semua"
+                        android:background="@drawable/bg_badge_available"
+                        android:backgroundTint="@color/primary"
+                        android:textColor="#FFFFFF"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                        
+                    <TextView
+                        android:id="@+id/chipFilterPertalite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pertalite"
                         android:background="@drawable/bg_search_bar"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="8dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginStart="8dp"
-                            android:src="@drawable/ic_search"
-                            app:tint="#6B7280" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:text="SPBU terdekat dari Anda"
-                            android:textColor="#9CA3AF"
-                            android:textSize="14sp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnCariSpbu"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Cari SPBU"
-                            android:textColor="#FFFFFF"
-                            android:textSize="12sp"
-                            android:insetTop="0dp"
-                            android:insetBottom="0dp"
-                            app:cornerRadius="20dp"
-                            app:backgroundTint="#0047BA" />
-                    </LinearLayout>
-
-                    <!-- Filter Chips -->
-                    <HorizontalScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:scrollbars="none">
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            
-                            <TextView
-                                android:id="@+id/chipFilterSemua"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Semua"
-                                android:background="@drawable/bg_badge_available"
-                                android:backgroundTint="#0047BA"
-                                android:textColor="#FFFFFF"
-                                android:paddingHorizontal="16dp"
-                                android:paddingVertical="8dp"
-                                android:textStyle="bold"
-                                android:layout_marginEnd="8dp"
-                                android:clickable="true"
-                                android:focusable="true"/>
-                                
-                            <TextView
-                                android:id="@+id/chipFilterPertalite"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Pertalite"
-                                android:background="@drawable/bg_search_bar"
-                                android:textColor="#4B5563"
-                                android:paddingHorizontal="16dp"
-                                android:paddingVertical="8dp"
-                                android:layout_marginEnd="8dp"
-                                android:clickable="true"
-                                android:focusable="true"/>
-
-                            <TextView
-                                android:id="@+id/chipFilterSolar"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Solar"
-                                android:background="@drawable/bg_search_bar"
-                                android:textColor="#4B5563"
-                                android:paddingHorizontal="16dp"
-                                android:paddingVertical="8dp"
-                                android:clickable="true"
-                                android:focusable="true"/>
-                        </LinearLayout>
-                    </HorizontalScrollView>
-
-                    <!-- Nearest SPBU Display -->
-                    <FrameLayout
-                        android:id="@+id/containerNearestSpbu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-                        
-                        <!-- We will inject item_spbu.xml programmatically or statically here -->
-                        <include android:id="@+id/includedSpbu" layout="@layout/item_spbu" />
-                        
-                    </FrameLayout>
+                        android:textColor="#4B5563"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:clickable="true"
+                        android:focusable="true"/>
 
                     <TextView
-                        android:id="@+id/tvLihatSelengkapnya"
-                        android:layout_width="match_parent"
+                        android:id="@+id/chipFilterSolar"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Lihat selengkapnya →"
-                        android:textColor="#0047BA"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
+                        android:text="Solar"
+                        android:background="@drawable/bg_search_bar"
+                        android:textColor="#4B5563"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
                         android:clickable="true"
-                        android:focusable="true"
-                        android:background="?attr/selectableItemBackground"
-                        android:gravity="center" />
+                        android:focusable="true"/>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </HorizontalScrollView>
+
+            <FrameLayout
+                android:id="@+id/containerNearestSpbu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:layout_marginTop="16dp">
+                
+                <include android:id="@+id/includedSpbu" layout="@layout/item_spbu" />
+                
+            </FrameLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tvLihatSelengkapnya"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:text="Jelajahi Semua SPBU"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/primary"
+                app:icon="@drawable/ic_search"
+                app:iconTint="#FFFFFF"
+                app:iconGravity="textStart"
+                app:elevation="0dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

@@ -119,28 +119,46 @@ class HomeFragment : Fragment() {
             spbuBinding.llFuelStocks.removeAllViews()
             nearestSpbu.fuelStocks?.forEach { stock ->
                 val badgeView = LayoutInflater.from(requireContext())
-                    .inflate(R.layout.item_fuel_badge, spbuBinding.llFuelStocks, false) as android.widget.LinearLayout
+                    .inflate(R.layout.item_fuel_badge, binding.includedSpbu.llFuelStocks, false) as android.widget.LinearLayout
                 
-                val tvBadge = badgeView.findViewById<TextView>(R.id.tvBadge)
+                val tvBadge = badgeView.findViewById<android.widget.TextView>(R.id.tvBadge)
                 val ivBadgeIcon = badgeView.findViewById<android.widget.ImageView>(R.id.ivBadgeIcon)
                 
-                tvBadge.text = "${fuelShortName(stock.fuelType)}: ${statusShortName(stock.status)}"
-                
-                if (stock.status == "empty") {
-                    tvBadge.setTextColor(android.graphics.Color.parseColor("#991b1b"))
-                    badgeView.setBackgroundResource(R.drawable.bg_search_bar)
-                    ivBadgeIcon.setImageResource(R.drawable.ic_block)
-                    ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#991b1b"))
-                } else if (stock.status == "limited") {
-                    tvBadge.setTextColor(android.graphics.Color.parseColor("#b45309"))
-                    ivBadgeIcon.setImageResource(R.drawable.ic_info)
-                    ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#b45309"))
-                } else {
-                    tvBadge.setTextColor(android.graphics.Color.parseColor("#166534"))
-                    ivBadgeIcon.setImageResource(R.drawable.ic_check)
-                    ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#166534"))
+                val fuelName = when (stock.fuelType.lowercase()) {
+                    "pertamax_turbo" -> "P-Turbo"
+                    else -> stock.fuelType.replaceFirstChar { it.uppercase() }
                 }
-                spbuBinding.llFuelStocks.addView(badgeView)
+                val statusName = when (stock.status.lowercase()) {
+                    "available" -> "Ada"
+                    "empty" -> "Habis"
+                    "limited" -> "Terbatas"
+                    else -> stock.status.replaceFirstChar { it.uppercase() }
+                }
+                tvBadge.text = "$fuelName: $statusName"
+                
+                val colorRes: Int
+                if (stock.status == "empty") {
+                    colorRes = android.graphics.Color.parseColor("#EF4444")
+                    ivBadgeIcon.setImageResource(R.drawable.ic_block)
+                } else if (stock.status == "limited") {
+                    colorRes = android.graphics.Color.parseColor("#F59E0B")
+                    ivBadgeIcon.setImageResource(R.drawable.ic_info)
+                } else {
+                    colorRes = android.graphics.Color.parseColor("#10B981")
+                    ivBadgeIcon.setImageResource(R.drawable.ic_check)
+                }
+
+                tvBadge.setTextColor(colorRes)
+                ivBadgeIcon.setColorFilter(colorRes)
+                
+                val bg = android.graphics.drawable.GradientDrawable()
+                bg.shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                bg.cornerRadius = 40f
+                bg.setColor(android.graphics.Color.WHITE)
+                bg.setStroke(3, colorRes)
+                badgeView.background = bg
+
+                binding.includedSpbu.llFuelStocks.addView(badgeView)
             }
             spbuBinding.root.setOnClickListener {
                 val bundle = Bundle().apply {
