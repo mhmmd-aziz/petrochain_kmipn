@@ -14,3 +14,6 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./public /var/www/html/public
 # Copy build assets dari Stage 1
 COPY --from=builder /app/public/build /var/www/html/public/build
+
+# Buat symlink storage secara manual di Nginx
+RUN ln -s /var/www/html/storage/app/public /var/www/html/public/storage
