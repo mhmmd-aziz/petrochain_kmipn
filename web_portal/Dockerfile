@@ -27,5 +27,11 @@ WORKDIR /var/www/html
 # Copy semua file project
 COPY . .
 
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
+
+# Install Node dependencies and build frontend assets
+RUN npm install && npm run build
+
 # Berikan permission ke folder storage dan bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
