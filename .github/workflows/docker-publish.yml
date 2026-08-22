@@ -64,3 +64,21 @@ jobs:
           file: ./ai_services/ocr_spbu/Dockerfile
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai-ocr-spbu:latest
+
+      # 5. Build & Push AI Klasifikasi Motor
+      - name: Build and push AI Klasifikasi Motor
+        uses: docker/build-push-action@v5
+        with:
+          context: ./ai_services/klasifikasi_motor
+          file: ./ai_services/klasifikasi_motor/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-ai-klasifikasi-motor:latest
+
+      # 6. Build & Push Blockchain Node
+      - name: Build and push Blockchain Node
+        uses: docker/build-push-action@v5
+        with:
+          context: ./blockchain
+          file: ./blockchain/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-blockchain:latest
