@@ -5,11 +5,12 @@ import InteractiveGlobe from '@/Components/InteractiveGlobe';
 import CountUp from 'react-countup';
 import confetti from 'canvas-confetti';
 import { 
-    FiArrowRight, FiShield, FiActivity, FiCheckCircle, 
+    FiArrowRight, FiArrowUpRight, FiShield, FiActivity, FiCheckCircle, 
     FiSearch, FiMenu, FiX, FiCpu, FiLock, FiLayers, 
     FiChevronDown, FiDatabase, FiTruck, FiZap, FiExternalLink,
     FiCode, FiServer, FiCheck, FiRadio, FiMapPin, FiRefreshCw,
-    FiSliders, FiAlertCircle, FiInfo, FiFileText
+    FiSliders, FiAlertCircle, FiInfo, FiFileText, FiAward,
+    FiTrendingUp, FiUsers, FiDollarSign, FiUserCheck
 } from 'react-icons/fi';
 import { FaMotorcycle, FaQrcode, FaGasPump } from 'react-icons/fa';
 
@@ -24,6 +25,110 @@ export default function Welcome({ auth }: { auth: any }) {
     const [simBrand, setSimBrand] = useState<string>('Honda Vario');
     const [hasInteracted, setHasInteracted] = useState(false);
     const prevEligibleRef = useRef<boolean | null>(null);
+    const [publicToolMode, setPublicToolMode] = useState<'plate_checker' | 'cc_simulator'>('plate_checker');
+
+    // Public Quick Plate Search State
+    const [plateQuery, setPlateQuery] = useState('BL 1234 AB');
+    const [isSearchingPlate, setIsSearchingPlate] = useState(false);
+    const [searchedPlateData, setSearchedPlateData] = useState<{
+        plate: string;
+        type: string;
+        model: string;
+        cc: number;
+        status: 'verified' | 'pending' | 'rejected' | 'not_registered';
+        quotaDaily: number;
+        quotaRemaining: number;
+        lastRefuel: string;
+        spbuLocation: string;
+        stnkExpiry: string;
+    } | null>({
+        plate: 'BL 1234 AB',
+        type: 'Sepeda Motor',
+        model: 'Honda Vario 125 CBS',
+        cc: 125,
+        status: 'verified',
+        quotaDaily: 8.0,
+        quotaRemaining: 6.2,
+        lastRefuel: 'Hari ini, 09:14 WIB',
+        spbuLocation: 'SPBU 14.201.001 Banda Aceh',
+        stnkExpiry: '10/2028',
+    });
+
+    const handleCheckPlate = (plateInput?: string) => {
+        const query = (plateInput || plateQuery).trim().toUpperCase();
+        if (!query) return;
+        setPlateQuery(query);
+        setIsSearchingPlate(true);
+        setTimeout(() => {
+            setIsSearchingPlate(false);
+            if (query === 'BL 1234 AB') {
+                setSearchedPlateData({
+                    plate: 'BL 1234 AB',
+                    type: 'Sepeda Motor',
+                    model: 'Honda Vario 125 CBS',
+                    cc: 125,
+                    status: 'verified',
+                    quotaDaily: 8.0,
+                    quotaRemaining: 6.2,
+                    lastRefuel: 'Hari ini, 09:14 WIB',
+                    spbuLocation: 'SPBU 14.201.001 Banda Aceh',
+                    stnkExpiry: '10/2028',
+                });
+            } else if (query === 'B 9988 XYZ') {
+                setSearchedPlateData({
+                    plate: 'B 9988 XYZ',
+                    type: 'Mobil Penumpang',
+                    model: 'Toyota Avanza 1.3 G',
+                    cc: 1298,
+                    status: 'verified',
+                    quotaDaily: 30.0,
+                    quotaRemaining: 22.5,
+                    lastRefuel: 'Kemarin, 16:40 WIB',
+                    spbuLocation: 'SPBU 31.129.02 Jakarta',
+                    stnkExpiry: '06/2027',
+                });
+            } else if (query === 'BK 4567 CD') {
+                setSearchedPlateData({
+                    plate: 'BK 4567 CD',
+                    type: 'Sepeda Motor',
+                    model: 'Kawasaki Ninja ZX-25R',
+                    cc: 250,
+                    status: 'rejected',
+                    quotaDaily: 0,
+                    quotaRemaining: 0,
+                    lastRefuel: 'Tidak Ada (Non-Subsidi)',
+                    spbuLocation: 'SPBU 14.243.012 Medan',
+                    stnkExpiry: '11/2026',
+                });
+            } else if (query === 'D 1088 EF') {
+                setSearchedPlateData({
+                    plate: 'D 1088 EF',
+                    type: 'Sepeda Motor',
+                    model: 'Yamaha NMAX 155 Connected',
+                    cc: 155,
+                    status: 'verified',
+                    quotaDaily: 10.0,
+                    quotaRemaining: 8.5,
+                    lastRefuel: 'Hari ini, 11:05 WIB',
+                    spbuLocation: 'SPBU 34.401.05 Bandung',
+                    stnkExpiry: '04/2029',
+                });
+            } else {
+                setSearchedPlateData({
+                    plate: query,
+                    type: 'Kendaraan Belum Terdaftar',
+                    model: 'Data STNK Belum Ditemukan di Ledger',
+                    cc: 0,
+                    status: 'not_registered',
+                    quotaDaily: 0,
+                    quotaRemaining: 0,
+                    lastRefuel: '-',
+                    spbuLocation: '-',
+                    stnkExpiry: '-',
+                });
+            }
+        }, 350);
+    };
 
     // Interactive Tech Tab State
     const [activeTechTab, setActiveTechTab] = useState<'yolo' | 'iot' | 'blockchain' | 'fraud'>('yolo');
@@ -139,68 +244,82 @@ export default function Welcome({ auth }: { auth: any }) {
         <div className="min-h-screen bg-gray-50 selection:bg-[#980f12] selection:text-white font-sans text-gray-900 overflow-x-hidden scroll-smooth">
             <Head title="PETROCHAIN - Platform Intelligent Verification & Audit Distribusi BBM Bersubsidi" />
 
-            {/* Glassmorphism Navbar */}
-            <nav className={`fixed w-full z-50 top-0 transition-all duration-300 ${
+            {/* Transparent Floating Glassmorphism Navbar */}
+            <nav className={`fixed w-full z-50 top-0 transition-all duration-500 ${
                 isScrolled 
-                    ? 'bg-[#980f12]/95 backdrop-blur-md shadow-lg shadow-red-950/20 py-3.5 border-b border-red-800/40' 
-                    : 'bg-[#980f12] py-4'
+                    ? 'bg-[#800b0e]/95 backdrop-blur-md shadow-xl shadow-red-950/30 py-3.5 border-b border-red-800/40' 
+                    : 'bg-transparent py-5 border-b border-transparent'
             }`}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="w-10 h-10 rounded-full bg-white/10 ring-2 ring-white/20 p-1.5 flex items-center justify-center transform group-hover:scale-105 transition-all">
+                            <div className="w-10 h-10 rounded-full bg-white/10 ring-2 ring-white/20 p-1.5 flex items-center justify-center transform group-hover:scale-105 transition-all backdrop-blur-xs">
                                 <img src="/images/logoicon.png" alt="Petrochain" className="w-full h-full object-contain" />
                             </div>
                             <div className="flex flex-col justify-center">
-                                <span className="text-white font-extrabold text-lg sm:text-xl tracking-wide leading-none">
+                                <span className="text-white font-extrabold text-lg sm:text-xl tracking-wide leading-none drop-shadow-sm">
                                     PETROCHAIN
                                 </span>
-                                <p className="text-[9px] text-red-200 font-medium leading-tight mt-0.5">
+                                <p className="text-[9px] text-red-200 font-medium leading-tight mt-0.5 drop-shadow-xs">
                                     Intelligent Fuel Subsidy Ecosystem
                                 </p>
                             </div>
                         </Link>
 
-                        {/* Desktop Navigation Links */}
-                        <div className="hidden md:flex items-center gap-6">
+                        {/* Desktop Navigation Links (Clean Minimalist, No Glass Capsule) */}
+                        <div className="hidden xl:flex items-center gap-6">
                             <a 
                                 href="#cara-kerja" 
                                 onClick={(e) => scrollToSection(e, 'cara-kerja')}
-                                className="text-sm font-medium text-red-100 hover:text-white transition-colors cursor-pointer"
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
                             >
                                 Cara Kerja
                             </a>
                             <a 
                                 href="#simulator" 
                                 onClick={(e) => scrollToSection(e, 'simulator')}
-                                className="text-sm font-medium text-red-100 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                             >
-                                <FiSliders className="text-yellow-300" /> Cek Kelayakan CC
+                                <FiSliders className="text-yellow-300" /> Cek Plat & CC
                             </a>
                             <a 
                                 href="#alur" 
                                 onClick={(e) => scrollToSection(e, 'alur')}
-                                className="text-sm font-medium text-red-100 hover:text-white transition-colors cursor-pointer"
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
                             >
-                                Rantai Pasok Nasional
+                                Rantai Pasok
+                            </a>
+                            <a 
+                                href="#dampak" 
+                                onClick={(e) => scrollToSection(e, 'dampak')}
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
+                            >
+                                Dampak APBN
                             </a>
                             <a 
                                 href="#teknologi" 
                                 onClick={(e) => scrollToSection(e, 'teknologi')}
-                                className="text-sm font-medium text-red-100 hover:text-white transition-colors cursor-pointer"
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
                             >
-                                Arsitektur AI & Blockchain
+                                Teknologi
+                            </a>
+                            <a 
+                                href="#tim" 
+                                onClick={(e) => scrollToSection(e, 'tim')}
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
+                            >
+                                Tim Inovator
                             </a>
                             <a 
                                 href="#faq" 
                                 onClick={(e) => scrollToSection(e, 'faq')}
-                                className="text-sm font-medium text-red-100 hover:text-white transition-colors cursor-pointer"
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
                             >
                                 FAQ
                             </a>
-                            <Link href={route('public.stock')} className="text-sm font-medium text-red-100 hover:text-white transition-colors flex items-center gap-1.5">
-                                <FiSearch className="text-red-200" /> Cek Stok SPBU
+                            <Link href={route('public.stock')} className="text-xs font-semibold text-white/90 hover:text-white transition-colors flex items-center gap-1">
+                                <FiSearch className="text-yellow-300" /> Stok SPBU
                             </Link>
                         </div>
 
@@ -232,7 +351,7 @@ export default function Welcome({ auth }: { auth: any }) {
                         </div>
 
                         {/* Mobile Hamburger Toggle */}
-                        <div className="flex sm:hidden">
+                        <div className="flex xl:hidden">
                             <button
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                 className="text-white p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors focus:outline-none"
@@ -251,7 +370,7 @@ export default function Welcome({ auth }: { auth: any }) {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="sm:hidden bg-[#800b0e] border-t border-red-900/60 px-4 pt-3 pb-6 space-y-3"
+                            className="xl:hidden bg-[#800b0e] border-t border-red-900/60 px-4 pt-3 pb-6 space-y-3"
                         >
                             <a 
                                 href="#cara-kerja" 
@@ -265,7 +384,7 @@ export default function Welcome({ auth }: { auth: any }) {
                                 onClick={(e) => scrollToSection(e, 'simulator')}
                                 className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
                             >
-                                Cek Kelayakan CC
+                                Cek Plat & CC Kendaraan
                             </a>
                             <a 
                                 href="#alur" 
@@ -275,11 +394,25 @@ export default function Welcome({ auth }: { auth: any }) {
                                 Rantai Pasok Nasional
                             </a>
                             <a 
+                                href="#dampak" 
+                                onClick={(e) => scrollToSection(e, 'dampak')}
+                                className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
+                            >
+                                Dampak APBN & Regulasi
+                            </a>
+                            <a 
                                 href="#teknologi" 
                                 onClick={(e) => scrollToSection(e, 'teknologi')}
                                 className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
                             >
                                 Arsitektur AI & Blockchain
+                            </a>
+                            <a 
+                                href="#tim" 
+                                onClick={(e) => scrollToSection(e, 'tim')}
+                                className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
+                            >
+                                Tim Inovator (TIMBERAPA)
                             </a>
                             <a 
                                 href="#faq" 
@@ -326,236 +459,159 @@ export default function Welcome({ auth }: { auth: any }) {
             </nav>
 
             {/* ========================================================================= */}
-            {/* HERO SECTION: MODERN FULL-WIDTH BENTO CANVAS                              */}
+            {/* HERO SECTION: 100% FULL-WIDTH GRAND CINEMATIC PERTAMINA RED STAGE         */}
             {/* ========================================================================= */}
-            <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-10 xl:px-14 bg-white min-h-[calc(100vh-70px)] flex flex-col justify-center border-b border-gray-100">
-                <div className="w-full">
+            <section className="relative w-full min-h-screen pt-36 sm:pt-44 lg:pt-48 pb-6 sm:pb-8 lg:pb-10 bg-gradient-to-br from-[#800b0e] via-[#980f12] to-[#5a0709] text-white flex flex-col justify-between overflow-hidden shadow-2xl">
+                
+                {/* Full-Bleed Background Central Engineer Image & Cinematic Lighting Blend */}
+                <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center">
+                    <motion.img 
+                        initial={{ scale: 1.06, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 0.92 }}
+                        transition={{ duration: 1.3, ease: "easeOut" }}
+                        // src="/images/hero_engineer.jpg" 
+                        alt="Petrochain Smart Fuel Engineer" 
+                        className="w-full h-full object-cover object-[center_18%] sm:object-[center_22%] lg:object-[center_28%] filter contrast-[1.05]"
+                    />
+                    {/* Radial White Highlight Glow with Ambient Breathing Pulse */}
+                    <motion.div 
+                        animate={{ 
+                            scale: [1, 1.05, 1],
+                            opacity: [0.85, 1, 0.85]
+                        }}
+                        transition={{ 
+                            duration: 6, 
+                            repeat: Infinity, 
+                            ease: "easeInOut" 
+                        }}
+                        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.24)_0%,rgba(152,15,18,0.75)_55%,rgba(90,9,11,0.96)_100%)]"
+                    />
                     
-                    {/* Main Bento Hero Grid Layout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+                    {/* Deep rich dark vignettes on left & right so sides are pure empty red stage */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#5a0709] via-transparent to-black/30"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#70090c] via-transparent to-[#70090c] lg:from-[#70090c]/95 lg:via-transparent lg:to-[#70090c]/95"></div>
+                </div>
+
+                {/* Inner Content Container - Identical Alignment with Navbar max-w-7xl px-4 sm:px-6 lg:px-8 */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 flex flex-col justify-between flex-1 my-auto">
+                    
+                    {/* Middle Content: Left Content elevated higher up on desktop, lowered below engineer on mobile */}
+                    <div className="my-auto py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                         
-                        {/* ================================================================= */}
-                        {/* LEFT STAGE: HERO BANNER (Col 8 on LG, Col 7 on XL)                */}
-                        {/* ================================================================= */}
+                        {/* Left Side: Animated Badge + Description + Interactive CTA Buttons */}
                         <motion.div 
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="lg:col-span-8 bg-gray-50/80 rounded-3xl p-6 sm:p-8 lg:p-10 border border-gray-200/80 shadow-xs relative overflow-hidden flex flex-col justify-between"
+                            initial={{ opacity: 0, x: -35 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.85, ease: "easeOut" }}
+                            className="lg:col-span-6 xl:col-span-5 flex flex-col justify-start items-start space-y-4 max-w-md mt-60 sm:mt-72 md:mt-80 lg:mt-0 lg:-mt-16"
                         >
-                            {/* Subtle Ambient Glows */}
-                            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
-                            <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                            {/* Ecosystem Badge with Micro-Motion */}
+                            <motion.div 
+                                initial={{ opacity: 0, y: -12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2, duration: 0.5 }}
+                                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/40 border border-white/20 text-white/90 backdrop-blur-md text-xs font-mono shadow-md hover:border-yellow-400/50 transition-colors"
+                            >
+                                <FiCpu className="text-yellow-300 shrink-0" />
+                                <span>AI VISION & BLOCKCHAIN</span>
+                            </motion.div>
 
-                            {/* Inner Grid: Text on Left, Model Card on Right */}
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
-                                
-                                {/* Left Content */}
-                                <div className="md:col-span-7 flex flex-col justify-center">
-                                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-gray-700 text-xs font-bold uppercase tracking-wider mb-5 shadow-xs w-fit">
-                                        <FiShield className="text-[#980f12]" />
-                                        <span>Intelligent Fuel Ecosystem</span>
-                                    </div>
+                            <motion.p 
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.35, duration: 0.6 }}
+                                className="text-white/95 text-sm sm:text-base leading-relaxed drop-shadow-md font-medium"
+                            >
+                                PETROCHAIN menyatukan sistem verifikasi visual ganda <strong>AI Computer Vision CCTV</strong> & buku besar <strong>Hyperledger Fabric</strong> untuk mengamankan subsidi BBM nasional tanpa celah fraud.
+                            </motion.p>
 
-                                    <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-gray-950 tracking-tight leading-[1.08] mb-4">
-                                        Subsidi Tepat. <br />
-                                        Distribusi Aman.
-                                    </h1>
-
-                                    <p className="text-gray-600 text-xs sm:text-sm lg:text-base leading-relaxed mb-6">
-                                        Verifikasi ganda <strong>AI YOLO & Dokumen STNK</strong> dengan ledger terdesentralisasi <strong>Hyperledger Fabric</strong> untuk transparansi energi nasional.
-                                    </p>
-
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <Link
-                                            href={route('register')}
-                                            className="inline-flex items-center gap-2.5 bg-[#980f12] hover:bg-red-800 text-white px-7 py-3.5 rounded-full font-black text-xs sm:text-sm shadow-xl shadow-red-950/20 hover:scale-105 active:scale-95 transition-all"
-                                        >
-                                            <span>Daftar Kendaraan Subsidi</span>
-                                            <FiArrowRight size={16} />
-                                        </Link>
-
-                                        <a
-                                            href="#simulator"
-                                            onClick={(e) => scrollToSection(e, 'simulator')}
-                                            className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-5 py-3.5 rounded-full font-bold text-xs border border-gray-200 transition-colors cursor-pointer"
-                                        >
-                                            <FiSliders className="text-[#980f12]" /> Cek Kelayakan CC
-                                        </a>
-                                    </div>
-                                </div>
-
-                                {/* Right Model Image Frame */}
-                                <div className="md:col-span-5 relative">
-                                    <div className="relative rounded-2xl overflow-hidden bg-white border border-gray-200/80 shadow-md aspect-4/5 max-h-[380px] w-full mx-auto">
-                                        <img 
-                                            src="/images/hero_citizen.jpg" 
-                                            alt="Pengguna Terverifikasi Petrochain"
-                                            className="w-full h-full object-cover object-top" 
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
-
-                                        {/* Floating Badge inside Frame */}
-                                        <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md p-2.5 rounded-xl shadow-lg border border-gray-100 flex items-center gap-2.5">
-                                            <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                                                <FiCheckCircle size={14} />
-                                            </div>
-                                            <div className="text-[10px] font-mono leading-tight">
-                                                <div className="font-bold text-gray-900">VERIFIED PASS</div>
-                                                <div className="text-emerald-600 font-black">AI & LEDGER OK</div>
-                                            </div>
+                            <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, duration: 0.6 }}
+                                className="flex flex-wrap items-center justify-start gap-3 pt-2"
+                            >
+                                {/* Primary White/Yellow Pill Button with Spring Hover */}
+                                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                                    <Link
+                                        href={route('register')}
+                                        className="inline-flex items-center gap-3 bg-white text-[#980f12] hover:bg-yellow-300 hover:text-gray-950 px-6 py-3.5 rounded-full font-black text-xs sm:text-sm shadow-2xl shadow-black/40 transition-all group cursor-pointer whitespace-nowrap"
+                                    >
+                                        <span>Daftar Subsidi</span>
+                                        <div className="w-6 h-6 rounded-full bg-[#980f12] text-white group-hover:bg-gray-950 flex items-center justify-center text-xs transition-transform duration-300 group-hover:rotate-45 font-bold shrink-0">
+                                            <FiArrowUpRight size={13} />
                                         </div>
-                                    </div>
-                                </div>
+                                    </Link>
+                                </motion.div>
 
-                            </div>
-
-                            {/* Lower Trust Markers */}
-                            <div className="relative z-10 pt-5 mt-6 border-t border-gray-200/60 flex flex-wrap items-center justify-between gap-3 text-gray-500 text-xs">
-                                <div className="flex items-center gap-3">
-                                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Standar Nasional:</span>
-                                    <div className="flex items-center gap-3 font-mono font-black text-gray-700 text-xs">
-                                        <span>BPH MIGAS</span>
-                                        <span>•</span>
-                                        <span>MYPERTAMINA</span>
-                                        <span>•</span>
-                                        <span>HYPERLEDGER</span>
-                                    </div>
-                                </div>
-                                <span className="font-mono text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                                    ● ZERO-FRAUD ACTIVE
-                                </span>
-                            </div>
+                                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
+                                    <a
+                                        href="#simulator"
+                                        onClick={(e) => scrollToSection(e, 'simulator')}
+                                        className="inline-flex items-center gap-2 bg-black/40 hover:bg-black/60 text-white px-5 py-3.5 rounded-full font-bold text-xs border border-white/20 backdrop-blur-md transition-all cursor-pointer whitespace-nowrap hover:border-white/40"
+                                    >
+                                        <FiSliders className="text-yellow-300" /> Cek CC Kendaraan
+                                    </a>
+                                </motion.div>
+                            </motion.div>
                         </motion.div>
 
-
-                        {/* ================================================================= */}
-                        {/* RIGHT COLUMN: 3 BENTO CARDS (Col 4)                                */}
-                        {/* ================================================================= */}
-                        <div className="lg:col-span-4 flex flex-col justify-between gap-4">
-                            
-                            {/* Bento Card 1: Pilihan BBM */}
-                            <motion.div 
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 }}
-                                className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs"
-                            >
-                                <div className="flex items-center justify-between mb-3">
-                                    <span className="text-xs font-extrabold text-gray-900">Kategori Bahan Bakar</span>
-                                    <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                                        REALTIME
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-xs" title="Pertalite (Subsidi)">
-                                            P
-                                        </span>
-                                        <span className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-bold text-xs shadow-xs" title="Biosolar (Subsidi)">
-                                            S
-                                        </span>
-                                        <span className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-xs" title="Pertamax">
-                                            PX
-                                        </span>
-                                        <span className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-xs shadow-xs" title="Pertamax Turbo">
-                                            PT
-                                        </span>
-                                    </div>
-                                    <Link href={route('public.stock')} className="text-xs font-bold text-gray-700 hover:text-[#980f12] flex items-center gap-1 bg-white px-3 py-1.5 rounded-full border border-gray-200 transition-colors">
-                                        Cek Harga <FiArrowRight size={12} />
-                                    </Link>
-                                </div>
-                            </motion.div>
-
-                            {/* Bento Card 2: AI Edge Vision Card */}
-                            <motion.div 
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs relative overflow-hidden group"
-                            >
-                                <div className="flex items-start justify-between relative z-10 mb-2">
-                                    <div>
-                                        <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-black text-[10px] uppercase mb-1">
-                                            AI Edge Vision v8
-                                        </span>
-                                        <h4 className="text-base font-black text-gray-900">Dual-Camera ANPR</h4>
-                                        <p className="text-[11px] text-gray-500 font-medium">Deteksi plat nomor & CC &lt; 2s</p>
-                                    </div>
-                                    <Link
-                                        href="/operator/validation-motor"
-                                        className="w-8 h-8 rounded-full bg-white hover:bg-[#980f12] text-gray-700 hover:text-white flex items-center justify-center text-xs transition-all border border-gray-200 group-hover:scale-110"
-                                        title="Buka AI Scanner"
-                                    >
-                                        <FiArrowRight size={14} />
-                                    </Link>
-                                </div>
-                                <div className="relative h-24 rounded-xl overflow-hidden border border-gray-200/80">
-                                    <img 
-                                        src="/images/hero_camera.jpg" 
-                                        alt="AI Camera Sensor" 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-2">
-                                        <span className="text-[10px] font-mono text-emerald-400 font-bold flex items-center gap-1">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                                            INFERENCE 42ms
-                                        </span>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            {/* Bento Card 3: Smart Dispenser Operator Card (Portrait Card) */}
-                            <motion.div 
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs relative overflow-hidden group"
-                            >
-                                <div className="flex items-start justify-between mb-2 relative z-10">
-                                    <div>
-                                        <span className="inline-block px-2 py-0.5 rounded-md bg-red-50 text-[#980f12] font-mono font-black text-[10px] uppercase mb-1">
-                                            IoT Dispenser Cutoff
-                                        </span>
-                                        <h4 className="text-base font-black text-gray-900">Operator SPBU Terminal</h4>
-                                    </div>
-                                    <Link
-                                        href="/operator/validation"
-                                        className="w-8 h-8 rounded-full bg-white hover:bg-[#980f12] text-gray-700 hover:text-white flex items-center justify-center text-xs transition-all border border-gray-200 group-hover:scale-110"
-                                        title="Buka POS Dispenser"
-                                    >
-                                        <FiArrowRight size={14} />
-                                    </Link>
-                                </div>
-                                <div className="relative h-24 rounded-xl overflow-hidden border border-gray-200/80">
-                                    <img 
-                                        src="/images/hero_operator.jpg" 
-                                        alt="SPBU Operator Terminal" 
-                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" 
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-2">
-                                        <span className="text-[10px] font-mono text-white font-bold">
-                                            SMART NOZZLE RELAY • ACTIVE
-                                        </span>
-                                    </div>
-                                </div>
-                            </motion.div>
-
+                        {/* Right Area: Floating Futuristic Telemetry HUD Chips */}
+                        <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 flex-col justify-between items-end h-64 pointer-events-none pr-4">
+                     
                         </div>
                     </div>
 
+                    {/* Bottom Institution / Trust Logo Strip with Animated Entrance */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7, duration: 0.8 }}
+                        className="w-full bg-black/40 backdrop-blur-md rounded-2xl border border-white/15 px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between sm:justify-around gap-4 text-white/80 font-mono text-[11px] sm:text-xs font-bold tracking-wider mt-auto"
+                    >
+                        <div className="flex items-center gap-1.5 hover:text-white transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>
+                            <span>KEMENTERIAN ESDM</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 hover:text-white transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>BPH MIGAS</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 hover:text-white transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                            <span>PERTAMINA PATRA NIAGA</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 hover:text-white transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                            <span>HYPERLEDGER FABRIC</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 hover:text-white transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+                            <span>POLITEKNIK NEGERI LHOKSEUMAWE</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-amber-300 font-black">
+                            <span>KMIPN 2026</span>
+                        </div>
+                    </motion.div>
 
-                    {/* ================================================================= */}
-                    {/* BOTTOM ROW: BENTO METRICS & POPULAR STRIP (Full Width)            */}
-                    {/* ================================================================= */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5 mt-5">
+                </div>
+            </section>
+
+            {/* ========================================================================= */}
+            {/* MACRO METRIC CARDS & QUICK ACCESS STRIP                                  */}
+            {/* ========================================================================= */}
+            <section className="py-10 bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-10 xl:px-14">
+                <div className="max-w-7xl mx-auto">
+                    
+                    {/* 3 Macro Cards Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5">
                         
-                        {/* Bottom Card 1: Connected SPBU Nodes (Col 4) */}
+                        {/* Connected SPBU Nodes */}
                         <motion.div 
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.35 }}
-                            className="lg:col-span-4 bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between"
+                            transition={{ delay: 0.2 }}
+                            className="lg:col-span-4 bg-gray-50/90 rounded-3xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between"
                         >
                             <div>
                                 <div className="text-xs font-black text-gray-900">SPBU Terdaftar</div>
@@ -580,12 +636,12 @@ export default function Welcome({ auth }: { auth: any }) {
                             </Link>
                         </motion.div>
 
-                        {/* Bottom Card 2: Verified Fuel Volume (Col 4) */}
+                        {/* Cryptographic Fuel Volume Ledger */}
                         <motion.div 
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="lg:col-span-4 bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between"
+                            transition={{ delay: 0.25 }}
+                            className="lg:col-span-4 bg-gray-50/90 rounded-3xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#980f12] to-red-600 text-white flex flex-col items-center justify-center shadow-md">
@@ -611,12 +667,12 @@ export default function Welcome({ auth }: { auth: any }) {
                             </Link>
                         </motion.div>
 
-                        {/* Bottom Card 3: Popular Feature Teaser (Col 4) */}
+                        {/* CC Simulator Teaser */}
                         <motion.div 
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.45 }}
-                            className="lg:col-span-4 bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between"
+                            transition={{ delay: 0.3 }}
+                            className="lg:col-span-4 bg-gray-50/90 rounded-3xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between"
                         >
                             <div>
                                 <span className="text-[10px] font-mono font-bold text-red-600 uppercase flex items-center gap-1">
@@ -635,6 +691,26 @@ export default function Welcome({ auth }: { auth: any }) {
                             </a>
                         </motion.div>
 
+                    </div>
+
+                    {/* Floating / Bouncing Scroll-Down Indicator */}
+                    <div className="pt-8 flex justify-center">
+                        <a
+                            href="#cara-kerja"
+                            onClick={(e) => scrollToSection(e, 'cara-kerja')}
+                            className="group inline-flex flex-col items-center gap-2 text-gray-500 hover:text-[#980f12] transition-colors cursor-pointer"
+                        >
+                            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-gray-400 group-hover:text-[#980f12] transition-colors">
+                                Scroll untuk Eksplorasi
+                            </span>
+                            <motion.div
+                                animate={{ y: [0, 5, 0] }}
+                                transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                                className="w-8 h-8 rounded-full bg-white border border-gray-200 shadow-2xs flex items-center justify-center text-gray-500 group-hover:border-red-300 group-hover:text-[#980f12] group-hover:shadow-md transition-all"
+                            >
+                                <FiChevronDown size={16} />
+                            </motion.div>
+                        </a>
                     </div>
 
                 </div>
@@ -752,191 +828,452 @@ export default function Welcome({ auth }: { auth: any }) {
 
 
             {/* ========================================================================= */}
-            {/* INTERACTIVE SUBSIDY ELIGIBILITY CALCULATOR WIDGET (LIGHT FULL-WIDTH)       */}
+            {/* INTERACTIVE PUBLIC TOOLS: PLATE CHECKER & CC ELIGIBILITY SIMULATOR        */}
             {/* ========================================================================= */}
             <section id="simulator" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
                 <div className="w-full">
-                    <div className="text-center max-w-3xl mx-auto mb-10">
+                    <div className="text-center max-w-3xl mx-auto mb-8">
                         <span className="text-xs font-black uppercase tracking-widest text-[#980f12] bg-red-50 px-3.5 py-1.5 rounded-full border border-red-100">
-                            Fitur Publik Interaktif
+                            Fitur Publik Terbuka & Interaktif
                         </span>
                         <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-2">
-                            Simulasi Cek Kelayakan Subsidi Kendaraan
+                            Pusat Validasi & Kelayakan Kendaraan Subsidi
                         </h2>
                         <p className="text-gray-600 text-sm sm:text-base">
-                            Uji kelayakan kendaraan Anda menerima <strong>Pertalite / Biosolar</strong> secara transparan sesuai regulasi <strong>Perpres No. 191/2014</strong>.
+                            Cek status verifikasi plat nomor Anda yang terdaftar atau uji simulasi batas CC kendaraan sesuai <strong>Perpres No. 191/2014</strong>.
                         </p>
                     </div>
 
-                    <div className="bg-gray-50/80 text-gray-900 rounded-3xl p-6 sm:p-10 lg:p-12 border border-gray-200/80 shadow-xs relative overflow-hidden">
-                        {/* Subtle Glow ambient */}
-                        <div className="absolute -right-20 -top-20 w-80 h-80 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                    {/* Dual Mode Switcher Tabs */}
+                    <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+                        <button
+                            onClick={() => setPublicToolMode('plate_checker')}
+                            className={`px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer border ${
+                                publicToolMode === 'plate_checker'
+                                    ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
+                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
+                            }`}
+                        >
+                            <FiSearch size={16} /> 1. Cek Status Plat Nomor Anda (Live Registry)
+                        </button>
+                        <button
+                            onClick={() => setPublicToolMode('cc_simulator')}
+                            className={`px-6 py-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 cursor-pointer border ${
+                                publicToolMode === 'cc_simulator'
+                                    ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
+                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
+                            }`}
+                        >
+                            <FiSliders size={16} /> 2. Simulasi Kelayakan CC Kendaraan Baru
+                        </button>
+                    </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-                            {/* Input Form Column */}
-                            <div className="lg:col-span-7 space-y-6">
-                                {/* Vehicle Type Toggle */}
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                                        1. Pilih Kategori Kendaraan
-                                    </label>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <button
-                                            onClick={() => {
-                                                setSimVehicleType('motor');
-                                                setSimCC(125);
-                                                setSimBrand('Honda Vario');
-                                                if (!hasInteracted) setHasInteracted(true);
-                                            }}
-                                            className={`p-4 rounded-2xl border flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer ${
-                                                simVehicleType === 'motor'
-                                                    ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
-                                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
-                                            }`}
-                                        >
-                                            <FaMotorcycle size={18} /> Sepeda Motor (&lt; 250cc)
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setSimVehicleType('mobil');
-                                                setSimCC(1300);
-                                                setSimBrand('Toyota Avanza');
-                                                if (!hasInteracted) setHasInteracted(true);
-                                            }}
-                                            className={`p-4 rounded-2xl border flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer ${
-                                                simVehicleType === 'mobil'
-                                                    ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
-                                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
-                                            }`}
-                                        >
-                                            <FiTruck size={18} /> Mobil Penumpang (&le; 1.400cc)
-                                        </button>
+                    {/* Mode 1: Public Quick Plate Checker */}
+                    {publicToolMode === 'plate_checker' && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-gray-50/80 text-gray-900 rounded-3xl p-6 sm:p-10 lg:p-12 border border-gray-200/80 shadow-xs relative overflow-hidden"
+                        >
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+                                {/* Left Input & Query Column */}
+                                <div className="lg:col-span-7 space-y-6">
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                                            Masukkan Nomor Plat Kendaraan Anda
+                                        </label>
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <div className="relative flex-1">
+                                                <input 
+                                                    type="text" 
+                                                    value={plateQuery}
+                                                    onChange={(e) => setPlateQuery(e.target.value.toUpperCase())}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleCheckPlate()}
+                                                    placeholder="Contoh: BL 1234 AB / B 9988 XYZ"
+                                                    className="w-full px-5 py-4 rounded-2xl font-mono text-base font-black text-gray-950 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#980f12] uppercase tracking-wider shadow-xs"
+                                                />
+                                            </div>
+                                            <button
+                                                onClick={() => handleCheckPlate()}
+                                                disabled={isSearchingPlate}
+                                                className="bg-[#980f12] hover:bg-red-800 text-white font-bold px-7 py-4 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                                            >
+                                                {isSearchingPlate ? (
+                                                    <>
+                                                        <FiRefreshCw className="animate-spin" size={16} /> Memeriksa...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FiSearch size={16} /> Cek Status
+                                                    </>
+                                                )}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Preset Samples */}
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                                        2. Pilih Contoh Kendaraan Populer
-                                    </label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {quickPresets
-                                            .filter(p => p.type === simVehicleType)
-                                            .map((preset) => (
+                                    {/* Quick Preset Plate Chips */}
+                                    <div>
+                                        <span className="text-xs font-bold text-gray-500 block mb-2">
+                                            Uji Coba Plat Terdaftar di Jaringan:
+                                        </span>
+                                        <div className="flex flex-wrap gap-2">
+                                            {[
+                                                { plate: 'BL 1234 AB', label: 'BL 1234 AB (Vario 125)' },
+                                                { plate: 'B 9988 XYZ', label: 'B 9988 XYZ (Avanza 1.3)' },
+                                                { plate: 'BK 4567 CD', label: 'BK 4567 CD (Ninja 250cc)' },
+                                                { plate: 'D 1088 EF', label: 'D 1088 EF (NMAX 155)' },
+                                            ].map((sample) => (
                                                 <button
-                                                    key={preset.name}
-                                                    onClick={() => {
-                                                        setSimCC(preset.cc);
-                                                        setSimBrand(preset.name);
-                                                        if (!hasInteracted) setHasInteracted(true);
-                                                    }}
-                                                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
-                                                        simBrand === preset.name
-                                                            ? 'bg-[#980f12] text-white border-[#980f12] font-black shadow-xs'
+                                                    key={sample.plate}
+                                                    onClick={() => handleCheckPlate(sample.plate)}
+                                                    className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all border cursor-pointer ${
+                                                        plateQuery === sample.plate
+                                                            ? 'bg-[#980f12] text-white border-[#980f12] shadow-xs'
                                                             : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
                                                     }`}
                                                 >
-                                                    {preset.name} ({preset.cc >= 1000 ? `${(preset.cc/1000).toFixed(1).replace('.0','')}L / ${preset.cc}cc` : `${preset.cc}cc`})
+                                                    {sample.label}
                                                 </button>
                                             ))}
-                                    </div>
-                                </div>
-
-                                {/* CC Slider / Input */}
-                                <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                            3. Kapasitas Mesin (CC)
-                                        </label>
-                                        <span className="font-mono text-xl font-black text-[#980f12] bg-red-50 px-3 py-1 rounded-lg border border-red-100">
-                                            <CountUp end={simCC} duration={0.4} preserveValue /> CC
-                                        </span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min={simVehicleType === 'motor' ? 50 : 800}
-                                        max={simVehicleType === 'motor' ? 500 : 3500}
-                                        step={simVehicleType === 'motor' ? 5 : 50}
-                                        value={simCC}
-                                        onChange={(e) => {
-                                            const val = Number(e.target.value);
-                                            setSimCC(val);
-                                            setSimBrand('Kustom');
-                                            if (!hasInteracted) setHasInteracted(true);
-                                        }}
-                                        className="w-full h-2.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#980f12]"
-                                    />
-                                    <div className="flex justify-between text-[11px] font-mono text-gray-500 mt-2">
-                                        <span>{simVehicleType === 'motor' ? '50cc' : '800cc'}</span>
-                                        <span className="text-[#980f12] font-bold">
-                                            {simVehicleType === 'motor' ? 'Batas Regulasi: 250cc' : 'Batas Regulasi: 1.400cc'}
-                                        </span>
-                                        <span>{simVehicleType === 'motor' ? '500cc' : '3.500cc'}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Result Verdict Card */}
-                            <div className="lg:col-span-5">
-                                <div className={`p-6 sm:p-8 rounded-3xl border-2 text-center transition-all ${
-                                    isEligible 
-                                        ? 'bg-emerald-50/90 border-emerald-500 shadow-lg shadow-emerald-500/10' 
-                                        : 'bg-rose-50/90 border-rose-500 shadow-lg shadow-rose-500/10'
-                                }`}>
-                                    <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 ${
-                                        isEligible ? 'bg-emerald-600 text-white shadow-md' : 'bg-rose-600 text-white shadow-md'
-                                    }`}>
-                                        {isEligible ? <FiCheckCircle /> : <FiAlertCircle />}
-                                    </div>
-
-                                    <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500">
-                                        Hasil Evaluasi AI & Regulasi
-                                    </span>
-
-                                    <h4 className={`text-xl sm:text-2xl font-black mt-1 mb-2 ${
-                                        isEligible ? 'text-emerald-950' : 'text-rose-950'
-                                    }`}>
-                                        {isEligible ? 'BERHAK MENERIMA SUBSIDI' : 'TIDAK BERHAK (NON-SUBSIDI)'}
-                                    </h4>
-
-                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-5">
-                                        {isEligible 
-                                            ? `Kendaraan ${simBrand} (${simCC}cc) memenuhi kriteria penerima BBM subsidi Pertalite / Biosolar.` 
-                                            : `Kendaraan ${simBrand} (${simCC}cc) melebihi batas regulasi. Wajib menggunakan BBM Non-Subsidi (Pertamax / Dex).`}
-                                    </p>
-
-                                    <div className="p-3.5 rounded-2xl bg-white text-left text-xs font-mono text-gray-700 border border-gray-200/80 mb-5 space-y-1.5 shadow-2xs">
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Regulasi:</span>
-                                            <strong className="text-gray-900">Perpres No. 191/2014</strong>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Kuota Harian:</span>
-                                            <strong className={isEligible ? 'text-emerald-700' : 'text-rose-700'}>
-                                                {isEligible ? (simVehicleType === 'motor' ? '5 - 10 Liter' : '20 - 40 Liter') : '0 Liter (N/A)'}
-                                            </strong>
                                         </div>
                                     </div>
 
-                                    {isEligible ? (
-                                        <Link
-                                            href={route('register')}
-                                            className="w-full block text-center bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                                        >
-                                            Daftarkan QR Pass Sekarang
-                                        </Link>
-                                    ) : (
-                                        <Link
-                                            href={route('public.stock')}
-                                            className="w-full block text-center bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 py-3.5 rounded-2xl font-bold text-xs sm:text-sm transition-colors"
-                                        >
-                                            Cek Ketersediaan Pertamax di SPBU
-                                        </Link>
+                                    {/* Detailed Verification Specs Card */}
+                                    {searchedPlateData && (
+                                        <div className="p-5 rounded-2xl bg-white border border-gray-200/80 space-y-3 font-mono text-xs shadow-2xs">
+                                            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                                                <span className="text-gray-500 font-sans">Status STNK Samsat:</span>
+                                                <strong className="text-gray-900 font-bold">{searchedPlateData.stnkExpiry !== '-' ? `Aktif s/d ${searchedPlateData.stnkExpiry}` : 'Belum Ada'}</strong>
+                                            </div>
+                                            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                                                <span className="text-gray-500 font-sans">Merek / Model:</span>
+                                                <strong className="text-gray-900">{searchedPlateData.model}</strong>
+                                            </div>
+                                            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+                                                <span className="text-gray-500 font-sans">Riwayat Pengisian:</span>
+                                                <strong className="text-gray-700">{searchedPlateData.lastRefuel}</strong>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-gray-500 font-sans">SPBU Terdaftar:</span>
+                                                <strong className="text-gray-900 truncate max-w-[200px]">{searchedPlateData.spbuLocation}</strong>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
+
+                                {/* Right Result / Digital Pass Preview */}
+                                <div className="lg:col-span-5">
+                                    {searchedPlateData ? (
+                                        <div className={`p-6 sm:p-8 rounded-3xl border-2 text-center transition-all ${
+                                            searchedPlateData.status === 'verified'
+                                                ? 'bg-emerald-50/90 border-emerald-500 shadow-lg shadow-emerald-500/10'
+                                                : searchedPlateData.status === 'rejected'
+                                                ? 'bg-rose-50/90 border-rose-500 shadow-lg shadow-rose-500/10'
+                                                : 'bg-amber-50/90 border-amber-500 shadow-lg shadow-amber-500/10'
+                                        }`}>
+                                            <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 ${
+                                                searchedPlateData.status === 'verified' ? 'bg-emerald-600 text-white shadow-md' :
+                                                searchedPlateData.status === 'rejected' ? 'bg-rose-600 text-white shadow-md' :
+                                                'bg-amber-600 text-white shadow-md'
+                                            }`}>
+                                                {searchedPlateData.status === 'verified' ? <FiCheckCircle /> : 
+                                                 searchedPlateData.status === 'rejected' ? <FiAlertCircle /> : <FiInfo />}
+                                            </div>
+
+                                            <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500">
+                                                Hasil Penelusuran Registry
+                                            </span>
+
+                                            <h4 className={`text-xl sm:text-2xl font-black mt-1 mb-2 ${
+                                                searchedPlateData.status === 'verified' ? 'text-emerald-950' :
+                                                searchedPlateData.status === 'rejected' ? 'text-rose-950' : 'text-amber-950'
+                                            }`}>
+                                                {searchedPlateData.status === 'verified' ? 'TERVERIFIKASI AKTIF' :
+                                                 searchedPlateData.status === 'rejected' ? 'TIDAK BERHAK (NON-SUBSIDI)' : 'BELUM TERDAFTAR'}
+                                            </h4>
+
+                                            <div className="font-mono text-xl font-black text-gray-900 bg-white py-1.5 px-4 rounded-xl border border-gray-200/80 shadow-2xs inline-block mb-3">
+                                                {searchedPlateData.plate}
+                                            </div>
+
+                                            {searchedPlateData.status === 'verified' ? (
+                                                <div className="space-y-4">
+                                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                                        Kendaraan <strong>{searchedPlateData.model}</strong> memenuhi syarat subsidi. Alokasi kuota harian aktif.
+                                                    </p>
+                                                    <div className="p-3.5 rounded-2xl bg-white text-left text-xs font-mono border border-emerald-200 space-y-1.5 shadow-2xs">
+                                                        <div className="flex justify-between">
+                                                            <span className="text-gray-500 font-sans">Sisa Kuota Hari Ini:</span>
+                                                            <strong className="text-emerald-700 font-bold">{searchedPlateData.quotaRemaining} L / {searchedPlateData.quotaDaily} L</strong>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                                                            <div 
+                                                                className="bg-emerald-500 h-2 rounded-full transition-all duration-500" 
+                                                                style={{ width: `${(searchedPlateData.quotaRemaining / searchedPlateData.quotaDaily) * 100}%` }}
+                                                            ></div>
+                                                        </div>
+                                                        <div className="flex justify-between text-[10px] text-gray-400 pt-1">
+                                                            <span>Token Anti-Replay:</span>
+                                                            <span className="text-emerald-600 font-bold">READY (60s OTP)</span>
+                                                        </div>
+                                                    </div>
+                                                    <Link
+                                                        href={route('login')}
+                                                        className="w-full block text-center bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                                                    >
+                                                        Masuk & Tampilkan QR Pass Lengkap
+                                                    </Link>
+                                                </div>
+                                            ) : searchedPlateData.status === 'rejected' ? (
+                                                <div className="space-y-4">
+                                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                                        Kapasitas mesin ({searchedPlateData.cc}cc) melebihi ambang batas regulasi BBM bersubsidi.
+                                                    </p>
+                                                    <Link
+                                                        href={route('public.stock')}
+                                                        className="w-full block text-center bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 py-3.5 rounded-2xl font-bold text-xs sm:text-sm transition-colors"
+                                                    >
+                                                        Cek Ketersediaan Pertamax di SPBU
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                                                        Plat ini belum terdaftar di basis data verifikasi PETROCHAIN. Segera daftarkan foto STNK Anda.
+                                                    </p>
+                                                    <Link
+                                                        href={route('register')}
+                                                        className="w-full block text-center bg-[#980f12] hover:bg-red-800 text-white py-3.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                                                    >
+                                                        Daftarkan Kendaraan Subsidi Sekarang
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : null}
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </motion.div>
+                    )}
+
+                    {/* Mode 2: Interactive CC Eligibility Simulator */}
+                    {publicToolMode === 'cc_simulator' && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-gray-50/80 text-gray-900 rounded-3xl p-6 sm:p-10 lg:p-12 border border-gray-200/80 shadow-xs relative overflow-hidden"
+                        >
+                            {/* Subtle Glow ambient */}
+                            <div className="absolute -right-20 -top-20 w-80 h-80 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+                                {/* Input Form Column */}
+                                <div className="lg:col-span-7 space-y-6">
+                                    {/* Vehicle Type Toggle */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                                            1. Pilih Kategori Kendaraan
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <button
+                                                onClick={() => {
+                                                    setSimVehicleType('motor');
+                                                    setSimCC(125);
+                                                    setSimBrand('Honda Vario');
+                                                    if (!hasInteracted) setHasInteracted(true);
+                                                }}
+                                                className={`p-4 rounded-2xl border flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer ${
+                                                    simVehicleType === 'motor'
+                                                        ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
+                                                        : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
+                                                }`}
+                                            >
+                                                <FaMotorcycle size={18} /> Sepeda Motor (&lt; 250cc)
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setSimVehicleType('mobil');
+                                                    setSimCC(1300);
+                                                    setSimBrand('Toyota Avanza');
+                                                    if (!hasInteracted) setHasInteracted(true);
+                                                }}
+                                                className={`p-4 rounded-2xl border flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer ${
+                                                    simVehicleType === 'mobil'
+                                                        ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
+                                                        : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
+                                                }`}
+                                            >
+                                                <FiTruck size={18} /> Mobil Penumpang (&le; 1.400cc)
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Preset Samples */}
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
+                                            2. Pilih Contoh Kendaraan Populer
+                                        </label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {quickPresets
+                                                .filter(p => p.type === simVehicleType)
+                                                .map((preset) => (
+                                                    <button
+                                                        key={preset.name}
+                                                        onClick={() => {
+                                                            setSimCC(preset.cc);
+                                                            setSimBrand(preset.name);
+                                                            if (!hasInteracted) setHasInteracted(true);
+                                                        }}
+                                                        className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
+                                                            simBrand === preset.name
+                                                                ? 'bg-[#980f12] text-white border-[#980f12] font-black shadow-xs'
+                                                                : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
+                                                        }`}
+                                                    >
+                                                        {preset.name} ({preset.cc >= 1000 ? `${(preset.cc/1000).toFixed(1).replace('.0','')}L / ${preset.cc}cc` : `${preset.cc}cc`})
+                                                    </button>
+                                                ))}
+                                        </div>
+                                    </div>
+
+                                    {/* CC Slider / Input with Visual Zones */}
+                                    <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200/80 shadow-2xs space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                                3. Kapasitas Mesin (CC)
+                                            </label>
+                                            <span className={`font-mono text-xl font-black px-3 py-1 rounded-lg border transition-colors ${
+                                                isEligible 
+                                                    ? 'text-emerald-700 bg-emerald-50 border-emerald-200' 
+                                                    : 'text-rose-700 bg-rose-50 border-rose-200'
+                                            }`}>
+                                                <CountUp end={simCC} duration={0.4} preserveValue /> CC
+                                            </span>
+                                        </div>
+
+                                        {/* Visual Two-Zone Bar */}
+                                        <div className="space-y-2">
+                                            <div className="h-3.5 w-full rounded-full bg-gray-100 overflow-hidden flex relative border border-gray-200 shadow-inner">
+                                                <div 
+                                                    style={{ width: simVehicleType === 'motor' ? '44.44%' : '22.22%' }}
+                                                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 relative transition-all duration-300"
+                                                    title={simVehicleType === 'motor' ? 'Zona Subsidi: 50cc - 250cc' : 'Zona Subsidi: 800cc - 1400cc'}
+                                                >
+                                                    <span className="absolute inset-0 bg-white/20 animate-pulse"></span>
+                                                </div>
+                                                <div 
+                                                    style={{ width: simVehicleType === 'motor' ? '55.56%' : '77.78%' }}
+                                                    className="h-full bg-gradient-to-r from-rose-400 to-rose-500 transition-all duration-300"
+                                                    title={simVehicleType === 'motor' ? 'Zona Non-Subsidi: > 250cc' : 'Zona Non-Subsidi: > 1400cc'}
+                                                ></div>
+                                            </div>
+
+                                            <input
+                                                type="range"
+                                                min={simVehicleType === 'motor' ? 50 : 800}
+                                                max={simVehicleType === 'motor' ? 500 : 3500}
+                                                step={simVehicleType === 'motor' ? 5 : 50}
+                                                value={simCC}
+                                                onChange={(e) => {
+                                                    const val = Number(e.target.value);
+                                                    setSimCC(val);
+                                                    setSimBrand('Kustom');
+                                                    if (!hasInteracted) setHasInteracted(true);
+                                                }}
+                                                className="w-full h-2.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#980f12]"
+                                            />
+                                        </div>
+
+                                        {/* Visual Zone Badges */}
+                                        <div className="grid grid-cols-2 gap-2 pt-1">
+                                            <div className={`p-2.5 rounded-xl border text-[11px] font-mono flex items-center justify-between transition-all ${
+                                                isEligible
+                                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold shadow-2xs'
+                                                    : 'bg-gray-50 text-gray-400 border-gray-200'
+                                            }`}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <div className={`w-2 h-2 rounded-full ${isEligible ? 'bg-emerald-500 ring-2 ring-emerald-300' : 'bg-gray-300'}`}></div>
+                                                    <span>Zona Subsidi</span>
+                                                </div>
+                                                <span className="text-[10px]">{simVehicleType === 'motor' ? '≤ 250cc' : '≤ 1.400cc'}</span>
+                                            </div>
+                                            <div className={`p-2.5 rounded-xl border text-[11px] font-mono flex items-center justify-between transition-all ${
+                                                !isEligible
+                                                    ? 'bg-rose-50 text-rose-800 border-rose-300 font-bold shadow-2xs'
+                                                    : 'bg-gray-50 text-gray-400 border-gray-200'
+                                            }`}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <div className={`w-2 h-2 rounded-full ${!isEligible ? 'bg-rose-500 ring-2 ring-rose-300' : 'bg-gray-300'}`}></div>
+                                                    <span>Non-Subsidi</span>
+                                                </div>
+                                                <span className="text-[10px]">{simVehicleType === 'motor' ? '> 250cc' : '> 1.400cc'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Result Verdict Card */}
+                                <div className="lg:col-span-5">
+                                    <div className={`p-6 sm:p-8 rounded-3xl border-2 text-center transition-all ${
+                                        isEligible 
+                                            ? 'bg-emerald-50/90 border-emerald-500 shadow-lg shadow-emerald-500/10' 
+                                            : 'bg-rose-50/90 border-rose-500 shadow-lg shadow-rose-500/10'
+                                    }`}>
+                                        <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 ${
+                                            isEligible ? 'bg-emerald-600 text-white shadow-md' : 'bg-rose-600 text-white shadow-md'
+                                        }`}>
+                                            {isEligible ? <FiCheckCircle /> : <FiAlertCircle />}
+                                        </div>
+
+                                        <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500">
+                                            Hasil Evaluasi AI & Regulasi
+                                        </span>
+
+                                        <h4 className={`text-xl sm:text-2xl font-black mt-1 mb-2 ${
+                                            isEligible ? 'text-emerald-950' : 'text-rose-950'
+                                        }`}>
+                                            {isEligible ? 'BERHAK MENERIMA SUBSIDI' : 'TIDAK BERHAK (NON-SUBSIDI)'}
+                                        </h4>
+
+                                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-5">
+                                            {isEligible 
+                                                ? `Kendaraan ${simBrand} (${simCC}cc) memenuhi kriteria penerima BBM subsidi Pertalite / Biosolar.` 
+                                                : `Kendaraan ${simBrand} (${simCC}cc) melebihi batas regulasi. Wajib menggunakan BBM Non-Subsidi (Pertamax / Dex).`}
+                                        </p>
+
+                                        <div className="p-3.5 rounded-2xl bg-white text-left text-xs font-mono text-gray-700 border border-gray-200/80 mb-5 space-y-1.5 shadow-2xs">
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-500">Regulasi:</span>
+                                                <strong className="text-gray-900">Perpres No. 191/2014</strong>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-gray-500">Kuota Harian:</span>
+                                                <strong className={isEligible ? 'text-emerald-700' : 'text-rose-700'}>
+                                                    {isEligible ? (simVehicleType === 'motor' ? '5 - 10 Liter' : '20 - 40 Liter') : '0 Liter (N/A)'}
+                                                </strong>
+                                            </div>
+                                        </div>
+
+                                        {isEligible ? (
+                                            <Link
+                                                href={route('register')}
+                                                className="w-full block text-center bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                                            >
+                                                Daftarkan QR Pass Sekarang
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                href={route('public.stock')}
+                                                className="w-full block text-center bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 py-3.5 rounded-2xl font-bold text-xs sm:text-sm transition-colors"
+                                            >
+                                                Cek Ketersediaan Pertamax di SPBU
+                                            </Link>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
                 </div>
             </section>
 
@@ -958,12 +1295,19 @@ export default function Welcome({ auth }: { auth: any }) {
                         </p>
                     </div>
 
-                    {/* 4 Pillars Flow */}
+                    {/* 4 Pillars Flow with Connecting Pipeline */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative">
+                        {/* Desktop Pipeline Flow Line */}
+                        <div className="hidden lg:block absolute top-[45%] left-12 right-12 h-0.5 border-t-2 border-dashed border-gray-300 z-0 pointer-events-none"></div>
+
                         {/* Pillar 1: Depot */}
-                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4">
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4 relative z-10 group">
+                            {/* Connector Arrow to Pillar 2 (Desktop) */}
+                            <div className="hidden lg:flex absolute -right-3.5 top-[45%] -translate-y-1/2 z-20 w-7 h-7 bg-white border border-gray-200 rounded-full items-center justify-center text-amber-600 shadow-xs group-hover:scale-110 group-hover:border-amber-300 transition-all">
+                                <FiArrowRight size={13} />
+                            </div>
                             <div>
-                                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl font-black mb-4 border border-amber-100">
+                                <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl font-black mb-4 border border-amber-100 group-hover:scale-105 transition-transform">
                                     <FiDatabase />
                                 </div>
                                 <span className="text-[10px] font-mono font-bold text-amber-700 uppercase">PILAR 1 • HULU</span>
@@ -972,15 +1316,20 @@ export default function Welcome({ auth }: { auth: any }) {
                                     Monitoring tangki induk dan penugasan armada mobil tangki bersensor IoT Flowmeter & GPS Geofencing.
                                 </p>
                             </div>
-                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100">
-                                Output: Manifest BBM Digital
+                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <span>Output Data:</span>
+                                <strong className="text-amber-700 font-bold">Manifest Digital</strong>
                             </div>
                         </div>
 
                         {/* Pillar 2: SPBU Dispenser */}
-                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4">
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4 relative z-10 group">
+                            {/* Connector Arrow to Pillar 3 (Desktop) */}
+                            <div className="hidden lg:flex absolute -right-3.5 top-[45%] -translate-y-1/2 z-20 w-7 h-7 bg-white border border-gray-200 rounded-full items-center justify-center text-[#980f12] shadow-xs group-hover:scale-110 group-hover:border-red-300 transition-all">
+                                <FiArrowRight size={13} />
+                            </div>
                             <div>
-                                <div className="w-14 h-14 rounded-2xl bg-red-50 text-[#980f12] flex items-center justify-center text-2xl font-black mb-4 border border-red-100">
+                                <div className="w-14 h-14 rounded-2xl bg-red-50 text-[#980f12] flex items-center justify-center text-2xl font-black mb-4 border border-red-100 group-hover:scale-105 transition-transform">
                                     <FaGasPump />
                                 </div>
                                 <span className="text-[10px] font-mono font-bold text-[#980f12] uppercase">PILAR 2 • DISPENSER</span>
@@ -989,15 +1338,20 @@ export default function Welcome({ auth }: { auth: any }) {
                                     Dual Camera CCTV membaca plat nomor fisik (OCR) dan klasifikasi kapasitas motor (YOLO) saat pengisian.
                                 </p>
                             </div>
-                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100">
-                                Output: Validasi Real-time &lt; 2s
+                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <span>Kecepatan:</span>
+                                <strong className="text-[#980f12] font-bold">Validasi &lt; 2s</strong>
                             </div>
                         </div>
 
                         {/* Pillar 3: Konsumen */}
-                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4">
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4 relative z-10 group">
+                            {/* Connector Arrow to Pillar 4 (Desktop) */}
+                            <div className="hidden lg:flex absolute -right-3.5 top-[45%] -translate-y-1/2 z-20 w-7 h-7 bg-white border border-gray-200 rounded-full items-center justify-center text-blue-600 shadow-xs group-hover:scale-110 group-hover:border-blue-300 transition-all">
+                                <FiArrowRight size={13} />
+                            </div>
                             <div>
-                                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-2xl font-black mb-4 border border-blue-100">
+                                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-2xl font-black mb-4 border border-blue-100 group-hover:scale-105 transition-transform">
                                     <FaQrcode />
                                 </div>
                                 <span className="text-[10px] font-mono font-bold text-blue-700 uppercase">PILAR 3 • KONSUMEN</span>
@@ -1006,15 +1360,16 @@ export default function Welcome({ auth }: { auth: any }) {
                                     Masyarakat menggunakan QR Pass terverifikasi STNK. Sistem menolak jika QR digunakan pada plat mobil lain.
                                 </p>
                             </div>
-                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100">
-                                Output: Zero QR Fraud Replay
+                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <span>Keamanan:</span>
+                                <strong className="text-blue-700 font-bold">Anti-Replay Token</strong>
                             </div>
                         </div>
 
                         {/* Pillar 4: Auditor Blockchain */}
-                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4">
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4 relative z-10 group">
                             <div>
-                                <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-2xl font-black mb-4 border border-purple-100">
+                                <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-2xl font-black mb-4 border border-purple-100 group-hover:scale-105 transition-transform">
                                     <FiLayers />
                                 </div>
                                 <span className="text-[10px] font-mono font-bold text-purple-700 uppercase">PILAR 4 • AUDIT</span>
@@ -1023,8 +1378,9 @@ export default function Welcome({ auth }: { auth: any }) {
                                     Data transaksi dicatat secara permanen tanpa perantara. BPH Migas & Kemenkeu mengaudit tanpa resiko manipulasi.
                                 </p>
                             </div>
-                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100">
-                                Output: 100% Immutable Ledger
+                            <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                <span>Integritas:</span>
+                                <strong className="text-purple-700 font-bold">100% Immutable</strong>
                             </div>
                         </div>
                     </div>
@@ -1056,6 +1412,125 @@ export default function Welcome({ auth }: { auth: any }) {
 
                         <div className="lg:col-span-6 flex justify-center w-full">
                             <InteractiveGlobe />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            {/* ========================================================================= */}
+            {/* NATIONAL MACRO IMPACT METRICS SECTION (FULL-WIDTH LIGHT)                  */}
+            {/* ========================================================================= */}
+            <section id="dampak" className="py-20 bg-gray-50/70 border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
+                <div className="w-full">
+                    <div className="text-center max-w-3xl mx-auto mb-14">
+                        <span className="text-xs font-black uppercase tracking-widest text-[#980f12] bg-red-50 px-3.5 py-1.5 rounded-full border border-red-100 inline-flex items-center gap-1.5">
+                            <FiTrendingUp /> Proyeksi Dampak Makro-Ekonomi & Regulasi
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-3">
+                            Kuantifikasi Dampak Transformasi Energi Nasional
+                        </h2>
+                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                            Mengunci kebocoran anggaran APBN subsidi BBM, memangkas antrean SPBU, dan menghadirkan audit trail mutlak bagi BPH Migas & Kementerian Keuangan.
+                        </p>
+                    </div>
+
+                    {/* 4 Impact Bento Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Impact Card 1: APBN Savings */}
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl font-bold border border-emerald-100 group-hover:scale-110 transition-transform">
+                                        <FiDollarSign />
+                                    </div>
+                                    <span className="text-[10px] font-mono font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                        ANALISIS APBN 2026
+                                    </span>
+                                </div>
+                                <div className="text-2xl sm:text-3xl font-black text-gray-950 font-mono tracking-tight mb-2">
+                                    Rp <CountUp end={18.4} decimals={1} duration={2.5} enableScrollSpy scrollSpyOnce /> T
+                                </div>
+                                <h4 className="text-sm font-bold text-gray-900 mb-2">Potensi Penghematan Kebocoran / Thn</h4>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Mencegah alokasi subsidi jatuh ke kendaraan non-hak (moge &gt;250cc, mobil mewah &gt;1.400cc) serta penimbunan tangki modifikasi di 7.280+ SPBU.
+                                </p>
+                            </div>
+                            <div className="pt-4 mt-4 border-t border-gray-100 text-[11px] font-mono text-emerald-700 font-bold flex items-center gap-1">
+                                <FiCheckCircle size={13} /> Efisiensi Fiskal Berkelanjutan
+                            </div>
+                        </div>
+
+                        {/* Impact Card 2: Zero Fraud */}
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#980f12] flex items-center justify-center text-2xl font-bold border border-red-100 group-hover:scale-110 transition-transform">
+                                        <FiShield />
+                                    </div>
+                                    <span className="text-[10px] font-mono font-black text-[#980f12] bg-red-50 px-2.5 py-1 rounded-lg border border-red-100">
+                                        ANTI-REPLAY TOKEN
+                                    </span>
+                                </div>
+                                <div className="text-2xl sm:text-3xl font-black text-gray-950 font-mono tracking-tight mb-2">
+                                    <CountUp end={100} duration={2} suffix="%" enableScrollSpy scrollSpyOnce /> Zero-Fraud
+                                </div>
+                                <h4 className="text-sm font-bold text-gray-900 mb-2">Eliminasi Screenshot Barcode</h4>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    QR Pass berkode token dinamis 60 detik yang diverifikasi silang dengan plat fisik ANPR, mengeliminasi penyalahgunaan foto QR orang lain.
+                                </p>
+                            </div>
+                            <div className="pt-4 mt-4 border-t border-gray-100 text-[11px] font-mono text-[#980f12] font-bold flex items-center gap-1">
+                                <FiLock size={13} /> Kriptografi SHA-256 Auth
+                            </div>
+                        </div>
+
+                        {/* Impact Card 3: Realtime Latency */}
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-2xl font-bold border border-blue-100 group-hover:scale-110 transition-transform">
+                                        <FiZap />
+                                    </div>
+                                    <span className="text-[10px] font-mono font-black text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100">
+                                        EDGE INFERENCE
+                                    </span>
+                                </div>
+                                <div className="text-2xl sm:text-3xl font-black text-gray-950 font-mono tracking-tight mb-2">
+                                    &lt; 2.0 Detik
+                                </div>
+                                <h4 className="text-sm font-bold text-gray-900 mb-2">Verifikasi Cepat Tanpa Antrean</h4>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Dual Camera CCTV memindai plat dan bodi kendaraan secara simultan (42ms inference) sebelum nozzle dispenser dibuka secara otomatis.
+                                </p>
+                            </div>
+                            <div className="pt-4 mt-4 border-t border-gray-100 text-[11px] font-mono text-blue-700 font-bold flex items-center gap-1">
+                                <FiActivity size={13} /> Smooth SPBU Traffic Flow
+                            </div>
+                        </div>
+
+                        {/* Impact Card 4: National Consensus Coverage */}
+                        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-gray-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-2xl font-bold border border-purple-100 group-hover:scale-110 transition-transform">
+                                        <FiLayers />
+                                    </div>
+                                    <span className="text-[10px] font-mono font-black text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-100">
+                                        MULTI-INSTITUSI
+                                    </span>
+                                </div>
+                                <div className="text-2xl sm:text-3xl font-black text-gray-950 font-mono tracking-tight mb-2">
+                                    <CountUp end={38} duration={2} suffix=" Provinsi" enableScrollSpy scrollSpyOnce />
+                                </div>
+                                <h4 className="text-sm font-bold text-gray-900 mb-2">Audit Kriptografis Terpadu</h4>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Mewujudkan Single Source of Truth energi nasional antara Pertamina Patra Niaga, BPH Migas, Samsat, dan Auditor Negara.
+                                </p>
+                            </div>
+                            <div className="pt-4 mt-4 border-t border-gray-100 text-[11px] font-mono text-purple-700 font-bold flex items-center gap-1">
+                                <FiAward size={13} /> Hyperledger Fabric Raft BFT
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1130,22 +1605,29 @@ export default function Welcome({ auth }: { auth: any }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800">
-                                    <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                        <span className="font-semibold text-gray-600">// YOLOv8_Inference_Log.json</span>
-                                        <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">HTTP 200 OK</span>
+                                <div className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-xl font-mono text-xs text-slate-200">
+                                    <div className="text-slate-400 pb-3 mb-3 border-b border-slate-800 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                                            </div>
+                                            <span className="text-[11px] text-slate-400 ml-2">// YOLOv8_Inference_Log.json</span>
+                                        </div>
+                                        <span className="text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-800/60 px-2 py-0.5 rounded text-[10px]">HTTP 200 OK</span>
                                     </div>
-                                    <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`{
-  "status": "MATCH",
-  "detected_plate": "BL 1234 AB",
-  "ocr_confidence": 0.9882,
-  "vehicle_class": "motorcycle",
-  "capacity_check": "UNDER_250CC",
-  "decision": "SUBSIDY_ELIGIBLE",
-  "actuator_signal": "RELAY_HIGH_UNLOCKED"
-}`}
-                                    </pre>
+                                    <div className="overflow-x-auto text-[11px] leading-relaxed font-mono">
+                                        <div><span className="text-slate-500">&#123;</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"status"</span><span className="text-slate-400">: </span><span className="text-emerald-300">"MATCH"</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"detected_plate"</span><span className="text-slate-400">: </span><span className="text-amber-300 font-bold">"BL 1234 AB"</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"ocr_confidence"</span><span className="text-slate-400">: </span><span className="text-purple-300">0.9882</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"vehicle_class"</span><span className="text-slate-400">: </span><span className="text-emerald-300">"motorcycle"</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"capacity_check"</span><span className="text-slate-400">: </span><span className="text-emerald-300">"UNDER_250CC"</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"decision"</span><span className="text-slate-400">: </span><span className="text-emerald-400 font-bold">"SUBSIDY_ELIGIBLE"</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"actuator_signal"</span><span className="text-slate-400">: </span><span className="text-blue-300">"RELAY_HIGH_UNLOCKED"</span></div>
+                                        <div><span className="text-slate-500">&#125;</span></div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -1173,20 +1655,27 @@ export default function Welcome({ auth }: { auth: any }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800">
-                                    <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                        <span className="font-semibold text-gray-600">// ESP32_Relay_Command.c</span>
-                                        <span className="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded">HARDWARE READY</span>
+                                <div className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-xl font-mono text-xs text-slate-200">
+                                    <div className="text-slate-400 pb-3 mb-3 border-b border-slate-800 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                                            </div>
+                                            <span className="text-[11px] text-slate-400 ml-2">// ESP32_Relay_Command.cpp</span>
+                                        </div>
+                                        <span className="text-amber-400 font-bold bg-amber-950/80 border border-amber-800/60 px-2 py-0.5 rounded text-[10px]">HARDWARE READY</span>
                                     </div>
-                                    <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`void executeNozzleCutoff() {
-  if (validationResult == MISMATCH || vehicleCC > 250) {
-    digitalWrite(RELAY_NOZZLE_PIN, LOW); // Cutoff pump
-    triggerAlarmBuzzer(PATTERN_FRAUD);
-    logBlockchainAnomaly(TRANSACTION_ID);
-  }
-}`}
-                                    </pre>
+                                    <div className="overflow-x-auto text-[11px] leading-relaxed font-mono">
+                                        <div><span className="text-purple-400 font-bold">void</span> <span className="text-sky-300 font-bold">executeNozzleCutoff</span><span className="text-slate-400">() &#123;</span></div>
+                                        <div className="pl-4"><span className="text-purple-400 font-bold">if</span> <span className="text-slate-300">(validationResult == MISMATCH || vehicleCC &gt; </span><span className="text-amber-300">250</span><span className="text-slate-300">) &#123;</span></div>
+                                        <div className="pl-8"><span className="text-sky-300">digitalWrite</span><span className="text-slate-300">(RELAY_NOZZLE_PIN, </span><span className="text-rose-400 font-bold">LOW</span><span className="text-slate-300">);</span> <span className="text-slate-500">// Cutoff pump</span></div>
+                                        <div className="pl-8"><span className="text-sky-300">triggerAlarmBuzzer</span><span className="text-slate-300">(PATTERN_FRAUD);</span></div>
+                                        <div className="pl-8"><span className="text-sky-300">logBlockchainAnomaly</span><span className="text-slate-300">(TRANSACTION_ID);</span></div>
+                                        <div className="pl-4"><span className="text-slate-300">&#125;</span></div>
+                                        <div><span className="text-slate-500">&#125;</span></div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -1214,22 +1703,29 @@ export default function Welcome({ auth }: { auth: any }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800">
-                                    <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                        <span className="font-semibold text-gray-600">// SmartContract_Ledger.sol</span>
-                                        <span className="text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded">VERIFIED CONTRACT</span>
+                                <div className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-xl font-mono text-xs text-slate-200">
+                                    <div className="text-slate-400 pb-3 mb-3 border-b border-slate-800 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                                            </div>
+                                            <span className="text-[11px] text-slate-400 ml-2">// SmartContract_Ledger.sol</span>
+                                        </div>
+                                        <span className="text-purple-400 font-bold bg-purple-950/80 border border-purple-800/60 px-2 py-0.5 rounded text-[10px]">VERIFIED CONTRACT</span>
                                     </div>
-                                    <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`function recordTransaction(
-    string memory txId,
-    string memory plate,
-    uint256 volumeLiters,
-    bytes32 dataHash
-) public onlySPBUNode {
-    auditLedger[txId] = AuditRecord(plate, volumeLiters, dataHash, block.timestamp);
-    emit TransactionAudited(txId, block.number);
-}`}
-                                    </pre>
+                                    <div className="overflow-x-auto text-[11px] leading-relaxed font-mono">
+                                        <div><span className="text-purple-400 font-bold">function</span> <span className="text-sky-300 font-bold">recordTransaction</span><span className="text-slate-400">(</span></div>
+                                        <div className="pl-4"><span className="text-purple-400">string</span> <span className="text-blue-300">memory</span> <span className="text-slate-300">txId,</span></div>
+                                        <div className="pl-4"><span className="text-purple-400">string</span> <span className="text-blue-300">memory</span> <span className="text-slate-300">plate,</span></div>
+                                        <div className="pl-4"><span className="text-purple-400">uint256</span> <span className="text-slate-300">volumeLiters,</span></div>
+                                        <div className="pl-4"><span className="text-purple-400">bytes32</span> <span className="text-slate-300">dataHash</span></div>
+                                        <div><span className="text-slate-400">) </span><span className="text-purple-400 font-bold">public</span> <span className="text-amber-300 font-bold">onlySPBUNode</span> <span className="text-slate-500">&#123;</span></div>
+                                        <div className="pl-4"><span className="text-slate-300">auditLedger[txId] = </span><span className="text-sky-300">AuditRecord</span><span className="text-slate-300">(plate, volumeLiters, dataHash, block.timestamp);</span></div>
+                                        <div className="pl-4"><span className="text-purple-400 font-bold">emit</span> <span className="text-emerald-300 font-semibold">TransactionAudited</span><span className="text-slate-300">(txId, block.number);</span></div>
+                                        <div><span className="text-slate-500">&#125;</span></div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -1257,20 +1753,27 @@ export default function Welcome({ auth }: { auth: any }) {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800">
-                                    <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                        <span className="font-semibold text-gray-600">// Fraud_Prevention_Matrix.json</span>
-                                        <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">PROTECTED</span>
+                                <div className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-xl font-mono text-xs text-slate-200">
+                                    <div className="text-slate-400 pb-3 mb-3 border-b border-slate-800 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                                                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                                            </div>
+                                            <span className="text-[11px] text-slate-400 ml-2">// Fraud_Prevention_Matrix.json</span>
+                                        </div>
+                                        <span className="text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-800/60 px-2 py-0.5 rounded text-[10px]">PROTECTED</span>
                                     </div>
-                                    <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`{
-  "anpr_physical_match": true,
-  "qr_token_validity": "CURRENT_SESSION",
-  "daily_quota_remaining_liters": 15.0,
-  "cross_spbu_replay_detected": false,
-  "verdict": "APPROVED_TRANSACTION"
-}`}
-                                    </pre>
+                                    <div className="overflow-x-auto text-[11px] leading-relaxed font-mono">
+                                        <div><span className="text-slate-500">&#123;</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"anpr_physical_match"</span><span className="text-slate-400">: </span><span className="text-emerald-400 font-bold">true</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"qr_token_validity"</span><span className="text-slate-400">: </span><span className="text-emerald-300">"CURRENT_SESSION"</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"daily_quota_remaining_liters"</span><span className="text-slate-400">: </span><span className="text-amber-300 font-bold">15.0</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"cross_spbu_replay_detected"</span><span className="text-slate-400">: </span><span className="text-emerald-400 font-bold">false</span><span className="text-slate-500">,</span></div>
+                                        <div className="pl-4"><span className="text-sky-400">"verdict"</span><span className="text-slate-400">: </span><span className="text-emerald-400 font-bold">"APPROVED_TRANSACTION"</span></div>
+                                        <div><span className="text-slate-500">&#125;</span></div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
@@ -1439,6 +1942,172 @@ export default function Welcome({ auth }: { auth: any }) {
 
 
             {/* ========================================================================= */}
+            {/* INNOVATION TEAM & FACULTY ADVISOR SECTION (KMIPN 2026)                    */}
+            {/* ========================================================================= */}
+            <section id="tim" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
+                <div className="w-full">
+                    <div className="text-center max-w-3xl mx-auto mb-14">
+                        <span className="text-xs font-black uppercase tracking-widest text-[#980f12] bg-red-50 px-3.5 py-1.5 rounded-full border border-red-100 inline-flex items-center gap-1.5">
+                            <FiUsers /> TIM PENGEMBANG INOVASI • KMIPN 2026
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-3">
+                            Inovator di Balik Ekosistem PETROCHAIN
+                        </h2>
+                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                            Karya kolaborasi mahasiswa dan dosen pembimbing Jurusan Teknologi Informasi dan Komputer, <strong>Politeknik Negeri Lhokseumawe</strong> dalam Kompetisi Mahasiswa Informatika Politeknik Nasional.
+                        </p>
+                    </div>
+
+                    {/* Faculty Advisor Featured Card */}
+                    <div className="bg-gradient-to-r from-gray-950 via-[#700b0e] to-[#980f12] rounded-3xl p-6 sm:p-8 lg:p-10 text-white border border-red-900/30 shadow-xl mb-8 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                            <div className="lg:col-span-3 flex justify-center">
+                                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl bg-black/20">
+                                    <img 
+                                        src="/images/team_advisor.jpg" 
+                                        alt="Dosen Pembimbing PNL" 
+                                        className="w-full h-full object-cover object-top"
+                                    />
+                                    <div className="absolute bottom-2 left-2 right-2 bg-black/70 backdrop-blur-xs py-1 px-2 rounded-lg text-center text-[10px] font-mono font-bold text-amber-300 border border-white/10">
+                                        DOSEN PEMBIMBING
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-9 space-y-3 text-center lg:text-left">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-mono text-amber-300 font-bold">
+                                    <FiAward /> Faculty Advisor & System Architecture Mentor
+                                </div>
+                                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                                    M. Aziz, S.Kom., M.Kom.
+                                </h3>
+                                <p className="text-red-100/90 text-xs sm:text-sm font-medium leading-relaxed max-w-2xl">
+                                    Dosen Jurusan Teknologi Informasi dan Komputer, <strong>Politeknik Negeri Lhokseumawe</strong>. Mengarahkan riset arsitektur Artificial Intelligence Computer Vision, Distributed Ledger Technology (DLT), dan keselarasan regulasi Perpres Subsidi Energi.
+                                </p>
+                                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2 text-[11px] font-mono text-red-200">
+                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">AI & Computer Vision Research</span>
+                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">Blockchain Consensus</span>
+                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">Politeknik Negeri Lhokseumawe</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 4 Student Innovators Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Member 1 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_1.jpg" 
+                                        alt="Muhammad Zaky" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-[#980f12] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        KETUA TIM
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Muhammad Zaky</h4>
+                                <div className="text-xs font-bold text-[#980f12] mb-2 flex items-center gap-1">
+                                    <FiCpu /> Lead AI & Vision Engineer
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Pengembangan model YOLOv8 Dual-Camera ANPR, pipeline PaddleOCR ekstraksi STNK, dan inferensi Edge SPBU.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-emerald-700">YOLOv8 & OCR</span>
+                            </div>
+                        </div>
+
+                        {/* Member 2 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_2.jpg" 
+                                        alt="Farhan Al-Fayed" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-purple-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        BLOCKCHAIN
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Farhan Al-Fayed</h4>
+                                <div className="text-xs font-bold text-purple-700 mb-2 flex items-center gap-1">
+                                    <FiLayers /> Blockchain Core Specialist
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Implementasi arsitektur Hyperledger Fabric, Smart Contract Chaincode transaksi kuota, dan audit multi-instansi.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-purple-700">Fabric & Raft</span>
+                            </div>
+                        </div>
+
+                        {/* Member 3 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_3.jpg" 
+                                        alt="Cut Annisa Rahma" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-blue-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        HARDWARE IOT
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Cut Annisa Rahma</h4>
+                                <div className="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
+                                    <FiZap /> IoT Hardware & Firmware
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Integrasi modul Raspberry Pi, solenoid relay dispenser actuator cut-off, dan telemetri flowmeter sensor BBM.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-blue-700">IoT & Firmware</span>
+                            </div>
+                        </div>
+
+                        {/* Member 4 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_4.jpg" 
+                                        alt="Rizki Maulana" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-emerald-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        FRONTEND / UX
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Rizki Maulana</h4>
+                                <div className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
+                                    <FiCode /> Full-Stack & UI/UX Lead
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Perancangan antarmuka portal publik, WebGL 3D Globe interaktif, dan integrasi Inertia.js React 19.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-emerald-700">React & 3D WebGL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            {/* ========================================================================= */}
             {/* FOOTER (FULL-WIDTH)                                                       */}
             {/* ========================================================================= */}
             <footer className="bg-[#111827] text-gray-400 pt-16 pb-12 border-t border-gray-800 px-4 sm:px-6 lg:px-10 xl:px-14">
@@ -1465,9 +2134,12 @@ export default function Welcome({ auth }: { auth: any }) {
                             <h5 className="text-white font-bold text-sm mb-4 tracking-wider uppercase">Menu Utama</h5>
                             <ul className="space-y-2.5 text-sm">
                                 <li><a href="#cara-kerja" onClick={(e) => scrollToSection(e, 'cara-kerja')} className="hover:text-white transition-colors cursor-pointer">Cara Kerja</a></li>
-                                <li><a href="#simulator" onClick={(e) => scrollToSection(e, 'simulator')} className="hover:text-white transition-colors cursor-pointer">Simulasi Cek CC</a></li>
+                                <li><a href="#simulator" onClick={(e) => scrollToSection(e, 'simulator')} className="hover:text-white transition-colors cursor-pointer">Cek Plat & CC</a></li>
                                 <li><a href="#alur" onClick={(e) => scrollToSection(e, 'alur')} className="hover:text-white transition-colors cursor-pointer">Rantai Pasok Nasional</a></li>
-                                <li><a href="#teknologi" onClick={(e) => scrollToSection(e, 'teknologi')} className="hover:text-white transition-colors cursor-pointer">Arsitektur AI & Chain</a></li>
+                                <li><a href="#dampak" onClick={(e) => scrollToSection(e, 'dampak')} className="hover:text-white transition-colors cursor-pointer">Dampak APBN</a></li>
+                                <li><a href="#teknologi" onClick={(e) => scrollToSection(e, 'teknologi')} className="hover:text-white transition-colors cursor-pointer">Arsitektur Teknologi</a></li>
+                                <li><a href="#tim" onClick={(e) => scrollToSection(e, 'tim')} className="hover:text-white transition-colors cursor-pointer">Tim Inovator PNL</a></li>
+                                <li><a href="#faq" onClick={(e) => scrollToSection(e, 'faq')} className="hover:text-white transition-colors cursor-pointer">FAQ</a></li>
                                 <li><Link href={route('public.stock')} className="hover:text-white transition-colors">Cek Stok SPBU</Link></li>
                                 <li><Link href={route('login')} className="hover:text-white transition-colors">Masuk Portal</Link></li>
                             </ul>
@@ -1475,16 +2147,19 @@ export default function Welcome({ auth }: { auth: any }) {
 
                         {/* Institution Info */}
                         <div>
-                            <h5 className="text-white font-bold text-sm mb-4 tracking-wider uppercase">Pengembang</h5>
+                            <h5 className="text-white font-bold text-sm mb-4 tracking-wider uppercase">Pengembang Inovasi</h5>
                             <p className="text-sm text-gray-300 font-bold">TIMBERAPA</p>
                             <p className="text-xs text-gray-400 mt-1 leading-relaxed">
                                 Jurusan Teknologi Informasi dan Komputer<br/>
                                 <strong>Politeknik Negeri Lhokseumawe</strong><br/>
                                 Aceh, Indonesia
                             </p>
+                            <div className="mt-4 pt-4 border-t border-gray-800 text-xs text-gray-400 space-y-1">
+                                <div>Dosen Pembimbing:</div>
+                                <div className="text-white font-bold">M. Aziz, S.Kom., M.Kom.</div>
+                            </div>
                         </div>
                     </div>
-
 
                     <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
                         <p>© 2026 PETROCHAIN - TIMBERAPA Politeknik Negeri Lhokseumawe. All rights reserved.</p>

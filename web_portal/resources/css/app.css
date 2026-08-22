@@ -1,7 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&family=Oswald:wght@700;800;900&family=Anton&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
     scroll-behavior: smooth;
+}
+
+@keyframes float-slow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-7px); }
+}
+
+@keyframes float-reverse {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(7px); }
+}
+
+.animate-float-slow {
+    animation: float-slow 5s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+    animation: float-reverse 6s ease-in-out infinite;
 }
