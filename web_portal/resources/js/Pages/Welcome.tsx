@@ -11,7 +11,7 @@ import {
     FiCode, FiServer, FiCheck, FiRadio, FiMapPin, FiRefreshCw,
     FiSliders, FiAlertCircle, FiInfo, FiFileText
 } from 'react-icons/fi';
-import { FaMotorcycle, FaQrcode, FaGasPump } from 'react-icons/fa';
+import { FaMotorcycle, FaQrcode, FaGasPump, FaAndroid } from 'react-icons/fa';
 
 export default function Welcome({ auth }: { auth: any }) {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -227,6 +227,13 @@ export default function Welcome({ auth }: { auth: any }) {
                                     >
                                         Daftar Subsidi
                                     </Link>
+                                    <a
+                                        href="/app-release.apk"
+                                        download
+                                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
+                                    >
+                                        <FaAndroid size={16} /> Download App
+                                    </a>
                                 </>
                             )}
                         </div>
@@ -380,6 +387,13 @@ export default function Welcome({ auth }: { auth: any }) {
                                             className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-800 px-5 py-3.5 rounded-full font-bold text-xs border border-gray-200 transition-colors cursor-pointer"
                                         >
                                             <FiSliders className="text-[#980f12]" /> Cek Kelayakan CC
+                                        </a>
+                                        <a
+                                            href="/app-release.apk"
+                                            download
+                                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3.5 rounded-full font-bold text-xs shadow-lg shadow-emerald-900/20 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer"
+                                        >
+                                            <FaAndroid size={16} /> Download App
                                         </a>
                                     </div>
                                 </div>

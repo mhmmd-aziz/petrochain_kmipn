@@ -15,12 +15,12 @@ class SpbuViewModel : ViewModel() {
     private val repository = SpbuRepository()
 
     // QR Validation
-    private val _qrResult = MutableLiveData<Result<QrValidationData>>()
-    val qrResult: LiveData<Result<QrValidationData>> = _qrResult
+    private val _qrResult = MutableLiveData<Result<QrValidationData>?>()
+    val qrResult: LiveData<Result<QrValidationData>?> = _qrResult
 
     // Vehicle Validation
-    private val _vehicleResult = MutableLiveData<Result<VehicleValidationData>>()
-    val vehicleResult: LiveData<Result<VehicleValidationData>> = _vehicleResult
+    private val _vehicleResult = MutableLiveData<Result<VehicleValidationData>?>()
+    val vehicleResult: LiveData<Result<VehicleValidationData>?> = _vehicleResult
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
