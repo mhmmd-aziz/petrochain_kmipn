@@ -43,3 +43,6 @@ RUN composer install --optimize-autoloader --no-dev
 
 # Berikan permission ke folder storage dan bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+
+# Buat symlink agar gambar/file yang diupload bisa diakses dari web
+RUN php artisan storage:link
