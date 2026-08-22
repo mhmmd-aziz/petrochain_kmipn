@@ -21,7 +21,7 @@ class AiVerificationService
                 'stnk_image', file_get_contents($stnkPath), basename($stnkPath)
             )->attach(
                 'car_image', file_get_contents($carPath), basename($carPath)
-            )->post('http://127.0.0.1:5002/api/extract');
+            )->post(env('AI_OCR_MOBILE_URL', 'http://127.0.0.1:5002') . '/api/extract');
 
             if ($response->successful()) {
                 return $response->json('data');

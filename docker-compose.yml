@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # 1. Database MySQL
+  db:
+    image: mysql:8.0
+    container_name: petrochain_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: petrochain_db
+      MYSQL_ROOT_PASSWORD: secret_password_root
+      MYSQL_USER: petrochain_user
+      MYSQL_PASSWORD: secret_password_db
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - petrochain_network
+
+  # 2. Aplikasi Laravel (PHP-FPM)
+  petrochain_app:
+    build:
+      context: ./web_portal
+      dockerfile: Dockerfile
+    container_name: petrochain_app
+    restart: unless-stopped
+    volumes:
+      - ./web_portal:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_DATABASE: petrochain_db
+      DB_USERNAME: petrochain_user
+      DB_PASSWORD: secret_password_db
+      AI_OCR_MOBILE_URL: http://ai_ocr_mobile:5002
+      AI_OCR_SPBU_URL: http://ai_ocr_spbu:5003
+    depends_on:
+      - db
+    networks:
+      - petrochain_network
+
+  # 3. Web Server Nginx (untuk melayani web_portal)
+  web:
+    image: nginx:alpine
+    container_name: petrochain_web
+    restart: unless-stopped
+    ports:
+      - "8001:80" # Nginx akan melayani Laravel di port 8001
+    volumes:
+      - ./web_portal:/var/www/html
+      - ./web_portal/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - petrochain_app
+    networks:
+      - petrochain_network
+
+  # 4. AI Service: OCR Mobile
+  ai_ocr_mobile:
+    build:
+      context: ./ai_services/ocr_mobile
+      dockerfile: Dockerfile
+    container_name: petrochain_ai_ocr_mobile
+    restart: unless-stopped
+    ports:
+      - "5002:5002"
+    networks:
+      - petrochain_network
+
+  # 5. AI Service: OCR SPBU
+  ai_ocr_spbu:
+    build:
+      context: ./ai_services/ocr_spbu
+      dockerfile: Dockerfile
+    container_name: petrochain_ai_ocr_spbu
+    restart: unless-stopped
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 5003
+    ports:
+      - "5003:5003"
+    networks:
+      - petrochain_network
+
+volumes:
+  db_data:
+
+networks:
+  petrochain_network:
+    driver: bridge

@@ -84,11 +84,11 @@ class SpbuController extends Controller
         $imagePath = $request->file('vehicle_image')->store('temp', 'public');
         $absPath = storage_path('app/public/' . $imagePath);
 
-        // Call OCR SPBU Service (Port 5003) - Assuming it has /detect endpoint
+        // Call OCR SPBU Service
         try {
             $response = Http::timeout(15)->attach(
                 'file', file_get_contents($absPath), basename($absPath)
-            )->post('http://127.0.0.1:5003/detect');
+            )->post(env('AI_OCR_SPBU_URL', 'http://127.0.0.1:5003') . '/detect');
 
             if ($response->successful()) {
                 $aiResult = $response->json();
