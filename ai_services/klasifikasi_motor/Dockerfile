@@ -3,7 +3,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Install dependencies
-RUN apt-get update && apt-get install -y libglib2.0-0 libgl1-mesa-glx libxcb1 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libglib2.0-0 libgl1 libxcb1 && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 # Install CPU-only PyTorch to save space and avoid ENOSPC in GitHub Actions
 RUN pip install --no-cache-dir torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
