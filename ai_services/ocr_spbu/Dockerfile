@@ -13,6 +13,7 @@ COPY requirements.txt .
 # Install CPU-only PyTorch to save space and avoid ENOSPC in GitHub Actions
 RUN pip install --no-cache-dir torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip uninstall -y opencv-python && pip install --no-cache-dir opencv-python-headless
 
 # Copy source code
 COPY . .
