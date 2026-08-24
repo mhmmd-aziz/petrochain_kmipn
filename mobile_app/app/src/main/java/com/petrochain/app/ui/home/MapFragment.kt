@@ -24,6 +24,9 @@ import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
@@ -36,6 +39,8 @@ class MapFragment : Fragment() {
     private var currentFilter = "Semua"
     
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCallback: LocationCallback? = null
+    private var locationRequest: LocationRequest? = null
     private var userLat: Double = 5.104
     private var userLng: Double = 97.189
 
@@ -44,7 +49,7 @@ class MapFragment : Fragment() {
             val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
             val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
             if (fineLocationGranted || coarseLocationGranted) {
-                getLastLocation()
+                startLocationUpdates()
             }
         }
 
@@ -61,6 +66,23 @@ class MapFragment : Fragment() {
         
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+            .setMinUpdateIntervalMillis(2000)
+            .build()
+            
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                for (location in locationResult.locations) {
+                    if (location != null) {
+                        userLat = location.latitude
+                        userLng = location.longitude
+                        binding.fullscreenMap.evaluateJavascript("javascript:setUserLocation($userLat, $userLng);", null)
+                        viewModel.spbus.value?.let { updateUIWithData(it) }
+                    }
+                }
+            }
+        }
+
         binding.toolbarMap.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
@@ -70,8 +92,17 @@ class MapFragment : Fragment() {
         setupFilters()
         observeViewModel()
         
-        checkLocationPermission()
         viewModel.loadSpbus()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkLocationPermission()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
     }
 
     private fun checkLocationPermission() {
@@ -80,7 +111,7 @@ class MapFragment : Fragment() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            getLastLocation()
+            startLocationUpdates()
         } else {
             requestPermissionLauncher.launch(
                 arrayOf(
@@ -92,23 +123,27 @@ class MapFragment : Fragment() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLastLocation() {
+    private fun startLocationUpdates() {
+        locationRequest?.let { req ->
+            locationCallback?.let { cb ->
+                fusedLocationClient.requestLocationUpdates(req, cb, android.os.Looper.getMainLooper())
+            }
+        }
+        
+        // Coba fetch sekali secara instan
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
             if (location != null) {
                 userLat = location.latitude
                 userLng = location.longitude
                 binding.fullscreenMap.evaluateJavascript("javascript:setUserLocation($userLat, $userLng);", null)
                 viewModel.spbus.value?.let { updateUIWithData(it) }
-            } else {
-                fusedLocationClient.lastLocation.addOnSuccessListener { lastLoc ->
-                    if (lastLoc != null) {
-                        userLat = lastLoc.latitude
-                        userLng = lastLoc.longitude
-                        binding.fullscreenMap.evaluateJavascript("javascript:setUserLocation($userLat, $userLng);", null)
-                        viewModel.spbus.value?.let { updateUIWithData(it) }
-                    }
-                }
             }
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        locationCallback?.let { cb ->
+            fusedLocationClient.removeLocationUpdates(cb)
         }
     }
 

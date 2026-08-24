@@ -17,7 +17,7 @@ class AiVerificationService
     public function extractPlates($stnkPath, $carPath)
     {
         try {
-            $response = Http::timeout(30)->attach(
+            $response = Http::timeout(60)->attach(
                 'stnk_image', file_get_contents($stnkPath), basename($stnkPath)
             )->attach(
                 'car_image', file_get_contents($carPath), basename($carPath)
@@ -63,7 +63,7 @@ class AiVerificationService
     public function classifyMotorcycle($carPath)
     {
         try {
-            $response = Http::timeout(30)->attach(
+            $response = Http::timeout(60)->attach(
                 'file', file_get_contents($carPath), basename($carPath)
             )->post(env('AI_KLASIFIKASI_MOTOR_URL', 'http://ai_klasifikasi_motor:5001') . '/api/classify');
 

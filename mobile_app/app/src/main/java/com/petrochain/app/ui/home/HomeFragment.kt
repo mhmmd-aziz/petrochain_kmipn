@@ -25,6 +25,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
@@ -40,6 +43,8 @@ class HomeFragment : Fragment() {
     private var currentBannerPage = 0
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCallback: LocationCallback? = null
+    private var locationRequest: LocationRequest? = null
     private var userLat: Double = 5.104
     private var userLng: Double = 97.189
 
@@ -48,7 +53,7 @@ class HomeFragment : Fragment() {
             val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
             val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
             if (fineLocationGranted || coarseLocationGranted) {
-                getLastLocation()
+                startLocationUpdates()
             }
         }
 
@@ -65,12 +70,37 @@ class HomeFragment : Fragment() {
         
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
+        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+            .setMinUpdateIntervalMillis(2000)
+            .build()
+            
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                for (location in locationResult.locations) {
+                    if (location != null) {
+                        userLat = location.latitude
+                        userLng = location.longitude
+                        viewModel.spbus.value?.let { updateUIWithData(it) }
+                    }
+                }
+            }
+        }
+
         setupUI()
         setupFilters()
         observeViewModel()
         
-        checkLocationPermission()
         viewModel.loadSpbus()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkLocationPermission()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
     }
 
     private fun checkLocationPermission() {
@@ -79,7 +109,7 @@ class HomeFragment : Fragment() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            getLastLocation()
+            startLocationUpdates()
         } else {
             requestPermissionLauncher.launch(
                 arrayOf(
@@ -91,21 +121,26 @@ class HomeFragment : Fragment() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getLastLocation() {
+    private fun startLocationUpdates() {
+        locationRequest?.let { req ->
+            locationCallback?.let { cb ->
+                fusedLocationClient.requestLocationUpdates(req, cb, Looper.getMainLooper())
+            }
+        }
+        
+        // Coba fetch sekali secara instan jika update interval terlalu lama
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
             if (location != null) {
                 userLat = location.latitude
                 userLng = location.longitude
                 viewModel.spbus.value?.let { updateUIWithData(it) }
-            } else {
-                fusedLocationClient.lastLocation.addOnSuccessListener { lastLoc ->
-                    if (lastLoc != null) {
-                        userLat = lastLoc.latitude
-                        userLng = lastLoc.longitude
-                        viewModel.spbus.value?.let { updateUIWithData(it) }
-                    }
-                }
             }
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        locationCallback?.let { cb ->
+            fusedLocationClient.removeLocationUpdates(cb)
         }
     }
 
