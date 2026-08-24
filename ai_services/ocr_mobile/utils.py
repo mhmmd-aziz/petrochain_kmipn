@@ -80,7 +80,7 @@ def validate_stnk_document(image_path: str):
         try:
             logger.warning("[VALIDATE] GPU OCR unavailable, trying CPU fallback...")
             import easyocr as _easyocr
-            reader = _easyocr.Reader(OCR_LANGUAGES, gpu=False, download_enabled=False)
+            reader = _easyocr.Reader(OCR_LANGUAGES, gpu=False, download_enabled=True)
         except Exception as e:
             logger.error(f"[VALIDATE] CPU OCR also failed: {e}")
             return {"is_valid": True, "document_type": "unknown", "message": "Validasi dilewati", "confidence": 0.0}
@@ -257,7 +257,7 @@ def get_ocr_reader():
     global _ocr_reader
     if _ocr_reader is None:
         try:
-            _ocr_reader = easyocr.Reader(OCR_LANGUAGES, gpu=OCR_GPU, download_enabled=False)
+            _ocr_reader = easyocr.Reader(OCR_LANGUAGES, gpu=OCR_GPU, download_enabled=True)
         except Exception as e:
             logger.error(f"Error loading EasyOCR: {e}")
             _ocr_reader = None
@@ -427,11 +427,11 @@ def extract_info_from_stnk(image_path: str):
     """
     reader = get_ocr_reader()
     if not reader:
-        return None, 0.0, None
+        return None, 0.0, None, None
         
     img = cv2.imread(image_path)
     if img is None:
-        return None, 0.0, None
+        return None, 0.0, None, None
 
     # Pre-process image for better OCR: upscale and sharpen
     h, w = img.shape[:2]
