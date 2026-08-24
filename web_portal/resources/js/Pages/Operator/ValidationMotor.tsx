@@ -98,8 +98,8 @@ export default function ValidationMotor({ spbu }: any) {
             const formData = new FormData();
             formData.append('file', mediaFile);
 
-            const aiHost = window.location.hostname;
-            const aiUrl = `http://${aiHost}:5001`;
+            // Menggunakan relative path /ai-motor agar diproxy oleh NGINX (menghindari HTTPS Mixed Content & CORS)
+            const aiUrl = `/ai-motor`;
 
             const response = await fetch(`${aiUrl}/api/classify`, {
                 method: 'POST',
