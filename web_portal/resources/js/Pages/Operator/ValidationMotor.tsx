@@ -98,7 +98,10 @@ export default function ValidationMotor({ spbu }: any) {
             const formData = new FormData();
             formData.append('file', mediaFile);
 
-            const response = await fetch('http://127.0.0.1:5001/api/classify', {
+            const aiHost = window.location.hostname;
+            const aiUrl = `http://${aiHost}:5001`;
+
+            const response = await fetch(`${aiUrl}/api/classify`, {
                 method: 'POST',
                 body: formData,
                 signal: abortController.signal
@@ -117,7 +120,7 @@ export default function ValidationMotor({ spbu }: any) {
                     confidence: data.confidence,
                     capacityCheck,
                     eligibility: isEligible ? 'ELIGIBLE' : 'NOT_ELIGIBLE',
-                    mediaUrl: data.media_url,
+                    mediaUrl: aiUrl + data.media_url,
                     resultMediaType: data.media_type
                 });
                 

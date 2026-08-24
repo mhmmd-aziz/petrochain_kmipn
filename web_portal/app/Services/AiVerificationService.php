@@ -21,7 +21,7 @@ class AiVerificationService
                 'stnk_image', file_get_contents($stnkPath), basename($stnkPath)
             )->attach(
                 'car_image', file_get_contents($carPath), basename($carPath)
-            )->post(env('AI_OCR_MOBILE_URL', 'http://127.0.0.1:5002') . '/api/extract');
+            )->post(env('AI_OCR_MOBILE_URL', 'http://ai_ocr_mobile:5002') . '/api/extract');
 
             if ($response->successful()) {
                 return $response->json('data');
@@ -65,7 +65,7 @@ class AiVerificationService
         try {
             $response = Http::timeout(30)->attach(
                 'file', file_get_contents($carPath), basename($carPath)
-            )->post(env('AI_KLASIFIKASI_MOTOR_URL', 'http://127.0.0.1:5001') . '/api/classify');
+            )->post(env('AI_KLASIFIKASI_MOTOR_URL', 'http://ai_klasifikasi_motor:5001') . '/api/classify');
 
             if ($response->successful()) {
                 return $response->json('data');
