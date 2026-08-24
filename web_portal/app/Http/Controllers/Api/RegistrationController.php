@@ -60,8 +60,8 @@ class RegistrationController extends Controller
             'model' => 'required|string|max:50',
             'engine_capacity_cc' => 'required|integer|min:0|max:20000',
             'fuel_type' => 'required|string|max:30',
-            'stnk_image' => 'required|image|max:5120', // Max 5MB
-            'car_image' => 'required|image|max:5120',
+            'stnk_image' => 'required|image|max:15360', // Max 15MB
+            'car_image' => 'required|image|max:15360', // Max 15MB
         ]);
 
         $user = $request->user();
@@ -194,6 +194,29 @@ class RegistrationController extends Controller
                 'engine' => 'yolo+easyocr',
                 'processed_at' => now(),
             ]);
+            
+            // Check if it's a motorcycle based on input or OCR detection
+            $documentType = $aiResult['document_type'] ?? 'unknown';
+            $isMotorcycle = $request->vehicle_type === 'motorcycle' || 
+                            str_contains($documentType, 'motorcycle') || 
+                            (isset($aiResult['car_detected_type']) && $aiResult['car_detected_type'] === 'motorcycle');
+
+            if ($isMotorcycle) {
+                $motorClassResult = $aiService->classifyMotorcycle($absCarPath);
+                
+                if ($motorClassResult) {
+                    $detectedClass = $motorClassResult['detected_class'] ?? 'unknown';
+                    $eligibility = $motorClassResult['eligibility_result'] ?? 'UNKNOWN';
+                    
+                    if ($eligibility === 'NOT_ELIGIBLE') {
+                        $motorWarning = "[AI WARNING] YOLO mendeteksi kendaraan fisik sebagai motor OVER 250cc (" . strtoupper($detectedClass) . "). Mohon tolak pengajuan ini jika bukan subsidi.";
+                        $existingNotes = $application->admin_notes;
+                        $application->update([
+                            'admin_notes' => $existingNotes ? $existingNotes . "\n" . $motorWarning : $motorWarning
+                        ]);
+                    }
+                }
+            }
             
             // Do NOT overwrite $vehicle->engine_capacity_cc with the AI's detected CC!
             // The AI's detected CC is safely saved in the OcrResult table, while $vehicle->engine_capacity_cc 

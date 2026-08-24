@@ -32,6 +32,7 @@ services:
       DB_PASSWORD: secret_password_db
       AI_OCR_MOBILE_URL: http://ai_ocr_mobile:5002
       AI_OCR_SPBU_URL: http://ai_ocr_spbu:5003
+      AI_KLASIFIKASI_MOTOR_URL: http://ai_klasifikasi_motor:5001
     depends_on:
       - db
     networks:
@@ -76,6 +77,18 @@ services:
       API_PORT: 5003
     ports:
       - "5003:5003"
+    networks:
+      - petrochain_network
+
+  # 6. AI Service: Klasifikasi Motor
+  ai_klasifikasi_motor:
+    build:
+      context: ./ai_services/klasifikasi_motor
+      dockerfile: Dockerfile
+    container_name: petrochain_ai_klasifikasi_motor
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
     networks:
       - petrochain_network
 
