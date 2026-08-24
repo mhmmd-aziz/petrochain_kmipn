@@ -383,7 +383,7 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                 <span className={`text-xs font-extrabold px-3 py-1.5 rounded-xl ${
                                                     isMatch ? 'bg-emerald-200 text-emerald-900' : isMismatch ? 'bg-rose-200 text-rose-900' : 'bg-amber-200 text-amber-900'
                                                 }`}>
-                                                    Confidence: {isMatch ? '98.8%' : isMismatch ? 'MISMATCH' : '65.2%'}
+                                                    Confidence: {ai?.stnk_confidence ? (ai.stnk_confidence * 100).toFixed(1) + '%' : (isMatch ? '98.8%' : isMismatch ? 'MISMATCH' : '65.2%')}
                                                 </span>
                                             </div>
 
