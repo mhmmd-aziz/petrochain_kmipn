@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RegistrationApplication;
+use App\Models\OcrResult;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -80,18 +81,112 @@ class AdminRegistrationController extends Controller
         $vehicle = $application->vehicle;
 
         if ($request->status === 'approved') {
-            // Generate QR Code token logic
             $token = Str::random(32);
             $vehicle->update([
                 'registration_status' => 'approved',
                 'qr_code_token' => $token,
                 'qr_generated_at' => now(),
             ]);
-            // Here, you would typically also generate an actual QR code image and store its path in 'qr_code_path'
         } else if ($request->status === 'rejected') {
             $vehicle->update(['registration_status' => 'rejected']);
         }
 
         return back()->with('success', 'Aplikasi berhasil direview.');
+    }
+
+    /**
+     * Re-run AI OCR analysis on existing submitted images.
+     * Useful when AI service was offline during initial submission.
+     */
+    public function rerunAi(Request $request, $id)
+    {
+        $application = RegistrationApplication::with('vehicle')->findOrFail($id);
+
+        $absStnkPath = storage_path('app/public/' . $application->stnk_file);
+        $absCarPath  = storage_path('app/public/' . $application->vehicle_photo);
+
+        if (!file_exists($absStnkPath) || !file_exists($absCarPath)) {
+            return back()->with('error', 'File foto tidak ditemukan di server. Minta pengguna untuk upload ulang.');
+        }
+
+        $aiService = new \App\Services\AiVerificationService();
+        $aiResult  = $aiService->extractPlates($absStnkPath, $absCarPath);
+
+        if (!$aiResult || ($aiResult['stnk_plate'] ?? '') === 'ERROR: SERVICE OFFLINE') {
+            return back()->with('error', 'Layanan AI masih offline atau tidak merespons. Coba lagi nanti.');
+        }
+
+        // Delete old OCR results and re-insert fresh ones
+        OcrResult::where('registration_application_id', $application->id)->delete();
+
+        $detectedCc    = $aiResult['stnk_cc'] ?? null;
+        $isWarning     = $aiResult['is_warning'] ?? false;
+        $documentValid = $aiResult['document_valid'] ?? true;
+
+        // Re-save STNK OCR result
+        OcrResult::create([
+            'registration_application_id' => $application->id,
+            'source_type'                 => 'stnk',
+            'extracted_plate'             => $aiResult['stnk_plate'],
+            'confidence'                  => $aiResult['stnk_confidence'] ?? 0.0,
+            'normalized_result'           => ($aiResult['stnk_plate'] ?? '')
+                . ($detectedCc ? ' | ' . $detectedCc . ' CC' : '')
+                . (isset($aiResult['document_type']) ? ' | DOC:' . $aiResult['document_type'] : ''),
+            'comparison_result'           => $aiResult['conclusion'] ?? 'low_confidence',
+            'engine'                      => 'easyocr',
+            'processed_at'                => now(),
+        ]);
+
+        // Re-save Vehicle photo OCR result
+        OcrResult::create([
+            'registration_application_id' => $application->id,
+            'source_type'                 => 'vehicle_photo',
+            'extracted_plate'             => $aiResult['car_plate'],
+            'confidence'                  => $aiResult['car_confidence'] ?? 0.0,
+            'normalized_result'           => ($aiResult['car_plate'] ?? '')
+                . (isset($aiResult['car_detected_type']) ? ' | CAR:' . $aiResult['car_detected_type'] : ''),
+            'comparison_result'           => $aiResult['conclusion'] ?? 'low_confidence',
+            'engine'                      => 'yolo+easyocr',
+            'processed_at'                => now(),
+        ]);
+
+        // Build admin notes from AI warnings
+        $notes = null;
+        if (($isWarning || !$documentValid) && !empty($aiResult['validation_message'])) {
+            $notes = '[AI WARNING] ' . $aiResult['validation_message'];
+        }
+
+        // Motorcycle over-250cc classification check
+        $vehicle      = $application->vehicle;
+        $documentType = $aiResult['document_type'] ?? 'unknown';
+        $isMotorcycle = ($vehicle->vehicle_type ?? '') === 'motorcycle'
+            || str_contains($documentType, 'motorcycle')
+            || (isset($aiResult['car_detected_type']) && $aiResult['car_detected_type'] === 'motorcycle');
+
+        if ($isMotorcycle) {
+            $motorClassResult = $aiService->classifyMotorcycle($absCarPath);
+            if ($motorClassResult) {
+                $eligibility   = $motorClassResult['eligibility_result'] ?? 'UNKNOWN';
+                $detectedClass = $motorClassResult['detected_class'] ?? 'unknown';
+                if ($eligibility === 'NOT_ELIGIBLE') {
+                    $motorWarning = '[AI WARNING] YOLO mendeteksi motor OVER 250cc (' . strtoupper($detectedClass) . '). Mohon tolak.';
+                    $notes = $notes ? $notes . "\n" . $motorWarning : $motorWarning;
+                }
+            }
+        }
+
+        // CC compliance check
+        $ccToValidate = $detectedCc ?: ($vehicle->engine_capacity_cc ?? null);
+        if (($vehicle->fuel_type ?? '') === 'pertalite' && $ccToValidate && intval($ccToValidate) > 1400) {
+            $ccWarning = '[AI WARNING] Kapasitas mesin ' . $ccToValidate . ' CC melebihi batas regulasi Pertalite (maks 1400 CC).';
+            $notes = $notes ? $notes . "\n" . $ccWarning : $ccWarning;
+        }
+
+        $application->update([
+            'admin_notes' => $notes,
+            'status'      => 'pending_review',
+        ]);
+
+        return back()->with('success', 'AI berhasil dijalankan ulang! Data OCR telah diperbarui.');
     }
 }

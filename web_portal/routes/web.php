@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [AdminRegistrationController::class, 'dashboard'])->name('dashboard');
         Route::get('/registrations', [AdminRegistrationController::class, 'index'])->name('registrations');
         Route::post('/registrations/{id}/review', [AdminRegistrationController::class, 'review'])->name('registrations.review');
+        Route::post('/registrations/{id}/rerun-ai', [AdminRegistrationController::class, 'rerunAi'])->name('registrations.rerun_ai');
         Route::get('/spbu', [\App\Http\Controllers\SpbuController::class, 'index'])->name('spbu');
         Route::post('/spbu', [\App\Http\Controllers\SpbuController::class, 'store'])->name('spbu.store');
         Route::put('/spbu/{spbu}', [\App\Http\Controllers\SpbuController::class, 'update'])->name('spbu.update');

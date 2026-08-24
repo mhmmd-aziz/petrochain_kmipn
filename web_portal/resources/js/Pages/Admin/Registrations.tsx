@@ -41,6 +41,7 @@ export default function AdminRegistrations({ applications }: { applications: App
     const [activeTab, setActiveTab] = useState<'pending' | 'all' | 'approved' | 'rejected'>('pending');
     const [searchQuery, setSearchQuery] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isRerunning, setIsRerunning] = useState(false);
     
     // Lightbox modal state
     const [lightboxImage, setLightboxImage] = useState<{ url: string; title: string } | null>(null);
@@ -75,6 +76,47 @@ export default function AdminRegistrations({ applications }: { applications: App
                 }
             }
         );
+    };
+
+    const handleRerunAi = () => {
+        if (!selectedApp || isRerunning) return;
+        Swal.fire({
+            title: 'Jalankan Ulang AI?',
+            text: 'Sistem akan memproses ulang foto STNK dan kendaraan yang telah diunggah menggunakan AI terbaru.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#980f12',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Jalankan!',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                setIsRerunning(true);
+                router.post(
+                    `/admin/registrations/${selectedApp.id}/rerun-ai`,
+                    {},
+                    {
+                        onSuccess: () => {
+                            Swal.fire({
+                                title: 'AI Selesai Dijalankan!',
+                                text: 'Data OCR telah diperbarui. Halaman akan di-refresh.',
+                                icon: 'success',
+                                confirmButtonColor: '#980f12',
+                            });
+                        },
+                        onError: () => {
+                            Swal.fire({
+                                title: 'Gagal',
+                                text: 'Layanan AI tidak merespons. Coba lagi nanti.',
+                                icon: 'error',
+                                confirmButtonColor: '#980f12',
+                            });
+                        },
+                        onFinish: () => setIsRerunning(false),
+                    }
+                );
+            }
+        });
     };
 
     const getAiConclusion = (app: Application) => {
@@ -536,15 +578,35 @@ export default function AdminRegistrations({ applications }: { applications: App
 
                                     {/* Action Buttons */}
                                     <div className="space-y-2 pt-2">
-                                        {/* Quick Approve Button */}
-                                        <button 
-                                            type="button"
-                                            onClick={() => handleReviewSubmit('approved')}
-                                            disabled={isSubmitting}
-                                            className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
-                                        >
-                                            <FiCheckCircle size={16} /> Setujui Pendaftaran (Approve)
-                                        </button>
+                                            {isRerunning && (
+                                                <div className="w-full py-2 text-center text-xs text-violet-700 font-bold animate-pulse flex items-center justify-center gap-2">
+                                                    <FiCpu className="animate-spin" /> AI sedang memproses foto... harap tunggu
+                                                </div>
+                                            )}
+
+                                            {/* Re-run AI Button */}
+                                            <button
+                                                type="button"
+                                                onClick={handleRerunAi}
+                                                disabled={isSubmitting || isRerunning}
+                                                className="w-full py-3 px-4 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 mb-2"
+                                            >
+                                                {isRerunning ? (
+                                                    <><FiCpu size={16} className="animate-spin" /> Memproses AI...</>
+                                                ) : (
+                                                    <><FiZap size={16} /> Jalankan Ulang AI (Re-run)
+                                                    </>)}
+                                            </button>
+
+                                            {/* Approve button */}
+                                            <button 
+                                                type="button"
+                                                onClick={() => handleReviewSubmit('approved')}
+                                                disabled={isSubmitting}
+                                                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+                                            >
+                                                <FiCheckCircle size={16} /> Setujui Pendaftaran (Approve)
+                                            </button>
 
                                         <div className="grid grid-cols-2 gap-2">
                                             {/* Re-upload Button */}
