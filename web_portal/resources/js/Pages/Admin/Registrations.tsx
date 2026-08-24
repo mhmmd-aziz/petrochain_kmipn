@@ -131,13 +131,25 @@ export default function AdminRegistrations({ applications }: { applications: App
         if (!app.ocr_results || app.ocr_results.length === 0) return null;
         const stnkResult = app.ocr_results.find(r => r.source_type === 'stnk');
         const carResult = app.ocr_results.find(r => r.source_type === 'vehicle_photo');
+        const rawStnkType = stnkResult?.normalized_result?.match(/DOC:([\w_]+)/)?.[1] ?? null;
+        const rawCarType  = carResult?.normalized_result?.match(/CAR:([\w_]+)/)?.[1] ?? null;
+
+        const formatType = (raw: string | null) => {
+            if (!raw) return null;
+            if (raw.includes('motorcycle')) return 'Motor';
+            if (raw.includes('car'))        return 'Mobil';
+            if (raw.includes('truck'))      return 'Truk';
+            return raw;
+        };
+
         return {
-            conclusion: stnkResult?.comparison_result ?? carResult?.comparison_result,
-            stnk_plate: stnkResult?.extracted_plate,
-            car_plate: carResult?.extracted_plate,
-            stnk_cc: stnkResult?.normalized_result?.match(/(\d+)\s*CC/i)?.[1] ?? null,
-            stnk_type: stnkResult?.normalized_result?.match(/DOC:([\w_]+)/)?.[1] ?? null,
-            car_type: carResult?.normalized_result?.match(/CAR:([\w_]+)/)?.[1] ?? null,
+            conclusion:      stnkResult?.comparison_result ?? carResult?.comparison_result,
+            stnk_plate:      stnkResult?.extracted_plate,
+            car_plate:       carResult?.extracted_plate,
+            stnk_confidence: stnkResult?.confidence,
+            stnk_cc:         stnkResult?.normalized_result?.match(/(\d+)\s*CC/i)?.[1] ?? null,
+            stnk_type:       formatType(rawStnkType),
+            car_type:        formatType(rawCarType),
         };
     };
 
@@ -488,14 +500,39 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                         </span>
                                                     </div>
 
-                                                    {/* Row 4: Jenis Kendaraan */}
+                                                    {/* Row 4: Jenis Kendaraan Foto Fisik */}
                                                     <div className="grid grid-cols-3 p-3 items-center hover:bg-gray-50/50">
                                                         <span className="font-bold text-gray-600">Klasifikasi Kendaraan</span>
                                                         <span className="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-center mx-1 capitalize">
                                                             {selectedApp.vehicle.vehicle_type === 'car' ? 'Mobil' : 'Motor'}
                                                         </span>
-                                                        <span className="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg text-center mx-1 capitalize">
+                                                        <span className={`font-bold px-2.5 py-1 rounded-lg text-center mx-1 capitalize ${
+                                                            ai?.car_type === 'Motor'
+                                                                ? 'text-orange-700 bg-orange-50 border border-orange-200'
+                                                                : ai?.car_type === 'Truk'
+                                                                ? 'text-amber-700 bg-amber-50 border border-amber-200'
+                                                                : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                                                        }`}>
                                                             {ai?.car_type || 'Valid'}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Row 5: Tipe Dokumen STNK */}
+                                                    <div className="grid grid-cols-3 p-3 items-center hover:bg-gray-50/50">
+                                                        <span className="font-bold text-gray-600">Tipe Dokumen STNK</span>
+                                                        <span className="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-center mx-1">
+                                                            {selectedApp.vehicle.vehicle_type === 'car' ? 'STNK Mobil' : 'STNK Motor'}
+                                                        </span>
+                                                        <span className={`font-bold px-2.5 py-1 rounded-lg text-center mx-1 ${
+                                                            !ai?.stnk_type
+                                                                ? 'text-gray-400 bg-gray-50'
+                                                                : ai.stnk_type === 'Motor'
+                                                                ? 'text-orange-700 bg-orange-50 border border-orange-200'
+                                                                : ai.stnk_type === 'Truk'
+                                                                ? 'text-amber-700 bg-amber-50 border border-amber-200'
+                                                                : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                                                        }`}>
+                                                            {ai?.stnk_type ? `STNK ${ai.stnk_type}` : '— Tidak Terbaca'}
                                                         </span>
                                                     </div>
                                                 </div>
