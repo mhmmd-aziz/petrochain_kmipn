@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 
 class MapFragment : Fragment() {
 
@@ -92,12 +93,21 @@ class MapFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun getLastLocation() {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
             if (location != null) {
                 userLat = location.latitude
                 userLng = location.longitude
                 binding.fullscreenMap.evaluateJavascript("javascript:setUserLocation($userLat, $userLng);", null)
                 viewModel.spbus.value?.let { updateUIWithData(it) }
+            } else {
+                fusedLocationClient.lastLocation.addOnSuccessListener { lastLoc ->
+                    if (lastLoc != null) {
+                        userLat = lastLoc.latitude
+                        userLng = lastLoc.longitude
+                        binding.fullscreenMap.evaluateJavascript("javascript:setUserLocation($userLat, $userLng);", null)
+                        viewModel.spbus.value?.let { updateUIWithData(it) }
+                    }
+                }
             }
         }
     }
