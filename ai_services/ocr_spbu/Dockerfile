@@ -5,6 +5,9 @@ FROM python:3.10-slim
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y libglib2.0-0 libgl1-mesa-glx libxcb1 && rm -rf /var/lib/apt/lists/*
+
 # Copy requirement dan install
 COPY requirements.txt .
 # Install CPU-only PyTorch to save space and avoid ENOSPC in GitHub Actions
