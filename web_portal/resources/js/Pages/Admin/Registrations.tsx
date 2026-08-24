@@ -418,6 +418,23 @@ export default function AdminRegistrations({ applications }: { applications: App
 
                                     return (
                                         <div className="space-y-4">
+                                            {/* Peringatan Duplikasi AI */}
+                                            {selectedApp.admin_notes && selectedApp.admin_notes.includes('DUPLIKASI TERDETEKSI') && (
+                                                <div className="bg-red-600 text-white p-4 rounded-2xl shadow-md flex items-start gap-4 border border-red-700">
+                                                    <div className="animate-pulse flex items-start gap-4 w-full">
+                                                        <FiAlertTriangle className="text-3xl shrink-0 mt-0.5" />
+                                                        <div>
+                                                            <h4 className="font-black text-sm uppercase tracking-widest text-red-100 mb-1">
+                                                                Peringatan Keamanan Kritis
+                                                            </h4>
+                                                            <p className="text-xs font-medium">
+                                                                {selectedApp.admin_notes.split('\n').find(n => n.includes('DUPLIKASI TERDETEKSI'))?.replace('[AI WARNING] ', '')}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             {/* AI Verdict Highlight Box */}
                                             <div className={`p-5 rounded-2xl border-2 flex items-center justify-between ${
                                                 isMatch 

@@ -4,8 +4,10 @@ import AppLayout from '@/Layouts/AppLayout';
 import { FiUploadCloud, FiChevronLeft } from 'react-icons/fi';
 
 export default function Create() {
-    const { data, setData, post, processing, errors } = useForm({
-        plate_number: '',
+    const { data, setData, post, processing, errors, transform } = useForm({
+        plate_prefix: 'BL',
+        plate_number_core: '',
+        plate_suffix: '',
         vehicle_type: 'motorcycle',
         brand: '',
         model: '',
@@ -13,6 +15,11 @@ export default function Create() {
         stnk_file: null as File | null,
         vehicle_photo: null as File | null,
     });
+
+    transform((data) => ({
+        ...data,
+        plate_number: `${data.plate_prefix} ${data.plate_number_core} ${data.plate_suffix}`.trim(),
+    }));
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,6 +31,13 @@ export default function Create() {
             setData(field, e.target.files[0]);
         }
     };
+
+    // Daftar Kode Wilayah Indonesia (Contoh umum, bisa disesuaikan)
+    const regionCodes = [
+        'BL', 'B', 'D', 'E', 'F', 'T', 'Z', 'A', 'G', 'H', 'K', 'R', 'AA', 'AB', 'AD', 'AE', 'AG',
+        'S', 'W', 'L', 'M', 'N', 'P', 'DK', 'DR', 'EA', 'DH', 'EB', 'ED', 'KB', 'DA', 'KH', 'KT', 'KU',
+        'DB', 'DL', 'DM', 'DN', 'DT', 'DD', 'DP', 'DW', 'PA', 'PB'
+    ];
 
     return (
         <>
@@ -44,14 +58,38 @@ export default function Create() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Pelat</label>
-                            <input 
-                                type="text" 
-                                value={data.plate_number}
-                                onChange={e => setData('plate_number', e.target.value)}
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 uppercase"
-                                placeholder="Misal: BL 1234 AB"
-                                required
-                            />
+                            <div className="flex gap-2">
+                                <select
+                                    value={data.plate_prefix}
+                                    onChange={e => setData('plate_prefix', e.target.value)}
+                                    className="w-24 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold"
+                                >
+                                    {regionCodes.map(code => (
+                                        <option key={code} value={code}>{code}</option>
+                                    ))}
+                                </select>
+                                <input 
+                                    type="text" 
+                                    value={data.plate_number_core}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 4); // Hanya angka, maks 4
+                                        setData('plate_number_core', val);
+                                    }}
+                                    className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold tracking-widest"
+                                    placeholder="1234"
+                                    required
+                                />
+                                <input 
+                                    type="text" 
+                                    value={data.plate_suffix}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase(); // Hanya huruf, maks 3
+                                        setData('plate_suffix', val);
+                                    }}
+                                    className="w-24 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold uppercase"
+                                    placeholder="AB"
+                                />
+                            </div>
                             {errors.plate_number && <p className="text-red-500 text-xs mt-1">{errors.plate_number}</p>}
                         </div>
                         <div>

@@ -103,6 +103,15 @@ class RegisterVehicleFragment : Fragment() {
         val fuelAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, fuelTypes)
         binding.actvFuelType.setAdapter(fuelAdapter)
 
+        // Region code dropdown (Prefix Pelat)
+        val regionCodes = arrayOf(
+            "BL", "B", "D", "E", "F", "T", "Z", "A", "G", "H", "K", "R", "AA", "AB", "AD", "AE", "AG",
+            "S", "W", "L", "M", "N", "P", "DK", "DR", "EA", "DH", "EB", "ED", "KB", "DA", "KH", "KT", "KU",
+            "DB", "DL", "DM", "DN", "DT", "DD", "DP", "DW", "PA", "PB"
+        )
+        val regionAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, regionCodes)
+        binding.actvPlatePrefix.setAdapter(regionAdapter)
+
         // Camera / Gallery buttons
         binding.cardStnk.setOnClickListener {
             showImageSourceDialog(PhotoType.STNK)
@@ -114,7 +123,11 @@ class RegisterVehicleFragment : Fragment() {
 
         // Submit button
         binding.btnSubmit.setOnClickListener {
-            val plateNumber = binding.etPlateNumber.text.toString().trim().uppercase()
+            val prefix = binding.actvPlatePrefix.text.toString().trim().uppercase()
+            val core = binding.etPlateNumberCore.text.toString().trim()
+            val suffix = binding.etPlateSuffix.text.toString().trim().uppercase()
+            val plateNumber = "$prefix $core $suffix".trim()
+            
             val vehicleType = "car"
             val brand = binding.etBrand.text.toString().trim()
             val model = binding.etModel.text.toString().trim()
@@ -123,10 +136,10 @@ class RegisterVehicleFragment : Fragment() {
 
             // Validation
             var isValid = true
-            if (plateNumber.isEmpty()) {
-                binding.tilPlateNumber.error = "Nomor plat wajib diisi"
+            if (core.isEmpty() || prefix.isEmpty()) {
+                binding.tilPlateNumberCore.error = "Plat tidak lengkap"
                 isValid = false
-            } else binding.tilPlateNumber.error = null
+            } else binding.tilPlateNumberCore.error = null
 
 
             if (brand.isEmpty()) {

@@ -72,6 +72,20 @@ class UserRegistrationController extends Controller
         $aiResult = $aiService->extractPlates($absStnkPath, $absCarPath);
 
         if ($aiResult) {
+            // Cek Duplikasi Berbasis OCR STNK
+            $ocrPlate = strtoupper(str_replace(' ', '', $aiResult['stnk_plate'] ?? ''));
+            if (!empty($ocrPlate)) {
+                $isDuplicate = \App\Models\Vehicle::where('plate_number', $ocrPlate)
+                    ->where('registration_status', 'approved')
+                    ->exists();
+
+                if ($isDuplicate) {
+                    $application->update([
+                        'admin_notes' => '[AI WARNING] 🚨 DUPLIKASI TERDETEKSI: Pelat dari dokumen STNK ini sudah terdaftar dan aktif atas nama pengguna lain. Indikasi pemalsuan dokumen atau STNK ganda.'
+                    ]);
+                }
+            }
+
             // Simpan hasil STNK
             \App\Models\OcrResult::create([
                 'registration_application_id' => $application->id,

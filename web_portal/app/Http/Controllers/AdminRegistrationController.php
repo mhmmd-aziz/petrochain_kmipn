@@ -182,6 +182,20 @@ class AdminRegistrationController extends Controller
             $notes = $notes ? $notes . "\n" . $ccWarning : $ccWarning;
         }
 
+        // Cek Duplikasi Berbasis OCR STNK
+        $ocrPlate = strtoupper(str_replace(' ', '', $aiResult['stnk_plate'] ?? ''));
+        if (!empty($ocrPlate)) {
+            $isDuplicate = \App\Models\Vehicle::where('plate_number', $ocrPlate)
+                ->where('registration_status', 'approved')
+                ->where('id', '!=', $application->vehicle_id)
+                ->exists();
+
+            if ($isDuplicate) {
+                $duplicateWarning = '[AI WARNING] 🚨 DUPLIKASI TERDETEKSI: Pelat dari dokumen STNK ini sudah terdaftar dan aktif atas nama pengguna lain. Indikasi pemalsuan dokumen atau STNK ganda.';
+                $notes = $notes ? $notes . "\n" . $duplicateWarning : $duplicateWarning;
+            }
+        }
+
         $application->update([
             'admin_notes' => $notes,
             'status'      => 'pending_review',
