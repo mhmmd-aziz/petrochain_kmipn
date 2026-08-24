@@ -460,6 +460,13 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                     </span>
                                                 </div>
 
+                                                {/* Header Tabel Komparasi */}
+                                                <div className="grid grid-cols-3 px-3 py-2 bg-gray-100/50 border-b border-gray-200 text-[10px] font-extrabold text-gray-500 uppercase tracking-wider items-center">
+                                                    <span className="text-left ml-1">Atribut Informasi</span>
+                                                    <span className="text-center">Input Pengguna</span>
+                                                    <span className="text-center">Ekstraksi AI OCR</span>
+                                                </div>
+
                                                 <div className="divide-y divide-gray-100 text-xs">
                                                     {/* Row 1: Nomor Plat STNK */}
                                                     <div className="grid grid-cols-3 p-3 items-center hover:bg-gray-50/50">
