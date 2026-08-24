@@ -34,7 +34,7 @@ ENV/
 
 # YOLO & Models
 runs/
-*.pt
+# *.pt (di-comment agar model best.pt bisa ter-upload ke github)
 
 # Node / JS
 node_modules/
