@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import { 
@@ -49,6 +49,14 @@ export default function AdminRegistrations({ applications }: { applications: App
     const [lightboxRotation, setLightboxRotation] = useState(0);
 
     const [adminNotes, setAdminNotes] = useState('');
+
+    // Sync selectedApp with fresh data every time Inertia reloads the `applications` prop
+    useEffect(() => {
+        if (selectedApp) {
+            const fresh = applications.find(a => a.id === selectedApp.id);
+            if (fresh) setSelectedApp(fresh);
+        }
+    }, [applications]);
 
     const handleReviewSubmit = (decision: 'approved' | 'rejected' | 'needs_reupload', customNotes?: string) => {
         if (!selectedApp || isSubmitting) return;
