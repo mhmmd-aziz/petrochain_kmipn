@@ -55,7 +55,7 @@ class RegistrationController extends Controller
 
         $request->validate([
             'plate_number' => 'required|string|max:20',
-            'vehicle_type' => 'required|string|in:car,motorcycle',
+            'vehicle_type' => 'required|string|in:mobil_pribadi,angkutan_umum,angkutan_barang',
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
             'engine_capacity_cc' => 'required|integer|min:0|max:20000',

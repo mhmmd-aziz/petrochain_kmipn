@@ -67,6 +67,8 @@ class AdminRegistrationController extends Controller
         $request->validate([
             'status' => 'required|in:approved,rejected,needs_reupload',
             'admin_notes' => 'nullable|string',
+            'corrected_cc' => 'nullable|integer',
+            'corrected_plate' => 'nullable|string|max:20',
         ]);
 
         $application = RegistrationApplication::with('vehicle')->findOrFail($id);
@@ -82,11 +84,20 @@ class AdminRegistrationController extends Controller
 
         if ($request->status === 'approved') {
             $token = Str::random(32);
-            $vehicle->update([
+            $updateData = [
                 'registration_status' => 'approved',
                 'qr_code_token' => $token,
                 'qr_generated_at' => now(),
-            ]);
+            ];
+
+            if ($request->filled('corrected_cc')) {
+                $updateData['engine_capacity_cc'] = $request->corrected_cc;
+            }
+            if ($request->filled('corrected_plate')) {
+                $updateData['plate_number'] = strtoupper(str_replace(' ', '', $request->corrected_plate));
+            }
+
+            $vehicle->update($updateData);
         } else if ($request->status === 'rejected') {
             $vehicle->update(['registration_status' => 'rejected']);
         }

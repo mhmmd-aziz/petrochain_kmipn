@@ -8,7 +8,7 @@ export default function Create() {
         plate_prefix: 'BL',
         plate_number_core: '',
         plate_suffix: '',
-        vehicle_type: 'motorcycle',
+        vehicle_type: 'mobil_pribadi',
         brand: '',
         model: '',
         engine_capacity_cc: '',
@@ -99,10 +99,9 @@ export default function Create() {
                                 onChange={e => setData('vehicle_type', e.target.value)}
                                 className="w-full border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
                             >
-                                <option value="motorcycle">Sepeda Motor</option>
-                                <option value="car">Mobil / Kendaraan Pribadi</option>
-                                <option value="truck">Truk</option>
-                                <option value="bus">Bus</option>
+                                <option value="mobil_pribadi">Mobil / Kendaraan Pribadi</option>
+                                <option value="angkutan_umum">Bus / Angkutan Umum</option>
+                                <option value="angkutan_barang">Truk / Angkutan Barang</option>
                             </select>
                             {errors.vehicle_type && <p className="text-red-500 text-xs mt-1">{errors.vehicle_type}</p>}
                         </div>

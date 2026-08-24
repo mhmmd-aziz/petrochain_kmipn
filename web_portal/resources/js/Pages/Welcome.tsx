@@ -163,7 +163,7 @@ export default function Welcome({ auth }: { auth: any }) {
                         </Link>
 
                         {/* Desktop Navigation Links */}
-                        <div className="hidden md:flex items-center gap-6">
+                        <div className="hidden xl:flex items-center gap-6">
                             <a 
                                 href="#cara-kerja" 
                                 onClick={(e) => scrollToSection(e, 'cara-kerja')}
@@ -172,11 +172,11 @@ export default function Welcome({ auth }: { auth: any }) {
                                 Cara Kerja
                             </a>
                             <a 
-                                href="#simulator" 
-                                onClick={(e) => scrollToSection(e, 'simulator')}
+                                href="#aturan" 
+                                onClick={(e) => scrollToSection(e, 'aturan')}
                                 className="text-sm font-medium text-red-100 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
                             >
-                                <FiSliders className="text-yellow-300" /> Cek Kelayakan CC
+                                <FiSliders className="text-yellow-300" /> Aturan & Limit Kuota
                             </a>
                             <a 
                                 href="#alur" 
@@ -205,7 +205,7 @@ export default function Welcome({ auth }: { auth: any }) {
                         </div>
 
                         {/* Auth Buttons */}
-                        <div className="hidden sm:flex items-center gap-3">
+                        <div className="hidden lg:flex items-center gap-3">
                             {auth.user ? (
                                 <Link
                                     href={route('dashboard')}
@@ -239,7 +239,7 @@ export default function Welcome({ auth }: { auth: any }) {
                         </div>
 
                         {/* Mobile Hamburger Toggle */}
-                        <div className="flex sm:hidden">
+                        <div className="flex xl:hidden">
                             <button
                                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                                 className="text-white p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors focus:outline-none"
@@ -258,7 +258,7 @@ export default function Welcome({ auth }: { auth: any }) {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="sm:hidden bg-[#800b0e] border-t border-red-900/60 px-4 pt-3 pb-6 space-y-3"
+                            className="xl:hidden bg-[#800b0e] border-t border-red-900/60 px-4 pt-3 pb-6 space-y-3"
                         >
                             <a 
                                 href="#cara-kerja" 
@@ -268,11 +268,11 @@ export default function Welcome({ auth }: { auth: any }) {
                                 Cara Kerja
                             </a>
                             <a 
-                                href="#simulator" 
-                                onClick={(e) => scrollToSection(e, 'simulator')}
+                                href="#aturan" 
+                                onClick={(e) => scrollToSection(e, 'aturan')}
                                 className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
                             >
-                                Cek Kelayakan CC
+                                Aturan & Limit Kuota
                             </a>
                             <a 
                                 href="#alur" 
@@ -529,7 +529,7 @@ export default function Welcome({ auth }: { auth: any }) {
                                 <div className="flex items-start justify-between mb-2 relative z-10">
                                     <div>
                                         <span className="inline-block px-2 py-0.5 rounded-md bg-red-50 text-[#980f12] font-mono font-black text-[10px] uppercase mb-1">
-                                            IoT Dispenser Cutoff
+                                            Smart Dispenser Cutoff
                                         </span>
                                         <h4 className="text-base font-black text-gray-900">Operator SPBU Terminal</h4>
                                     </div>
@@ -766,190 +766,82 @@ export default function Welcome({ auth }: { auth: any }) {
 
 
             {/* ========================================================================= */}
-            {/* INTERACTIVE SUBSIDY ELIGIBILITY CALCULATOR WIDGET (LIGHT FULL-WIDTH)       */}
+            {/* ATURAN & LIMIT KUOTA SUBSIDI (REPLACED SIMULATOR)                         */}
             {/* ========================================================================= */}
-            <section id="simulator" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
+            <section id="aturan" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
                 <div className="w-full">
-                    <div className="text-center max-w-3xl mx-auto mb-10">
+                    <div className="text-center max-w-3xl mx-auto mb-14">
                         <span className="text-xs font-black uppercase tracking-widest text-[#980f12] bg-red-50 px-3.5 py-1.5 rounded-full border border-red-100">
-                            Fitur Publik Interaktif
+                            Regulasi Resmi
                         </span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-2">
-                            Simulasi Cek Kelayakan Subsidi Kendaraan
+                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-3">
+                            Aturan & Limit Kuota Harian Subsidi
                         </h2>
                         <p className="text-gray-600 text-sm sm:text-base">
-                            Uji kelayakan kendaraan Anda menerima <strong>Pertalite / Biosolar</strong> secara transparan sesuai regulasi <strong>Perpres No. 191/2014</strong>.
+                            Sistem kami secara otomatis mendeteksi CC dan tipe kendaraan Anda melalui AI OCR untuk menentukan batas maksimal pengisian BBM subsidi sesuai aturan pemerintah.
                         </p>
                     </div>
 
-                    <div className="bg-gray-50/80 text-gray-900 rounded-3xl p-6 sm:p-10 lg:p-12 border border-gray-200/80 shadow-xs relative overflow-hidden">
-                        {/* Subtle Glow ambient */}
-                        <div className="absolute -right-20 -top-20 w-80 h-80 bg-red-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-                            {/* Input Form Column */}
-                            <div className="lg:col-span-7 space-y-6">
-                                {/* Vehicle Type Toggle */}
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                                        1. Pilih Kategori Kendaraan
-                                    </label>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <button
-                                            onClick={() => {
-                                                setSimVehicleType('motor');
-                                                setSimCC(125);
-                                                setSimBrand('Honda Vario');
-                                                if (!hasInteracted) setHasInteracted(true);
-                                            }}
-                                            className={`p-4 rounded-2xl border flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer ${
-                                                simVehicleType === 'motor'
-                                                    ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
-                                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
-                                            }`}
-                                        >
-                                            <FaMotorcycle size={18} /> Sepeda Motor (&lt; 250cc)
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setSimVehicleType('mobil');
-                                                setSimCC(1300);
-                                                setSimBrand('Toyota Avanza');
-                                                if (!hasInteracted) setHasInteracted(true);
-                                            }}
-                                            className={`p-4 rounded-2xl border flex items-center justify-center gap-2.5 font-bold text-sm transition-all cursor-pointer ${
-                                                simVehicleType === 'mobil'
-                                                    ? 'bg-[#980f12] text-white border-[#980f12] shadow-md shadow-red-950/20'
-                                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
-                                            }`}
-                                        >
-                                            <FiTruck size={18} /> Mobil Penumpang (&le; 1.400cc)
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Preset Samples */}
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
-                                        2. Pilih Contoh Kendaraan Populer
-                                    </label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {quickPresets
-                                            .filter(p => p.type === simVehicleType)
-                                            .map((preset) => (
-                                                <button
-                                                    key={preset.name}
-                                                    onClick={() => {
-                                                        setSimCC(preset.cc);
-                                                        setSimBrand(preset.name);
-                                                        if (!hasInteracted) setHasInteracted(true);
-                                                    }}
-                                                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
-                                                        simBrand === preset.name
-                                                            ? 'bg-[#980f12] text-white border-[#980f12] font-black shadow-xs'
-                                                            : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
-                                                    }`}
-                                                >
-                                                    {preset.name} ({preset.cc >= 1000 ? `${(preset.cc/1000).toFixed(1).replace('.0','')}L / ${preset.cc}cc` : `${preset.cc}cc`})
-                                                </button>
-                                            ))}
-                                    </div>
-                                </div>
-
-                                {/* CC Slider / Input */}
-                                <div className="bg-white p-5 rounded-2xl border border-gray-200/80 shadow-2xs">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                            3. Kapasitas Mesin (CC)
-                                        </label>
-                                        <span className="font-mono text-xl font-black text-[#980f12] bg-red-50 px-3 py-1 rounded-lg border border-red-100">
-                                            <CountUp end={simCC} duration={0.4} preserveValue /> CC
-                                        </span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min={simVehicleType === 'motor' ? 50 : 800}
-                                        max={simVehicleType === 'motor' ? 500 : 3500}
-                                        step={simVehicleType === 'motor' ? 5 : 50}
-                                        value={simCC}
-                                        onChange={(e) => {
-                                            const val = Number(e.target.value);
-                                            setSimCC(val);
-                                            setSimBrand('Kustom');
-                                            if (!hasInteracted) setHasInteracted(true);
-                                        }}
-                                        className="w-full h-2.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#980f12]"
-                                    />
-                                    <div className="flex justify-between text-[11px] font-mono text-gray-500 mt-2">
-                                        <span>{simVehicleType === 'motor' ? '50cc' : '800cc'}</span>
-                                        <span className="text-[#980f12] font-bold">
-                                            {simVehicleType === 'motor' ? 'Batas Regulasi: 250cc' : 'Batas Regulasi: 1.400cc'}
-                                        </span>
-                                        <span>{simVehicleType === 'motor' ? '500cc' : '3.500cc'}</span>
-                                    </div>
-                                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                        {/* Aturan Pertalite */}
+                        <div className="bg-emerald-50 rounded-3xl p-8 border border-emerald-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-6 opacity-10 text-emerald-900">
+                                <FiTruck size={100} />
                             </div>
-
-                            {/* Result Verdict Card */}
-                            <div className="lg:col-span-5">
-                                <div className={`p-6 sm:p-8 rounded-3xl border-2 text-center transition-all ${
-                                    isEligible 
-                                        ? 'bg-emerald-50/90 border-emerald-500 shadow-lg shadow-emerald-500/10' 
-                                        : 'bg-rose-50/90 border-rose-500 shadow-lg shadow-rose-500/10'
-                                }`}>
-                                    <div className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center text-3xl mb-4 ${
-                                        isEligible ? 'bg-emerald-600 text-white shadow-md' : 'bg-rose-600 text-white shadow-md'
-                                    }`}>
-                                        {isEligible ? <FiCheckCircle /> : <FiAlertCircle />}
-                                    </div>
-
-                                    <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-gray-500">
-                                        Hasil Evaluasi AI & Regulasi
-                                    </span>
-
-                                    <h4 className={`text-xl sm:text-2xl font-black mt-1 mb-2 ${
-                                        isEligible ? 'text-emerald-950' : 'text-rose-950'
-                                    }`}>
-                                        {isEligible ? 'BERHAK MENERIMA SUBSIDI' : 'TIDAK BERHAK (NON-SUBSIDI)'}
-                                    </h4>
-
-                                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed mb-5">
-                                        {isEligible 
-                                            ? `Kendaraan ${simBrand} (${simCC}cc) memenuhi kriteria penerima BBM subsidi Pertalite / Biosolar.` 
-                                            : `Kendaraan ${simBrand} (${simCC}cc) melebihi batas regulasi. Wajib menggunakan BBM Non-Subsidi (Pertamax / Dex).`}
-                                    </p>
-
-                                    <div className="p-3.5 rounded-2xl bg-white text-left text-xs font-mono text-gray-700 border border-gray-200/80 mb-5 space-y-1.5 shadow-2xs">
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Regulasi:</span>
-                                            <strong className="text-gray-900">Perpres No. 191/2014</strong>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-500">Kuota Harian:</span>
-                                            <strong className={isEligible ? 'text-emerald-700' : 'text-rose-700'}>
-                                                {isEligible ? (simVehicleType === 'motor' ? '5 - 10 Liter' : '20 - 40 Liter') : '0 Liter (N/A)'}
-                                            </strong>
-                                        </div>
-                                    </div>
-
-                                    {isEligible ? (
-                                        <Link
-                                            href={route('register')}
-                                            className="w-full block text-center bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-2xl font-black text-xs sm:text-sm shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                                        >
-                                            Daftarkan QR Pass Sekarang
-                                        </Link>
-                                    ) : (
-                                        <Link
-                                            href={route('public.stock')}
-                                            className="w-full block text-center bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 py-3.5 rounded-2xl font-bold text-xs sm:text-sm transition-colors"
-                                        >
-                                            Cek Ketersediaan Pertamax di SPBU
-                                        </Link>
-                                    )}
+                            <h3 className="text-2xl font-black text-emerald-950 mb-2 relative z-10">PERTALITE</h3>
+                            <p className="text-emerald-800 text-sm mb-6 font-medium relative z-10">Subsidi Tepat Sasaran Roda 4</p>
+                            
+                            <div className="space-y-4 relative z-10">
+                                <div className="bg-white p-4 rounded-2xl shadow-xs border border-emerald-50">
+                                    <div className="text-xs text-emerald-600 font-bold mb-1 uppercase tracking-wide">Syarat Pendaftaran (Batas CC)</div>
+                                    <div className="font-black text-gray-900 text-lg">Maksimal 1.400 CC</div>
+                                    <p className="text-xs text-gray-500 mt-1">Kendaraan di atas 1400 CC tidak berhak mendaftar QR Code Pertalite.</p>
+                                </div>
+                                <div className="bg-white p-4 rounded-2xl shadow-xs border border-emerald-50">
+                                    <div className="text-xs text-emerald-600 font-bold mb-1 uppercase tracking-wide">Kuota Harian (Dengan QR Code)</div>
+                                    <div className="font-black text-gray-900 text-lg">50 Liter / Hari</div>
+                                    <p className="text-xs text-gray-500 mt-1">Berlaku rata untuk semua jenis kendaraan roda 4.</p>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Aturan Bio Solar */}
+                        <div className="bg-amber-50 rounded-3xl p-8 border border-amber-100 shadow-sm relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-6 opacity-10 text-amber-900">
+                                <FiTruck size={100} />
+                            </div>
+                            <h3 className="text-2xl font-black text-amber-950 mb-2 relative z-10">BIO SOLAR</h3>
+                            <p className="text-amber-800 text-sm mb-6 font-medium relative z-10">Distribusi Bertingkat Berdasarkan Golongan</p>
+                            
+                            <div className="space-y-4 relative z-10">
+                                <div className="bg-white p-4 rounded-2xl shadow-xs border border-amber-50">
+                                    <div className="text-xs text-amber-600 font-bold mb-1 uppercase tracking-wide">Syarat Pendaftaran (Batas CC)</div>
+                                    <div className="font-black text-gray-900 text-lg">Tidak Ada Batas CC</div>
+                                    <p className="text-xs text-gray-500 mt-1">Semua kapasitas mesin diesel diizinkan mendaftar QR Code.</p>
+                                </div>
+                                <div className="bg-white p-4 rounded-2xl shadow-xs border border-amber-50">
+                                    <div className="text-xs text-amber-600 font-bold mb-1 uppercase tracking-wide">Kuota Harian (Dengan QR Code)</div>
+                                    <ul className="text-sm font-bold text-gray-800 space-y-2 mt-2">
+                                        <li className="flex justify-between items-center border-b border-gray-100 pb-1">
+                                            <span>Mobil Pribadi</span> <span className="text-amber-700">50 Liter / Hari</span>
+                                        </li>
+                                        <li className="flex justify-between items-center border-b border-gray-100 pb-1">
+                                            <span>Bus / Angkutan Umum</span> <span className="text-amber-700">80 Liter / Hari</span>
+                                        </li>
+                                        <li className="flex justify-between items-center">
+                                            <span>Truk / Angkutan Barang</span> <span className="text-amber-700">200 Liter / Hari</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-8 max-w-3xl mx-auto bg-rose-50 border border-rose-200 rounded-2xl p-5 text-center">
+                        <h4 className="font-black text-rose-900 mb-1 flex items-center justify-center gap-2">
+                            <FiAlertTriangle /> Tanpa QR Code
+                        </h4>
+                        <p className="text-sm text-rose-800 font-medium">Jika pengguna tidak memiliki QR Code (mengandalkan kamera AI SPBU membaca plat nomor fisik), kuota dibatasi sangat ketat hanya <strong className="text-rose-950 text-lg mx-1">20 Liter / Hari</strong> untuk semua jenis BBM subsidi.</p>
                     </div>
                 </div>
             </section>
@@ -983,7 +875,7 @@ export default function Welcome({ auth }: { auth: any }) {
                                 <span className="text-[10px] font-mono font-bold text-amber-700 uppercase">PILAR 1 • HULU</span>
                                 <h3 className="text-lg font-black text-gray-900 mt-1 mb-2">Depot Kilang Pertamina</h3>
                                 <p className="text-xs text-gray-600 leading-relaxed">
-                                    Monitoring tangki induk dan penugasan armada mobil tangki bersensor IoT Flowmeter & GPS Geofencing.
+                                    Monitoring tangki induk dan penugasan armada mobil tangki bersensor Flowmeter & GPS Geofencing.
                                 </p>
                             </div>
                             <div className="text-[11px] font-mono font-bold text-gray-500 pt-3 border-t border-gray-100">
@@ -1097,7 +989,7 @@ export default function Welcome({ auth }: { auth: any }) {
                     <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8">
                         {[
                             { key: 'yolo', label: '1. Computer Vision (YOLO & OCR)', icon: FiCpu },
-                            { key: 'iot', label: '2. IoT Smart Dispenser Actuator', icon: FiZap },
+                            { key: 'iot', label: '2. Smart Dispenser Actuator', icon: FiZap },
                             { key: 'blockchain', label: '3. Hyperledger Fabric Ledger', icon: FiLayers },
                             { key: 'fraud', label: '4. Anti-Replay Security Guard', icon: FiShield },
                         ].map((tab) => {
@@ -1171,7 +1063,7 @@ export default function Welcome({ auth }: { auth: any }) {
                                         HARDWARE ACTUATOR
                                     </span>
                                     <h3 className="text-2xl sm:text-3xl font-black mt-3 mb-4 text-gray-950">
-                                        IoT Smart Dispenser Relay Controller
+                                        Smart Dispenser Relay Controller
                                     </h3>
                                     <p className="text-gray-600 text-sm leading-relaxed mb-6">
                                         Mikrokontroler ESP32 / Raspberry Pi terpasang pada modul pompa dispenser. Nozzle pengisian hanya akan mengalirkan bahan bakar jika sinyal otorisasi digital diterima dari server AI lokal.
@@ -1369,16 +1261,6 @@ export default function Welcome({ auth }: { auth: any }) {
                         </div>
                     </div>
 
-                    {/* Disclaimer Demo Prototipe KMIPN */}
-                    <div className="mt-6 flex items-center justify-between flex-wrap gap-3 text-xs text-red-100 bg-black/30 backdrop-blur-md px-4 sm:px-5 py-3 rounded-2xl border border-white/15">
-                        <div className="flex items-center gap-2.5">
-                            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
-                            <span><strong>Data Simulasi Prototipe:</strong> Volume stok tangki terhubung dengan sensor IoT Edge simulator real-time untuk demonstrasi kompetisi KMIPN 2026.</span>
-                        </div>
-                        <span className="font-mono text-[10px] text-yellow-300 font-bold uppercase tracking-wider bg-white/10 px-2.5 py-1 rounded-md border border-white/10">
-                            STATUS: LIVE DEMO FEED
-                        </span>
-                    </div>
                 </div>
             </section>
 

@@ -31,7 +31,7 @@ class UserRegistrationController extends Controller
     {
         $request->validate([
             'plate_number' => 'required|string|max:20',
-            'vehicle_type' => 'required|in:car,motorcycle,truck,bus',
+            'vehicle_type' => 'required|in:mobil_pribadi,angkutan_umum,angkutan_barang',
             'brand' => 'nullable|string|max:255',
             'model' => 'nullable|string|max:255',
             'engine_capacity_cc' => 'nullable|integer',

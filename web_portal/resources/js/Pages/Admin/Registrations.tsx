@@ -50,6 +50,12 @@ export default function AdminRegistrations({ applications }: { applications: App
 
     const [adminNotes, setAdminNotes] = useState('');
 
+    // Source of Truth Modal State
+    const [showCorrectionModal, setShowCorrectionModal] = useState(false);
+    const [correctionMode, setCorrectionMode] = useState<'user' | 'ai' | 'manual'>('user');
+    const [manualCc, setManualCc] = useState('');
+    const [manualPlate, setManualPlate] = useState('');
+    
     // Sync selectedApp with fresh data every time Inertia reloads the `applications` prop
     useEffect(() => {
         if (selectedApp) {
@@ -58,7 +64,12 @@ export default function AdminRegistrations({ applications }: { applications: App
         }
     }, [applications]);
 
-    const handleReviewSubmit = (decision: 'approved' | 'rejected' | 'needs_reupload', customNotes?: string) => {
+    const handleReviewSubmit = (
+        decision: 'approved' | 'rejected' | 'needs_reupload', 
+        customNotes?: string,
+        finalCc?: string,
+        finalPlate?: string
+    ) => {
         if (!selectedApp || isSubmitting) return;
 
         setIsSubmitting(true);
@@ -67,11 +78,14 @@ export default function AdminRegistrations({ applications }: { applications: App
             {
                 status: decision,
                 admin_notes: customNotes !== undefined ? customNotes : adminNotes,
+                corrected_cc: finalCc,
+                corrected_plate: finalPlate,
             }, 
             {
                 onSuccess: () => {
                     setSelectedApp(null);
                     setAdminNotes('');
+                    setShowCorrectionModal(false);
                     Swal.fire({
                         title: decision === 'approved' ? 'Disetujui!' : decision === 'rejected' ? 'Ditolak!' : 'Diminta Re-Upload!',
                         text: `Pengajuan kendaraan ${selectedApp.vehicle.plate_number} berhasil diproses.`,
@@ -84,6 +98,36 @@ export default function AdminRegistrations({ applications }: { applications: App
                 }
             }
         );
+    };
+
+    const handleApproveClick = () => {
+        if (!selectedApp) return;
+        const ai = getAiConclusion(selectedApp);
+        
+        let isMismatch = false;
+        
+        const userCc = String(selectedApp.vehicle.engine_capacity_cc);
+        const aiCc = ai?.stnk_cc || null;
+        if (aiCc && aiCc !== userCc) {
+            isMismatch = true;
+        }
+
+        const userPlate = selectedApp.vehicle.plate_number.replace(/\s+/g, '').toUpperCase();
+        const aiCarPlate = ai?.car_plate ? ai.car_plate.replace(/\s+/g, '').toUpperCase() : null;
+        const aiStnkPlate = ai?.stnk_plate ? ai.stnk_plate.replace(/\s+/g, '').toUpperCase() : null;
+
+        if ((aiCarPlate && aiCarPlate !== userPlate) || (aiStnkPlate && aiStnkPlate !== userPlate)) {
+            isMismatch = true;
+        }
+
+        if (isMismatch) {
+            setManualCc(userCc);
+            setManualPlate(selectedApp.vehicle.plate_number);
+            setCorrectionMode('user');
+            setShowCorrectionModal(true);
+        } else {
+            handleReviewSubmit('approved');
+        }
     };
 
     const handleRerunAi = () => {
@@ -670,7 +714,7 @@ export default function AdminRegistrations({ applications }: { applications: App
                                             {/* Approve button */}
                                             <button 
                                                 type="button"
-                                                onClick={() => handleReviewSubmit('approved')}
+                                                onClick={handleApproveClick}
                                                 disabled={isSubmitting}
                                                 className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
                                             >
@@ -702,6 +746,130 @@ export default function AdminRegistrations({ applications }: { applications: App
                                 </div>
 
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Source of Truth Correction Modal */}
+            {showCorrectionModal && selectedApp && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col">
+                        <div className="p-6 border-b border-gray-100 bg-amber-50 flex items-start gap-4">
+                            <div className="p-3 bg-amber-100 text-amber-700 rounded-2xl">
+                                <FiAlertTriangle size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-extrabold text-gray-900">Perbedaan Data Terdeteksi</h3>
+                                <p className="text-gray-600 text-sm mt-1">Terdapat perbedaan antara data input Pengguna dengan hasil bacaan AI (OCR). Silakan tentukan mana data yang paling benar sebelum menyetujui.</p>
+                            </div>
+                        </div>
+                        
+                        <div className="p-6 space-y-6 overflow-y-auto">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Opsi 1: Data Pengguna */}
+                                <div 
+                                    onClick={() => { setCorrectionMode('user'); setManualCc(String(selectedApp.vehicle.engine_capacity_cc)); setManualPlate(selectedApp.vehicle.plate_number); }}
+                                    className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${
+                                        correctionMode === 'user' ? 'border-amber-500 bg-amber-50/30' : 'border-gray-200 hover:border-amber-300'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="font-bold text-gray-900">Data Pengguna</h4>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${correctionMode === 'user' ? 'border-amber-500' : 'border-gray-300'}`}>
+                                            {correctionMode === 'user' && <div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div>}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 text-sm">
+                                        <div><span className="text-gray-500 block text-xs">Kapasitas CC</span> <span className="font-bold">{selectedApp.vehicle.engine_capacity_cc}</span></div>
+                                        <div><span className="text-gray-500 block text-xs">Plat Nomor</span> <span className="font-bold">{selectedApp.vehicle.plate_number}</span></div>
+                                    </div>
+                                </div>
+
+                                {/* Opsi 2: Data AI */}
+                                <div 
+                                    onClick={() => { 
+                                        const ai = getAiConclusion(selectedApp);
+                                        setCorrectionMode('ai'); 
+                                        setManualCc(ai?.stnk_cc || String(selectedApp.vehicle.engine_capacity_cc)); 
+                                        setManualPlate(ai?.car_plate || ai?.stnk_plate || selectedApp.vehicle.plate_number); 
+                                    }}
+                                    className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${
+                                        correctionMode === 'ai' ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-200 hover:border-emerald-300'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="font-bold text-gray-900">Data AI (OCR)</h4>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${correctionMode === 'ai' ? 'border-emerald-500' : 'border-gray-300'}`}>
+                                            {correctionMode === 'ai' && <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2 text-sm">
+                                        <div><span className="text-gray-500 block text-xs">Kapasitas CC</span> <span className="font-bold">{getAiConclusion(selectedApp)?.stnk_cc || 'N/A'}</span></div>
+                                        <div><span className="text-gray-500 block text-xs">Plat Nomor</span> <span className="font-bold">{getAiConclusion(selectedApp)?.car_plate || getAiConclusion(selectedApp)?.stnk_plate || 'N/A'}</span></div>
+                                    </div>
+                                </div>
+
+                                {/* Opsi 3: Koreksi Manual */}
+                                <div 
+                                    onClick={() => setCorrectionMode('manual')}
+                                    className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${
+                                        correctionMode === 'manual' ? 'border-blue-500 bg-blue-50/30' : 'border-gray-200 hover:border-blue-300'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="font-bold text-gray-900">Input Manual</h4>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${correctionMode === 'manual' ? 'border-blue-500' : 'border-gray-300'}`}>
+                                            {correctionMode === 'manual' && <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>}
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        Pilih ini jika Data Pengguna dan Data AI sama-sama salah, dan Anda ingin mengisinya sendiri sesuai foto dokumen.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Form Input Manual (Hanya Muncul Jika Pilih Opsi 3) */}
+                            {correctionMode === 'manual' && (
+                                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 grid grid-cols-2 gap-4 animate-fade-in">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">Kapasitas CC Benar</label>
+                                        <input 
+                                            type="number" 
+                                            value={manualCc} 
+                                            onChange={e => setManualCc(e.target.value)}
+                                            className="w-full border-gray-300 rounded-xl focus:ring-[#980f12] focus:border-[#980f12] sm:text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">Plat Nomor Benar</label>
+                                        <input 
+                                            type="text" 
+                                            value={manualPlate} 
+                                            onChange={e => setManualPlate(e.target.value)}
+                                            className="w-full border-gray-300 rounded-xl focus:ring-[#980f12] focus:border-[#980f12] sm:text-sm uppercase"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer / Actions */}
+                        <div className="p-5 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/50">
+                            <button 
+                                onClick={() => setShowCorrectionModal(false)}
+                                className="px-5 py-2.5 rounded-xl font-bold text-gray-600 hover:bg-gray-200 transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button 
+                                onClick={() => handleReviewSubmit('approved', undefined, manualCc, manualPlate)}
+                                disabled={isSubmitting}
+                                className="px-5 py-2.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 flex items-center gap-2 transition-colors disabled:opacity-50"
+                            >
+                                <FiCheckCircle />
+                                Setujui dengan Data Ini
+                            </button>
                         </div>
                     </div>
                 </div>
