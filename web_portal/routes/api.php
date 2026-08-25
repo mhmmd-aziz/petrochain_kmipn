@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/spbu/validate-vehicle', [SpbuController::class, 'validateVehicle']);
     Route::post('/spbu/validate-motor', [SpbuController::class, 'validateMotor']);
     Route::post('/spbu/submit-transaction', [SpbuController::class, 'submitTransaction']);
+    Route::get('/spbu/check-quota', [SpbuController::class, 'checkQuota']);
     
 });
 

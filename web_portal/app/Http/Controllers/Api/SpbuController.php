@@ -211,9 +211,53 @@ class SpbuController extends Controller
     }
 
     /**
+     * Check remaining daily quota for a vehicle
+     */
+    public function checkQuota(Request $request)
+    {
+        $vehicleId = $request->vehicle_id;
+        $fuelType = $request->fuel_type ?? 'pertalite';
+
+        if (!$vehicleId) {
+            return response()->json(['remaining_quota' => 20, 'max_quota' => 20, 'used_today' => 0]);
+        }
+
+        $vehicle = Vehicle::find($vehicleId);
+        if (!$vehicle) {
+            return response()->json(['error' => 'Kendaraan tidak ditemukan'], 404);
+        }
+
+        $isMotor = ($vehicle->vehicle_type === 'motor');
+        if ($isMotor) {
+            return response()->json(['remaining_quota' => 9999, 'max_quota' => 9999, 'used_today' => 0]);
+        }
+
+        if ($fuelType === 'solar') {
+            $maxQuota = match($vehicle->vehicle_type) {
+                'angkutan_umum' => 80,
+                'angkutan_barang' => 200,
+                default => 50,
+            };
+        } else {
+            $maxQuota = 50; // pertalite untuk mobil pribadi
+        }
+
+        $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicleId)
+            ->whereDate('transacted_at', now()->toDateString())
+            ->sum('volume');
+
+        return response()->json([
+            'remaining_quota' => max(0, $maxQuota - $usedToday),
+            'max_quota' => $maxQuota,
+            'used_today' => $usedToday,
+        ]);
+    }
+
+    /**
      * Submit a new fuel transaction and validate daily quota limits
      */
     public function submitTransaction(Request $request)
+
     {
         $request->validate([
             'vehicle_id' => 'nullable|exists:vehicles,id',
