@@ -181,18 +181,18 @@ class ValidateMotorFragment : Fragment() {
                                 binding.tvRemainingQuota.setTextColor(
                                     ContextCompat.getColor(requireContext(), R.color.status_rejected)
                                 )
-                                binding.btnSubmit.isEnabled = false
-                                binding.btnSubmit.text = "Kuota Habis"
-                                binding.btnSubmit.setBackgroundColor(
-                                    ContextCompat.getColor(requireContext(), R.color.border_color)
+                                binding.btnSubmitTransaction.isEnabled = false
+                                binding.btnSubmitTransaction.text = "Kuota Habis"
+                                binding.btnSubmitTransaction.setBackgroundColor(
+                                    android.graphics.Color.GRAY
                                 )
                                 showToast("Kuota harian kendaraan ini sudah habis!")
                             } else {
                                 binding.tvRemainingQuota.setTextColor(
                                     ContextCompat.getColor(requireContext(), R.color.status_approved)
                                 )
-                                binding.btnSubmit.isEnabled = true
-                                binding.btnSubmit.text = "Konfirmasi Pengisian"
+                                binding.btnSubmitTransaction.isEnabled = true
+                                binding.btnSubmitTransaction.text = "Konfirmasi Pengisian"
                             }
                         }
                     } else {
