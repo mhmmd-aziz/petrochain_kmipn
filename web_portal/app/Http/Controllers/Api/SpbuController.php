@@ -227,19 +227,22 @@ class SpbuController extends Controller
             return response()->json(['error' => 'Kendaraan tidak ditemukan'], 404);
         }
 
+        // Use the requested fuel type or fallback to the vehicle's registered fuel type
+        $fuelType = strtolower($request->fuel_type ?? $vehicle->fuel_type ?? 'pertalite');
+
         $isMotor = ($vehicle->vehicle_type === 'motor');
         if ($isMotor) {
             return response()->json(['remaining_quota' => 9999, 'max_quota' => 9999, 'used_today' => 0]);
         }
 
-        if ($fuelType === 'solar') {
+        if ($fuelType === 'solar' || $fuelType === 'biosolar') {
             $maxQuota = match($vehicle->vehicle_type) {
                 'angkutan_umum' => 80,
                 'angkutan_barang' => 200,
-                default => 50,
+                default => 60, // mobil_pribadi solar max is 60L actually, not 50L (based on BPH Migas rules)
             };
         } else {
-            $maxQuota = 50; // pertalite untuk mobil pribadi
+            $maxQuota = 50; // pertalite max 50L (for cars)
         }
 
         $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicleId)
@@ -270,7 +273,6 @@ class SpbuController extends Controller
         ]);
 
         $volume = (float) $request->volume;
-        $fuelType = strtolower($request->fuel_type);
         $vehicleId = $request->vehicle_id;
         
         $maxQuota = 20; // Default limit for Non-QR (20L)
@@ -278,20 +280,19 @@ class SpbuController extends Controller
 
         if ($vehicleId) {
             $vehicle = Vehicle::find($vehicleId);
+            $fuelType = strtolower($request->fuel_type ?? $vehicle->fuel_type ?? 'pertalite');
             $isMotor = ($vehicle->vehicle_type === 'motor');
             
             if ($isMotor) {
                 $maxQuota = 9999; // Motor tidak ada limit liter
-            } else if ($fuelType === 'pertalite') {
-                $maxQuota = 50;
-            } else if ($fuelType === 'solar') {
-                if ($vehicle->vehicle_type === 'mobil_pribadi') {
-                    $maxQuota = 50;
-                } else if ($vehicle->vehicle_type === 'angkutan_umum') {
-                    $maxQuota = 80;
-                } else {
-                    $maxQuota = 200; // angkutan_barang
-                }
+            } else if ($fuelType === 'solar' || $fuelType === 'biosolar') {
+                $maxQuota = match($vehicle->vehicle_type) {
+                    'angkutan_umum' => 80,
+                    'angkutan_barang' => 200, // dump truck dll
+                    default => 60, // mobil_pribadi solar max 60L
+                };
+            } else {
+                $maxQuota = 50; // pertalite max 50L
             }
 
             // Calculate used quota today
