@@ -57,12 +57,14 @@ class QrCodeFragment : Fragment() {
                             } else {
                                 binding.tvQuota.text = "Sisa Kuota Hari Ini: ${quotaData.remainingQuota} L"
                             }
+                        } else {
+                            binding.tvQuota.text = "Gagal memuat kuota (Data kosong)"
                         }
                     } else {
-                        binding.tvQuota.text = "Gagal memuat kuota"
+                        binding.tvQuota.text = "Error: ${response.code()} ${response.message()}"
                     }
                 } catch (e: Exception) {
-                    binding.tvQuota.text = "Gagal memuat kuota"
+                    binding.tvQuota.text = "Error: ${e.message}"
                 }
             }
         } else {
