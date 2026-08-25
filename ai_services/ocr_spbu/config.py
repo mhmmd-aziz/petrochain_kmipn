@@ -37,7 +37,7 @@ VEHICLE_CLASSES = {
     3:  "truck",      # Custom model class index untuk truk
 }
 
-CONFIDENCE_THRESHOLD  = 0.45   # Minimum confidence untuk deteksi kendaraan
+CONFIDENCE_THRESHOLD  = 0.25   # Minimum confidence untuk deteksi kendaraan
 IOU_THRESHOLD         = 0.45   # IoU threshold untuk NMS
 MAX_DETECTIONS        = 10     # Maksimum deteksi per frame
 
