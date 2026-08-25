@@ -161,8 +161,46 @@ class ValidateMotorFragment : Fragment() {
                     binding.tvDetectedPlate.text = if (data.isMatch) "Klasifikasi: ✅ Under 250cc" else "Klasifikasi: ❌ Over 250cc"
                     val confDisplay = if ((data.confidence ?: 0.0) > 0) String.format("Confidence: %.1f%%", (data.confidence ?: 0.0) * 100) else "Confidence: N/A"
                     binding.tvConfidence.text = confDisplay
+
+                    val fuelLabel = if (data.fuelType?.lowercase()?.contains("solar") == true) "Biosolar" else "Pertalite"
+                    binding.tvVehicleFuelType.text = "Jenis BBM Terdaftar: $fuelLabel"
+                    
+                    if (data.fuelType?.lowercase()?.contains("solar") == true) {
+                        binding.rbSolar.isChecked = true
+                    } else {
+                        binding.rbPertalite.isChecked = true
+                    }
+                    
+                    if (data.remainingQuota != null) {
+                        val maxQuota = data.maxQuota ?: 0.0
+                        if (maxQuota > 1000) {
+                            binding.tvRemainingQuota.text = "Sisa Kuota: Tanpa Batas"
+                        } else {
+                            binding.tvRemainingQuota.text = "Sisa Kuota: ${data.remainingQuota} L (Maks $maxQuota L)"
+                            if (data.remainingQuota <= 0) {
+                                binding.tvRemainingQuota.setTextColor(
+                                    ContextCompat.getColor(requireContext(), R.color.status_rejected)
+                                )
+                                binding.btnSubmit.isEnabled = false
+                                binding.btnSubmit.text = "Kuota Habis"
+                                binding.btnSubmit.setBackgroundColor(
+                                    ContextCompat.getColor(requireContext(), R.color.border_color)
+                                )
+                                showToast("Kuota harian kendaraan ini sudah habis!")
+                            } else {
+                                binding.tvRemainingQuota.setTextColor(
+                                    ContextCompat.getColor(requireContext(), R.color.status_approved)
+                                )
+                                binding.btnSubmit.isEnabled = true
+                                binding.btnSubmit.text = "Konfirmasi Pengisian"
+                            }
+                        }
+                    } else {
+                        binding.tvRemainingQuota.text = ""
+                    }
                 }
                 it.onFailure { error ->
+                    binding.cardResult.visible()
                     binding.tvMatchStatus.text = "⚠️ Gagal: ${error.message}"
                     binding.tvMatchStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_rejected)

@@ -39,16 +39,20 @@ class QrCodeFragment : Fragment() {
         val brand = arguments?.getString("brand") ?: ""
         val model = arguments?.getString("model") ?: ""
         val vehicleType = arguments?.getString("vehicle_type") ?: "mobil_pribadi"
+        val fuelType = arguments?.getString("fuel_type") ?: "pertalite"
 
         binding.tvPlateNumber.text = plateNumber
         binding.tvVehicleInfo.text = "$brand $model".trim()
+        
+        val fuelLabel = if (fuelType.lowercase().contains("solar")) "Biosolar" else "Pertalite"
+        binding.tvFuelType.text = "Jenis BBM: $fuelLabel"
 
         val vehicleId = arguments?.getInt("vehicle_id") ?: 0
         if (vehicleId > 0) {
             binding.tvQuota.text = "Memuat kuota..."
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
-                    val response = RetrofitClient.apiService.checkQuota(vehicleId)
+                    val response = RetrofitClient.apiService.checkQuota(vehicleId, fuelType)
                     if (response.isSuccessful) {
                         val quotaData = response.body()
                         if (quotaData != null) {

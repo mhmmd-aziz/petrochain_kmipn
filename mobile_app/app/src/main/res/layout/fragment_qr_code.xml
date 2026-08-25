@@ -134,6 +134,19 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="16sp" />
 
+                    <TextView
+                        android:id="@+id/tvFuelType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Jenis BBM: Pertalite"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_rounded_primary_light"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp" />
+
                     <!-- Quota Indicator -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="wrap_content"

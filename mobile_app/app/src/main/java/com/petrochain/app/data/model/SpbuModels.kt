@@ -27,9 +27,13 @@ data class QrValidationData(
 data class VehicleValidationData(
     @SerializedName("registered_plate") val registeredPlate: String,
     @SerializedName("detected_plate") val detectedPlate: String?,
-    @SerializedName("confidence") val confidence: Double,
+    @SerializedName("confidence") val confidence: Float,
     @SerializedName("is_match") val isMatch: Boolean,
-    @SerializedName("annotated_image") val annotatedImage: String?
+    @SerializedName("annotated_image") val annotatedImage: String?,
+    @SerializedName("vehicle_type") val vehicleType: String? = null,
+    @SerializedName("fuel_type") val fuelType: String? = null,
+    @SerializedName("remaining_quota") val remainingQuota: Double? = null,
+    @SerializedName("max_quota") val maxQuota: Double? = null
 )
 
 /**

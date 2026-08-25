@@ -49,7 +49,8 @@ class MyVehiclesFragment : Fragment() {
                     "plate_number" to vehicle.plateNumber,
                     "brand" to (vehicle.brand ?: ""),
                     "model" to (vehicle.model ?: ""),
-                    "vehicle_type" to vehicle.vehicleType
+                    "vehicle_type" to vehicle.vehicleType,
+                    "fuel_type" to (vehicle.fuelType ?: "pertalite")
                 )
                 findNavController().navigate(R.id.qrCodeFragment, bundle)
             } else {
