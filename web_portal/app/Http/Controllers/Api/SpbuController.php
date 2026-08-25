@@ -124,6 +124,30 @@ class SpbuController extends Controller
                 // Delete temp file
                 @unlink($absPath);
 
+                // Get quota and fuel type
+                $fuelType = null;
+                $remainingQuota = null;
+                $maxQuota = null;
+                
+                if ($vehicle) {
+                    $fuelType = strtolower($vehicle->fuel_type ?? 'pertalite');
+                    if ($fuelType === 'solar' || $fuelType === 'biosolar') {
+                        $maxQuota = match($vehicle->vehicle_type) {
+                            'angkutan_umum' => 80,
+                            'angkutan_barang' => 200,
+                            default => 50,
+                        };
+                    } else {
+                        $maxQuota = 50;
+                    }
+                    
+                    $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicle->id)
+                        ->whereDate('transacted_at', now()->toDateString())
+                        ->sum('volume');
+                        
+                    $remainingQuota = max(0, $maxQuota - $usedToday);
+                }
+
                 return response()->json([
                     'status' => 'success',
                     'data' => [
@@ -132,6 +156,10 @@ class SpbuController extends Controller
                         'confidence' => $confidence,
                         'is_match' => $isMatch,
                         'annotated_image' => $aiResult['annotated'] ?? null,
+                        'vehicle_type' => $vehicle ? $vehicle->vehicle_type : null,
+                        'fuel_type' => $fuelType,
+                        'remaining_quota' => $remainingQuota,
+                        'max_quota' => $maxQuota
                     ]
                 ]);
             }
@@ -183,16 +211,42 @@ class SpbuController extends Controller
                     }
                 }
 
+                // Delete temp file
                 @unlink($absPath);
+
+                // Get quota and fuel type
+                $fuelType = null;
+                $remainingQuota = null;
+                $maxQuota = null;
+                $vehicle = null;
+                
+                if ($request->vehicle_id) {
+                    $vehicle = Vehicle::find($request->vehicle_id);
+                }
+
+                if ($vehicle) {
+                    $fuelType = strtolower($vehicle->fuel_type ?? 'pertalite');
+                    $maxQuota = 9999; // Motor tidak ada limit liter
+                    
+                    $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicle->id)
+                        ->whereDate('transacted_at', now()->toDateString())
+                        ->sum('volume');
+                        
+                    $remainingQuota = max(0, $maxQuota - $usedToday);
+                }
 
                 return response()->json([
                     'status' => 'success',
                     'data' => [
-                        'registered_plate' => 'MOTOR TANPA QR',
+                        'registered_plate' => $vehicle ? $vehicle->plate_number : 'MOTOR TANPA QR',
                         'detected_plate' => $detectedClass,
                         'confidence' => $confidence,
-                        'is_match' => $isMatch,
+                        'is_match' => true, // motor validation depends on classification
                         'annotated_image' => $aiResult['data']['media_url'] ?? null,
+                        'vehicle_type' => 'motor',
+                        'fuel_type' => $fuelType,
+                        'remaining_quota' => $remainingQuota,
+                        'max_quota' => $maxQuota
                     ]
                 ]);
             }

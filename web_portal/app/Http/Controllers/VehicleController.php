@@ -25,7 +25,7 @@ class VehicleController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'plate_number' => 'required|string|max:20|unique:vehicles',
-            'vehicle_type' => 'required|in:mobil,motor',
+            'vehicle_type' => 'required|in:mobil_pribadi,angkutan_umum,angkutan_barang,motor',
             'fuel_type' => 'required|string|max:50',
             'brand' => 'required|string|max:100',
             'model' => 'required|string|max:100',
@@ -43,7 +43,7 @@ class VehicleController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'plate_number' => 'required|string|max:20|unique:vehicles,plate_number,' . $vehicle->id,
-            'vehicle_type' => 'required|in:mobil,motor',
+            'vehicle_type' => 'required|in:mobil_pribadi,angkutan_umum,angkutan_barang,motor',
             'fuel_type' => 'required|string|max:50',
             'brand' => 'required|string|max:100',
             'model' => 'required|string|max:100',
