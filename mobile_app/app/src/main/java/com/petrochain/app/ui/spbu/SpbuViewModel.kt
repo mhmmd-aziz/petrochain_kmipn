@@ -47,6 +47,15 @@ class SpbuViewModel : ViewModel() {
         }
     }
 
+    fun validateMotor(imageFile: File) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.validateMotor(imageFile)
+            _vehicleResult.value = result
+            _isLoading.value = false
+        }
+    }
+
     fun clearResults() {
         _qrResult.value = null
         _vehicleResult.value = null

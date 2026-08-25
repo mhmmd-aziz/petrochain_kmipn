@@ -64,6 +64,12 @@ interface ApiService {
         @Part vehicleImage: MultipartBody.Part
     ): Response<ApiResponse<VehicleValidationData>>
 
+    @Multipart
+    @POST("spbu/validate-motor")
+    suspend fun validateMotor(
+        @Part vehicleImage: MultipartBody.Part
+    ): Response<ApiResponse<VehicleValidationData>>
+
     @POST("spbu/submit-transaction")
     suspend fun submitTransaction(@Body request: SubmitTransactionRequest): Response<ApiResponse<TransactionData>>
 }

@@ -67,8 +67,8 @@ class ValidateMotorFragment : Fragment() {
         }
 
         binding.btnValidate.setOnClickListener {
-            photoFile?.let { file ->
-                viewModel.validateVehicle(vehicleId, file)
+            photoFile?.let { photo ->
+                viewModel.validateMotor(photo)
             } ?: showToast("Ambil foto plat nomor terlebih dahulu")
         }
 

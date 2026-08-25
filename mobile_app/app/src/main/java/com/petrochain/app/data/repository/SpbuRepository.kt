@@ -79,6 +79,28 @@ class SpbuRepository {
         }
     }
 
+    suspend fun validateMotor(
+        vehicleImageFile: File
+    ): Result<VehicleValidationData> {
+        return try {
+            val imageRequestBody = vehicleImageFile
+                .asRequestBody("image/*".toMediaTypeOrNull())
+            val imagePart = MultipartBody.Part.createFormData(
+                "vehicle_image", vehicleImageFile.name, imageRequestBody
+            )
+
+            val response = api.validateMotor(imagePart)
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                Result.success(response.body()!!.data!!)
+            } else {
+                val errorMsg = response.body()?.message ?: "Validasi motor gagal"
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Koneksi gagal: ${e.message}"))
+        }
+    }
+
     suspend fun submitTransaction(request: com.petrochain.app.data.model.SubmitTransactionRequest): Result<com.petrochain.app.data.model.TransactionData> {
         return try {
             val response = api.submitTransaction(request)

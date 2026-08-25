@@ -146,7 +146,10 @@ class ScanQrFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        isScanning = true
+        binding.layoutResult.gone()
         binding.barcodeScanner.resume()
+        binding.barcodeScanner.decodeContinuous(barcodeCallback)
     }
 
     override fun onPause() {
