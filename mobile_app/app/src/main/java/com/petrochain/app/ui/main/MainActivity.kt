@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.qrCodeFragment,
                 R.id.scanQrFragment,
                 R.id.validateVehicleFragment,
+                R.id.validateMotorFragment,
                 R.id.mapFragment,
                 R.id.spbuDetailFragment -> {
                     binding.bottomNavigationContainer.visibility = android.view.View.GONE
