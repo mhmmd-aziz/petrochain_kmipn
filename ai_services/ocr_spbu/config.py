@@ -22,8 +22,8 @@ for _dir in [MODELS_DIR, UPLOADS_DIR, CROPS_DIR, DB_DIR, STATIC_DIR]:
 DATABASE_URL = f"sqlite:///{DB_DIR / 'plates.db'}"
 
 # ─── YOLO Model ────────────────────────────────────────────────────────────────
-# Menggunakan model custom untuk deteksi kendaraan agar akurasinya lebih bagus
-YOLO_VEHICLE_MODEL = str(MODELS_DIR / "plate_detector.pt")
+# Menggunakan YOLOv8n (COCO) untuk deteksi kendaraan agar bisa mengenali truk dan bus dengan baik
+YOLO_VEHICLE_MODEL = str(MODELS_DIR / "yolov8n.pt")
 
 # Model khusus deteksi plat nomor (menggunakan model yang sama)
 # YOLO_PLATE_MODEL adalah path model khusus deteksi plat nomor
@@ -31,10 +31,11 @@ YOLO_PLATE_MODEL   = str(MODELS_DIR / "plate_detector.pt")
 USE_PLATE_MODEL    = os.path.exists(YOLO_PLATE_MODEL)
 
 # ─── YOLO Detection Settings ───────────────────────────────────────────────────
+# Class ID sesuai model COCO (yolov8n.pt) - jauh lebih handal untuk truk dan bus
 VEHICLE_CLASSES = {
-    0:  "bus",        # Custom model class index untuk bus
-    1:  "car",        # Custom model class index untuk mobil (cars)
-    3:  "truck",      # Custom model class index untuk truk
+    2:  "car",        # COCO class: car
+    5:  "bus",        # COCO class: bus
+    7:  "truck",      # COCO class: truck
 }
 
 CONFIDENCE_THRESHOLD  = 0.25   # Minimum confidence untuk deteksi kendaraan
