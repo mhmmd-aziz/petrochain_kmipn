@@ -328,19 +328,15 @@ class SpbuController extends Controller
             'transacted_at' => now(),
         ]);
 
-        // Generate Hash and Record to Blockchain asynchronously
+        // Generate SHA-256 hash dan simpan langsung ke DB sebagai blockchain_reference
+        // Format: txId|plate|fuelType|volume|spbuCode (sama dengan yang dicek di frontend Blockchain.tsx)
         $spbuCode = $operator ? ($operator->spbu->code ?? '14.201.001') : '14.201.001';
-        $dataString = "{$transaction->id}|{$transaction->plate_result}|{$transaction->fuel_type}|{$transaction->volume}|{$spbuCode}";
+        $plateResult = $transaction->plate_result ?? '';
+        $dataString = "{$transaction->id}|{$plateResult}|{$transaction->fuel_type}|{$transaction->volume}|{$spbuCode}";
         $dataHash = hash('sha256', $dataString);
 
-        // We use dispatch to run it in background so it doesn't block the API response
-        dispatch(function () use ($transaction, $dataHash, $spbuCode) {
-            $blockchainService = new \App\Services\BlockchainService();
-            $success = $blockchainService->recordTransaction((string)$transaction->id, $dataHash, $spbuCode);
-            if ($success) {
-                $transaction->update(['blockchain_reference' => '0x' . substr($dataHash, 0, 10) . '...']);
-            }
-        });
+        // Simpan hash langsung ke DB (tanpa perlu hardhat)
+        $transaction->update(['blockchain_reference' => $dataHash]);
 
         return response()->json([
             'status' => 'success',

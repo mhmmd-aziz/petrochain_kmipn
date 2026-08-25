@@ -70,6 +70,12 @@ class ValidateVehicleFragment : Fragment() {
         binding.tvRegisteredPlate.text = plateNumber
         binding.tvRegisteredVehicle.text = "$brand $model".trim()
 
+        // Reset semua state agar tidak menampilkan hasil validasi sesi sebelumnya
+        viewModel.clearResults()
+        binding.cardResult.gone()
+        binding.cardTransaction.gone()
+        binding.btnValidate.isEnabled = false
+
         binding.cardCapturePhoto.setOnClickListener {
             checkCameraAndLaunch()
         }

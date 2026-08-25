@@ -62,6 +62,13 @@ class ValidateMotorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Reset semua state saat fragment dibuka agar tidak menampilkan hasil validasi sebelumnya
+        viewModel.clearResults()
+        binding.cardResult.gone()
+        binding.cardTransaction.gone()
+        binding.btnOverride.gone()
+        binding.btnValidate.isEnabled = false
+
         binding.cardCapturePhoto.setOnClickListener {
             checkCameraAndLaunch()
         }

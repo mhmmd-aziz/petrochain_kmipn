@@ -35,12 +35,11 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
     const verifyTransaction = async (tx: any) => {
         setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'loading' } }));
         try {
-            const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
-            const contract = new ethers.Contract(PetrochainAuditABI.address, PetrochainAuditABI.abi, provider);
-            
             // Generate what the hash SHOULD be based on DB data
+            // Format must match PHP: "{id}|{plate_result}|{fuel_type}|{volume}|{spbu_code}"
             const spbuCode = tx.spbu?.code || '14.201.001';
-            const dataString = `${tx.id}|${tx.plate_result}|${tx.fuel_type}|${tx.volume}|${spbuCode}`;
+            const plateResult = tx.plate_result ?? '';
+            const dataString = `${tx.id}|${plateResult}|${tx.fuel_type}|${tx.volume}|${spbuCode}`;
             
             const encoder = new TextEncoder();
             const dataBuffer = encoder.encode(dataString);
@@ -48,23 +47,21 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const calculatedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-            // Fetch from blockchain
-            const onChainData = await contract.verifyTransaction(tx.id.toString());
-            const onChainHash = onChainData.dataHash;
+            // Compare against stored blockchain_reference in DB
+            const storedHash = tx.blockchain_reference;
 
-            if (!onChainHash) {
+            if (!storedHash) {
                 setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'not_found' } }));
                 return;
             }
 
-            if (calculatedHash === onChainHash) {
-                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'matched', onChainHash } }));
+            if (calculatedHash === storedHash) {
+                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'matched', onChainHash: storedHash } }));
             } else {
-                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'tampered', onChainHash } }));
+                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'tampered', onChainHash: storedHash } }));
             }
         } catch (error) {
             console.error("Verification error:", error);
-            // Since it's a real Web3 implementation, if it fails to fetch from RPC or reverts (not found), show error/tampered
             setVerificationStatus(prev => ({ 
                 ...prev, 
                 [tx.id]: { status: 'error' } 
