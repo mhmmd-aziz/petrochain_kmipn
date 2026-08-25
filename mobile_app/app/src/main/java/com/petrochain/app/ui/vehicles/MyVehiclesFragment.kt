@@ -44,6 +44,7 @@ class MyVehiclesFragment : Fragment() {
         adapter = VehicleAdapter { vehicle ->
             if (vehicle.registrationStatus == "approved" && vehicle.qrCodeUrl != null) {
                 val bundle = bundleOf(
+                    "vehicle_id" to vehicle.id,
                     "qr_code_url" to vehicle.qrCodeUrl,
                     "plate_number" to vehicle.plateNumber,
                     "brand" to (vehicle.brand ?: ""),

@@ -74,3 +74,9 @@ data class TransactionData(
     @SerializedName("volume") val volume: Double,
     @SerializedName("transaction_status") val transactionStatus: String
 )
+
+data class QuotaData(
+    @SerializedName("remaining_quota") val remainingQuota: Double,
+    @SerializedName("max_quota") val maxQuota: Double,
+    @SerializedName("used_today") val usedToday: Double
+)

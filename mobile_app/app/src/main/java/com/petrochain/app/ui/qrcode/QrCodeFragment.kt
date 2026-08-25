@@ -7,8 +7,11 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import coil.load
 import com.petrochain.app.databinding.FragmentQrCodeBinding
+import com.petrochain.app.data.api.RetrofitClient
 
 /**
  * Displays the QR Code for an approved vehicle at full screen.
@@ -40,17 +43,41 @@ class QrCodeFragment : Fragment() {
         binding.tvPlateNumber.text = plateNumber
         binding.tvVehicleInfo.text = "$brand $model".trim()
 
-        val quota = when (vehicleType) {
-            "motor" -> 9999
-            "angkutan_umum" -> 80
-            "angkutan_barang" -> 200
-            else -> 50 // mobil_pribadi
-        }
-        
-        if (quota > 1000) {
-            binding.tvQuota.text = "Sisa Kuota Hari Ini: Tanpa Batas"
+        val vehicleId = arguments?.getInt("vehicle_id") ?: 0
+        if (vehicleId > 0) {
+            binding.tvQuota.text = "Memuat kuota..."
+            viewLifecycleOwner.lifecycleScope.launch {
+                try {
+                    val response = RetrofitClient.apiService.checkQuota(vehicleId)
+                    if (response.isSuccessful) {
+                        val quotaData = response.body()
+                        if (quotaData != null) {
+                            if (quotaData.maxQuota > 1000) {
+                                binding.tvQuota.text = "Sisa Kuota Hari Ini: Tanpa Batas"
+                            } else {
+                                binding.tvQuota.text = "Sisa Kuota Hari Ini: ${quotaData.remainingQuota} L"
+                            }
+                        }
+                    } else {
+                        binding.tvQuota.text = "Gagal memuat kuota"
+                    }
+                } catch (e: Exception) {
+                    binding.tvQuota.text = "Gagal memuat kuota"
+                }
+            }
         } else {
-            binding.tvQuota.text = "Sisa Kuota Hari Ini: $quota L"
+            val quota = when (vehicleType) {
+                "motor" -> 9999
+                "angkutan_umum" -> 80
+                "angkutan_barang" -> 200
+                else -> 50 // mobil_pribadi
+            }
+            
+            if (quota > 1000) {
+                binding.tvQuota.text = "Sisa Kuota Hari Ini: Tanpa Batas"
+            } else {
+                binding.tvQuota.text = "Sisa Kuota Hari Ini: $quota L"
+            }
         }
 
         binding.btnBack.setOnClickListener {

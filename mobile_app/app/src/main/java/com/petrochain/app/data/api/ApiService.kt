@@ -72,4 +72,10 @@ interface ApiService {
 
     @POST("spbu/submit-transaction")
     suspend fun submitTransaction(@Body request: SubmitTransactionRequest): Response<ApiResponse<TransactionData>>
+
+    @GET("spbu/check-quota")
+    suspend fun checkQuota(
+        @Query("vehicle_id") vehicleId: Int,
+        @Query("fuel_type") fuelType: String = "pertalite"
+    ): Response<QuotaData>
 }
