@@ -183,7 +183,15 @@ export default function AdminRegistrations({ applications }: { applications: App
             if (raw.includes('motorcycle')) return 'Motor';
             if (raw.includes('car'))        return 'Mobil';
             if (raw.includes('truck'))      return 'Truk';
+            if (raw.includes('other_vehicle')) return 'Kendaraan Lain (Truk/Bus)';
             return raw;
+        };
+
+        const formatUserVehicleType = (type: string) => {
+            if (type === 'mobil_pribadi') return 'Mobil Pribadi';
+            if (type === 'angkutan_umum') return 'Angkutan Umum';
+            if (type === 'angkutan_barang') return 'Truk / Barang';
+            return type;
         };
 
         return {
@@ -345,7 +353,7 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                     {app.vehicle.brand} {app.vehicle.model}
                                                 </div>
                                                 <div className="text-xs text-gray-500 font-mono mt-0.5">
-                                                    {app.vehicle.engine_capacity_cc ? `${app.vehicle.engine_capacity_cc} CC` : '-'} • <span className="capitalize">{app.vehicle.vehicle_type === 'car' ? 'Mobil' : 'Motor'}</span>
+                                                    {app.vehicle.engine_capacity_cc ? `${app.vehicle.engine_capacity_cc} CC` : '-'} • <span className="capitalize">{app.vehicle.vehicle_type === 'mobil_pribadi' ? 'Mobil Pribadi' : app.vehicle.vehicle_type === 'angkutan_umum' ? 'Angkutan Umum' : app.vehicle.vehicle_type === 'angkutan_barang' ? 'Truk / Barang' : app.vehicle.vehicle_type}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -572,7 +580,7 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                     <div className="grid grid-cols-3 p-3 items-center hover:bg-gray-50/50">
                                                         <span className="font-bold text-gray-600">Klasifikasi Kendaraan</span>
                                                         <span className="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-center mx-1 capitalize">
-                                                            {selectedApp.vehicle.vehicle_type === 'car' ? 'Mobil' : 'Motor'}
+                                                            {selectedApp.vehicle.vehicle_type === 'mobil_pribadi' ? 'Mobil Pribadi' : selectedApp.vehicle.vehicle_type === 'angkutan_umum' ? 'Angkutan Umum' : selectedApp.vehicle.vehicle_type === 'angkutan_barang' ? 'Truk / Barang' : selectedApp.vehicle.vehicle_type}
                                                         </span>
                                                         <span className={`font-bold px-2.5 py-1 rounded-lg text-center mx-1 capitalize ${
                                                             ai?.car_type === 'Motor'
@@ -589,7 +597,7 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                     <div className="grid grid-cols-3 p-3 items-center hover:bg-gray-50/50">
                                                         <span className="font-bold text-gray-600">Tipe Dokumen STNK</span>
                                                         <span className="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-center mx-1">
-                                                            {selectedApp.vehicle.vehicle_type === 'car' ? 'STNK Mobil' : 'STNK Motor'}
+                                                            STNK {selectedApp.vehicle.vehicle_type === 'mobil_pribadi' ? 'Mobil Pribadi' : selectedApp.vehicle.vehicle_type === 'angkutan_umum' ? 'Angkutan Umum' : selectedApp.vehicle.vehicle_type === 'angkutan_barang' ? 'Truk / Barang' : selectedApp.vehicle.vehicle_type}
                                                         </span>
                                                         <span className={`font-bold px-2.5 py-1 rounded-lg text-center mx-1 ${
                                                             !ai?.stnk_type
