@@ -239,7 +239,7 @@ class SpbuController extends Controller
             $maxQuota = match($vehicle->vehicle_type) {
                 'angkutan_umum' => 80,
                 'angkutan_barang' => 200,
-                default => 60, // mobil_pribadi solar max is 60L actually, not 50L (based on BPH Migas rules)
+                default => 50, // mobil_pribadi solar max is 50L
             };
         } else {
             $maxQuota = 50; // pertalite max 50L (for cars)
@@ -289,7 +289,7 @@ class SpbuController extends Controller
                 $maxQuota = match($vehicle->vehicle_type) {
                     'angkutan_umum' => 80,
                     'angkutan_barang' => 200, // dump truck dll
-                    default => 60, // mobil_pribadi solar max 60L
+                    default => 50, // mobil_pribadi solar max 50L
                 };
             } else {
                 $maxQuota = 50; // pertalite max 50L
