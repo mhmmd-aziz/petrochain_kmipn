@@ -159,7 +159,7 @@ class ValidateMotorFragment : Fragment() {
                         )
                     }
                     binding.tvDetectedPlate.text = if (data.isMatch) "Klasifikasi: ✅ Under 250cc" else "Klasifikasi: ❌ Over 250cc"
-                    val confDisplay = if ((data.confidence ?: 0.0) > 0) String.format("Confidence: %.1f%%", (data.confidence ?: 0.0) * 100) else "Confidence: N/A"
+                    val confDisplay = if (data.confidence > 0) String.format("Confidence: %.1f%%", data.confidence * 100) else "Confidence: N/A"
                     binding.tvConfidence.text = confDisplay
 
                     val fuelLabel = if (data.fuelType?.lowercase()?.contains("solar") == true) "Biosolar" else "Pertalite"
