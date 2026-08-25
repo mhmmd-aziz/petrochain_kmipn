@@ -71,8 +71,8 @@ class SpbuController extends Controller
     public function validateVehicle(Request $request)
     {
         $request->validate([
-            'vehicle_id' => 'required|integer',
-            'vehicle_image' => 'required|image|max:5120',
+            'vehicle_id' => 'nullable|exists:vehicles,id',
+            'vehicle_image' => 'required|image|max:20480',
         ]);
 
         $vehicle = null;
@@ -110,15 +110,16 @@ class SpbuController extends Controller
                         if ($cleanDetected === $cleanRegistered || strpos($cleanDetected, $cleanRegistered) !== false || strpos($cleanRegistered, $cleanDetected) !== false) {
                             $isMatch = true;
                         }
-                    } else if (!$vehicle) {
-                        // For No QR, we can't match it, but we still return the detected plate
-                        // MOCK: If AI fails to detect, lock it to BL 1234 ABC so simulation can proceed
-                        if (empty($detectedPlate)) {
-                            $detectedPlate = "BL 1234 ABC";
-                            $confidence = 1.0;
-                        }
-                        $isMatch = true; // Auto-match to allow transaction flow
                     }
+                }
+
+                // If No QR is used and we didn't match anything, provide a mock fallback
+                if (!$vehicle) {
+                    if (empty($detectedPlate)) {
+                        $detectedPlate = "BL 1234 ABC";
+                        $confidence = 1.0;
+                    }
+                    $isMatch = true; // Auto-match to allow transaction flow
                 }
 
                 // Delete temp file
@@ -183,7 +184,7 @@ class SpbuController extends Controller
     public function validateMotor(Request $request)
     {
         $request->validate([
-            'vehicle_image' => 'required|image|max:5120',
+            'vehicle_image' => 'required|image|max:20480',
         ]);
 
         $imagePath = $request->file('vehicle_image')->store('temp', 'public');
@@ -331,6 +332,7 @@ class SpbuController extends Controller
         
         $maxQuota = 20; // Default limit for Non-QR (20L)
         $isMotor = false;
+        $fuelType = strtolower($request->fuel_type ?? 'pertalite');
 
         if ($vehicleId) {
             $vehicle = Vehicle::find($vehicleId);
