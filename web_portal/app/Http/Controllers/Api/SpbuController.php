@@ -156,6 +156,7 @@ class SpbuController extends Controller
             'qr_result' => 'required|string', // e.g., match, mismatch, no_qr
             'plate_result' => 'nullable|string',
             'plate_confidence' => 'nullable|numeric',
+            'is_override' => 'nullable|boolean',
         ]);
 
         $volume = (float) $request->volume;
@@ -163,14 +164,19 @@ class SpbuController extends Controller
         $vehicleId = $request->vehicle_id;
         
         $maxQuota = 20; // Default limit for Non-QR (20L)
+        $isMotor = false;
 
         if ($vehicleId) {
             $vehicle = Vehicle::find($vehicleId);
-            if ($fuelType === 'pertalite') {
-                $maxQuota = 50;
+            $isMotor = ($vehicle->vehicle_type === 'motor');
+            
+            if ($isMotor) {
+                $maxQuota = 9999; // Motor tidak ada limit liter
+            } else if ($fuelType === 'pertalite') {
+                $maxQuota = 60;
             } else if ($fuelType === 'solar') {
                 if ($vehicle->vehicle_type === 'mobil_pribadi') {
-                    $maxQuota = 50;
+                    $maxQuota = 60;
                 } else if ($vehicle->vehicle_type === 'angkutan_umum') {
                     $maxQuota = 80;
                 } else {
@@ -183,7 +189,7 @@ class SpbuController extends Controller
                 ->whereDate('transacted_at', now()->toDateString())
                 ->sum('volume');
 
-            if ($usedToday + $volume > $maxQuota) {
+            if (!$isMotor && ($usedToday + $volume > $maxQuota)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Gagal: Kuota harian habis. Sisa kuota hari ini: ' . max(0, $maxQuota - $usedToday) . ' Liter.',
@@ -242,7 +248,7 @@ class SpbuController extends Controller
             'qr_result' => $request->qr_result,
             'plate_result' => $request->plate_result,
             'plate_confidence' => $request->plate_confidence,
-            'transaction_status' => $request->qr_result === 'match' ? 'approved' : 'pending_review',
+            'transaction_status' => $request->is_override ? 'manual_override' : ($request->qr_result === 'match' ? 'approved' : 'pending_review'),
             'transacted_at' => now(),
             // yolo_result and confidence are omitted for simplicity in this endpoint
         ]);

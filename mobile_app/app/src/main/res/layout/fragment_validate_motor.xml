@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Validasi Kendaraan"
+            android:text="Validasi Motor"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
@@ -25,53 +25,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Foto plat nomor fisik untuk dicocokkan AI"
+            android:text="Foto motor dari depan untuk klasifikasi kapasitas mesin AI"
             android:textSize="14sp"
             android:textColor="@color/text_secondary"
             android:layout_marginBottom="20dp" />
 
-        <!-- Registered Vehicle Info -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:layout_marginBottom="16dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Data Terdaftar"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_secondary"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvRegisteredPlate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="BL 1234 ABC"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:fontFamily="monospace" />
-
-                <TextView
-                    android:id="@+id/tvRegisteredVehicle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Toyota Avanza"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_secondary" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
 
         <!-- Camera Capture Card -->
         <com.google.android.material.card.MaterialCardView
@@ -180,13 +139,7 @@
                     android:textColor="@color/text_primary"
                     android:fontFamily="monospace" />
 
-                <TextView
-                    android:id="@+id/tvRegisteredPlateResult"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary"
-                    android:fontFamily="monospace" />
+
 
                 <TextView
                     android:id="@+id/tvConfidence"

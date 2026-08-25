@@ -144,7 +144,7 @@ class RegisterVehicleFragment : Fragment() {
             val brand = binding.etBrand.text.toString().trim()
             val model = binding.etModel.text.toString().trim()
             val engineCapacity = binding.etEngineCapacity.text.toString().trim()
-            val fuelType = binding.actvFuelType.text.toString().trim()
+            val fuelType = binding.actvFuelType.text.toString().trim().lowercase()
 
             // Validation
             var isValid = true

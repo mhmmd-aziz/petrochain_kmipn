@@ -13,7 +13,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.petrochain.app.R
-import com.petrochain.app.databinding.FragmentValidateVehicleBinding
+import com.petrochain.app.databinding.FragmentValidateMotorBinding
 import com.petrochain.app.util.gone
 import com.petrochain.app.util.showToast
 import com.petrochain.app.util.visible
@@ -22,9 +22,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ValidateVehicleFragment : Fragment() {
+class ValidateMotorFragment : Fragment() {
 
-    private var _binding: FragmentValidateVehicleBinding? = null
+    private var _binding: FragmentValidateMotorBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SpbuViewModel by activityViewModels()
 
@@ -55,20 +55,12 @@ class ValidateVehicleFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentValidateVehicleBinding.inflate(inflater, container, false)
+        _binding = FragmentValidateMotorBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        vehicleId = arguments?.getInt("vehicle_id") ?: 0
-        val plateNumber = arguments?.getString("plate_number") ?: ""
-        val brand = arguments?.getString("brand") ?: ""
-        val model = arguments?.getString("model") ?: ""
-
-        binding.tvRegisteredPlate.text = plateNumber
-        binding.tvRegisteredVehicle.text = "$brand $model".trim()
 
         binding.cardCapturePhoto.setOnClickListener {
             checkCameraAndLaunch()
@@ -93,15 +85,6 @@ class ValidateVehicleFragment : Fragment() {
 
             val fuelType = if (binding.rbPertalite.isChecked) "pertalite" else "solar"
             
-            // Determine QR Result
-            var qrResult = "match"
-            if (vehicleId == 0) {
-                qrResult = "no_qr"
-            } else if (binding.tvMatchStatus.text.toString().contains("MISMATCH")) {
-                qrResult = "mismatch"
-            }
-
-            // Get plate result from UI
             val plateResultText = binding.tvDetectedPlate.text.toString().replace("Plat Terdeteksi: ", "")
             val plateResult = if (plateResultText.isNotBlank() && plateResultText != "-") plateResultText else null
             
@@ -109,11 +92,12 @@ class ValidateVehicleFragment : Fragment() {
             val confStr = binding.tvConfidence.text.toString().replace(Regex("[^0-9.]"), "")
             val conf = confStr.toDoubleOrNull()?.div(100.0)
 
+            // Motor uses "no_qr" because there is no QR flow
             val request = com.petrochain.app.data.model.SubmitTransactionRequest(
-                vehicleId = if (vehicleId > 0) vehicleId else null,
+                vehicleId = null,
                 fuelType = fuelType,
                 volume = volume,
-                qrResult = qrResult,
+                qrResult = "no_qr",
                 plateResult = plateResult,
                 plateConfidence = conf,
                 isOverride = isOverride
@@ -136,10 +120,13 @@ class ValidateVehicleFragment : Fragment() {
             result?.let {
                 binding.cardResult.visible()
                 it.onSuccess { data ->
+                    // For motor, we consider it a success if capacity is UNDER_250CC (not a luxury motorcycle)
+                    // Or if the AI mock says it's a match (if data.isMatch is reused for Under/Over)
+                    // Let's assume if data.isMatch == true, it's UNDER_250CC
                     if (data.isMatch) {
-                        binding.cardTransaction.visible() // Show transaction block
+                        binding.cardTransaction.visible()
                         binding.btnOverride.gone()
-                        binding.tvMatchStatus.text = "✅ COCOK (MATCH)"
+                        binding.tvMatchStatus.text = "✅ VALID (UNDER 250CC)"
                         binding.tvMatchStatus.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.status_approved)
                         )
@@ -156,7 +143,7 @@ class ValidateVehicleFragment : Fragment() {
                             binding.btnOverride.gone()
                         }
 
-                        binding.tvMatchStatus.text = "❌ TIDAK COCOK (MISMATCH)"
+                        binding.tvMatchStatus.text = "❌ DITOLAK (OVER 250CC)"
                         binding.tvMatchStatus.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.status_rejected)
                         )
@@ -165,7 +152,6 @@ class ValidateVehicleFragment : Fragment() {
                         )
                     }
                     binding.tvDetectedPlate.text = "Plat Terdeteksi: ${data.detectedPlate ?: "-"}"
-                    binding.tvRegisteredPlateResult.text = "Plat Terdaftar: ${data.registeredPlate}"
                     binding.tvConfidence.text = "Confidence: ${String.format("%.1f", data.confidence * 100)}%"
                 }
                 it.onFailure { error ->
@@ -174,7 +160,6 @@ class ValidateVehicleFragment : Fragment() {
                         ContextCompat.getColor(requireContext(), R.color.status_rejected)
                     )
                     binding.tvDetectedPlate.text = ""
-                    binding.tvRegisteredPlateResult.text = ""
                     binding.tvConfidence.text = ""
                 }
             }

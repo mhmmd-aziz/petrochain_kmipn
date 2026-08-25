@@ -63,7 +63,8 @@ data class SubmitTransactionRequest(
     @SerializedName("volume") val volume: Double,
     @SerializedName("qr_result") val qrResult: String,
     @SerializedName("plate_result") val plateResult: String?,
-    @SerializedName("plate_confidence") val plateConfidence: Double?
+    @SerializedName("plate_confidence") val plateConfidence: Double?,
+    @SerializedName("is_override") val isOverride: Boolean? = false
 )
 
 data class TransactionData(

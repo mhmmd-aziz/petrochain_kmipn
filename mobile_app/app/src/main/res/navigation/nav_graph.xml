@@ -78,6 +78,9 @@
         <action
             android:id="@+id/action_spbu_to_scan"
             app:destination="@id/scanQrFragment" />
+        <action
+            android:id="@+id/action_spbu_to_validate_motor"
+            app:destination="@id/validateMotorFragment" />
     </fragment>
 
     <fragment
@@ -95,6 +98,12 @@
         android:name="com.petrochain.app.ui.spbu.ValidateVehicleFragment"
         android:label="Validasi Kendaraan"
         tools:layout="@layout/fragment_validate_vehicle" />
+
+    <fragment
+        android:id="@+id/validateMotorFragment"
+        android:name="com.petrochain.app.ui.spbu.ValidateMotorFragment"
+        android:label="Validasi Motor"
+        tools:layout="@layout/fragment_validate_motor" />
 
     <!-- ═══════ SHARED ═══════ -->
 
