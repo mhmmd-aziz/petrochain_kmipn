@@ -144,7 +144,7 @@ class SpbuController extends Controller
                     
                     $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicle->id)
                         ->whereDate('transacted_at', now()->toDateString())
-                        ->sum('volume');
+                        ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(original_volume, volume)'));
                         
                     $remainingQuota = max(0, $maxQuota - $usedToday);
                 }
@@ -231,7 +231,7 @@ class SpbuController extends Controller
                     
                     $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicle->id)
                         ->whereDate('transacted_at', now()->toDateString())
-                        ->sum('volume');
+                        ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(original_volume, volume)'));
                         
                     $remainingQuota = max(0, $maxQuota - $usedToday);
                 }

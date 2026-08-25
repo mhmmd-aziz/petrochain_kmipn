@@ -162,7 +162,12 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {transactions.map(trx => {
-                                const isMatch = trx.qr_result === 'qr_match' && trx.transaction_status === 'validated';
+                                const isMotor = !trx.vehicle && trx.plate_result?.toLowerCase().includes('250cc');
+                                const isMotorUnder = isMotor && trx.plate_result?.toLowerCase().includes('under');
+                                const isMobilNoQr = !trx.vehicle && !isMotor && !!trx.plate_result;
+                                const isMobilQrMatch = !!trx.vehicle && trx.qr_result === 'qr_match';
+                                
+                                const isMatch = isMotorUnder || isMobilNoQr || isMobilQrMatch;
                                 
                                 return (
                                 <tr key={trx.id} className="hover:bg-gray-50 transition">
@@ -197,7 +202,7 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                                     </td>
                                     <td className="px-5 py-4 text-center">
                                         {isMatch ? (
-                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600" title="QR & OCR Cocok">
+                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600" title="AI Match Valid">
                                                 <FiCheckCircle size={14} />
                                             </span>
                                         ) : (
