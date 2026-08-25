@@ -70,6 +70,10 @@ class SpbuController extends Controller
      */
     public function validateVehicle(Request $request)
     {
+        if ($request->vehicle_id == '0' || $request->vehicle_id == 0) {
+            $request->merge(['vehicle_id' => null]);
+        }
+
         $request->validate([
             'vehicle_id' => 'nullable|exists:vehicles,id',
             'vehicle_image' => 'required|image|max:20480',
