@@ -134,11 +134,19 @@ class TransactionController extends Controller
 
         $transaction = Transaction::findOrFail($id);
         
-        // Hanya update kolom data, TIDAK update blockchain_reference
-        $transaction->update([
+        $updateData = [
             'volume' => $request->volume,
             'fuel_type' => strtolower($request->fuel_type),
-        ]);
+        ];
+
+        // Jika transaksi lama (sebelum ada kolom original) diedit, simpan state awalnya sbg original
+        if (is_null($transaction->original_volume)) {
+            $updateData['original_volume'] = $transaction->volume;
+            $updateData['original_fuel_type'] = $transaction->fuel_type;
+        }
+        
+        // Hanya update kolom data, TIDAK update blockchain_reference
+        $transaction->update($updateData);
 
         return redirect()->back()->with('success', 'Transaksi berhasil diubah. Perubahan ini akan terdeteksi di audit Blockchain.');
     }
