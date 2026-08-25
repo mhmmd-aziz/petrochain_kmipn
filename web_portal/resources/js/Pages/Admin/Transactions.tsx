@@ -179,8 +179,17 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                                         <div className="text-xs text-gray-500">Opr: {trx.operator?.user?.name || '-'}</div>
                                     </td>
                                     <td className="px-5 py-4">
-                                        <div className="font-mono font-bold text-gray-900">{trx.vehicle?.plate_number}</div>
-                                        <div className="text-xs text-gray-500 capitalize">{trx.vehicle?.brand} {trx.vehicle?.model}</div>
+                                        {trx.vehicle ? (
+                                            <>
+                                                <div className="font-mono font-bold text-gray-900">{trx.vehicle.plate_number}</div>
+                                                <div className="text-xs text-gray-500 capitalize">{trx.vehicle.brand} {trx.vehicle.model}</div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="font-mono font-bold text-gray-900">{trx.plate_result || 'Tanpa Pelat'}</div>
+                                                <div className="text-xs text-gray-500">Non-QR / Motor</div>
+                                            </>
+                                        )}
                                     </td>
                                     <td className="px-5 py-4 whitespace-nowrap">
                                         <div className="font-medium text-gray-900">{trx.fuel_type}</div>
