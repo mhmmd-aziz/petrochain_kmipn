@@ -326,8 +326,21 @@ class SpbuController extends Controller
             'plate_confidence' => $request->plate_confidence,
             'transaction_status' => $dbStatus,
             'transacted_at' => now(),
-            // yolo_result and confidence are omitted for simplicity in this endpoint
         ]);
+
+        // Generate Hash and Record to Blockchain asynchronously
+        $spbuCode = $operator ? ($operator->spbu->code ?? '14.201.001') : '14.201.001';
+        $dataString = "{$transaction->id}|{$transaction->plate_result}|{$transaction->fuel_type}|{$transaction->volume}|{$spbuCode}";
+        $dataHash = hash('sha256', $dataString);
+
+        // We use dispatch to run it in background so it doesn't block the API response
+        dispatch(function () use ($transaction, $dataHash, $spbuCode) {
+            $blockchainService = new \App\Services\BlockchainService();
+            $success = $blockchainService->recordTransaction((string)$transaction->id, $dataHash, $spbuCode);
+            if ($success) {
+                $transaction->update(['blockchain_reference' => '0x' . substr($dataHash, 0, 10) . '...']);
+            }
+        });
 
         return response()->json([
             'status' => 'success',
