@@ -124,4 +124,22 @@ class TransactionController extends Controller
 
         return Response::stream($callback, 200, $headers);
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'volume' => 'required|numeric|min:0.1',
+            'fuel_type' => 'required|string',
+        ]);
+
+        $transaction = Transaction::findOrFail($id);
+        
+        // Hanya update kolom data, TIDAK update blockchain_reference
+        $transaction->update([
+            'volume' => $request->volume,
+            'fuel_type' => strtolower($request->fuel_type),
+        ]);
+
+        return redirect()->back()->with('success', 'Transaksi berhasil diubah. Perubahan ini akan terdeteksi di audit Blockchain.');
+    }
 }

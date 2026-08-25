@@ -86,6 +86,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions/export/pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export.pdf');
     Route::get('/transactions/export/csv', [TransactionController::class, 'exportCsv'])->name('transactions.export.csv');
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::put('/transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
 });
 
 require __DIR__.'/auth.php';

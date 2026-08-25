@@ -116,7 +116,8 @@ class ValidateMotorFragment : Fragment() {
                 qrResult = "no_qr",
                 plateResult = plateResult,
                 plateConfidence = conf,
-                isOverride = isOverride
+                isOverride = isOverride,
+                isMotor = true
             )
 
             viewModel.submitTransaction(request)

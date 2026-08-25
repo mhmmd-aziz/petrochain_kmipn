@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AppLayout from '@/Layouts/AppLayout';
 import { Head, router } from '@inertiajs/react';
-import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiSearch, FiDownload, FiFileText } from 'react-icons/fi';
+import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiSearch, FiDownload, FiFileText, FiEdit } from 'react-icons/fi';
 
 interface Transaction {
     id: number;
@@ -45,6 +45,12 @@ export default function Transactions({ transactions, filters = {} }: { transacti
     const [startDate, setStartDate] = useState(filters.start_date || '');
     const [endDate, setEndDate] = useState(filters.end_date || '');
     const [status, setStatus] = useState(filters.status || 'all');
+    
+    // Edit state
+    const [editingTx, setEditingTx] = useState<Transaction | null>(null);
+    const [editVolume, setEditVolume] = useState('');
+    const [editFuelType, setEditFuelType] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleFilter = () => {
         router.get('/transactions', { search, start_date: startDate, end_date: endDate, status }, { preserveState: true });
@@ -53,6 +59,19 @@ export default function Transactions({ transactions, filters = {} }: { transacti
     const handleExport = (type: 'pdf' | 'csv') => {
         const query = new URLSearchParams({ search, start_date: startDate, end_date: endDate, status }).toString();
         window.open(`/transactions/export/${type}?${query}`, '_blank');
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingTx) return;
+        setIsSubmitting(true);
+        router.put(`/transactions/${editingTx.id}`, {
+            volume: editVolume,
+            fuel_type: editFuelType
+        }, {
+            onSuccess: () => setEditingTx(null),
+            onFinish: () => setIsSubmitting(false)
+        });
     };
 
     const getStatusBadge = (status: string) => {
@@ -179,7 +198,20 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                                         )}
                                     </td>
                                     <td className="px-5 py-4">
-                                        {getStatusBadge(trx.transaction_status)}
+                                        <div className="flex items-center gap-2">
+                                            {getStatusBadge(trx.transaction_status)}
+                                            <button 
+                                                onClick={() => {
+                                                    setEditingTx(trx);
+                                                    setEditVolume(trx.volume.toString());
+                                                    setEditFuelType(trx.fuel_type);
+                                                }}
+                                                title="Edit Transaksi (Simulasi Tamper)"
+                                                className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
+                                            >
+                                                <FiEdit />
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             )})}
@@ -195,6 +227,56 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                     </table>
                 </div>
             </div>
+
+            {/* Edit Modal for Tamper Simulation */}
+            {editingTx && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                            <h3 className="font-bold text-gray-900">Edit Transaksi (Simulasi Tamper)</h3>
+                            <button onClick={() => setEditingTx(null)} className="text-gray-400 hover:text-gray-600">&times;</button>
+                        </div>
+                        <form onSubmit={handleEditSubmit}>
+                            <div className="p-6 space-y-4">
+                                <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-800 mb-4 flex gap-2">
+                                    <FiAlertTriangle className="mt-0.5 shrink-0" />
+                                    <div>
+                                        <strong>Peringatan Audit:</strong><br/>
+                                        Mengubah data ini tidak akan mengubah <i>original cryptographic hash</i>. Perubahan akan terdeteksi sebagai <b>Tampered</b> di Blockchain Ledger.
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Jenis BBM</label>
+                                    <select 
+                                        value={editFuelType}
+                                        onChange={e => setEditFuelType(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary"
+                                    >
+                                        <option value="pertalite">Pertalite</option>
+                                        <option value="solar">Solar / Biosolar</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Volume (Liter)</label>
+                                    <input 
+                                        type="number" step="0.1"
+                                        value={editVolume}
+                                        onChange={e => setEditVolume(e.target.value)}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary focus:border-primary"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="px-6 py-4 bg-gray-50 flex justify-end gap-2 border-t border-gray-100">
+                                <button type="button" onClick={() => setEditingTx(null)} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition">Batal</button>
+                                <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition flex items-center gap-2">
+                                    {isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

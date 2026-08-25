@@ -370,7 +370,7 @@ class SpbuController extends Controller
             // For No QR, we track daily quota strictly using the detected plate text (OCR result).
             $maxQuota = 20;
 
-            if (empty($request->plate_result) || $request->plate_result === '-' || strpos(strtoupper($request->plate_result), 'TANPA QR') !== false) {
+            if (!$request->is_motor && (empty($request->plate_result) || $request->plate_result === '-' || strpos(strtoupper($request->plate_result), 'TANPA QR') !== false)) {
                  return response()->json([
                     'status' => 'error',
                     'message' => 'Gagal: Pelat nomor tidak terdeteksi oleh AI. Transaksi tanpa QR wajib menangkap pelat nomor fisik untuk mencegah penimbunan.',
@@ -388,7 +388,7 @@ class SpbuController extends Controller
                 ->whereRaw("REPLACE(UPPER(plate_result), ' ', '') = ?", [$cleanPlate])
                 ->sum('volume');
 
-            if ($usedToday + $volume > $maxQuota) {
+            if (!$request->is_motor && ($usedToday + $volume > $maxQuota)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Gagal: Kuota harian habis. Pelat ' . $request->plate_result . ' hanya tersisa ' . max(0, $maxQuota - $usedToday) . ' Liter hari ini.',

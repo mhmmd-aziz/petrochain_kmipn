@@ -68,7 +68,8 @@ data class SubmitTransactionRequest(
     @SerializedName("qr_result") val qrResult: String,
     @SerializedName("plate_result") val plateResult: String?,
     @SerializedName("plate_confidence") val plateConfidence: Double?,
-    @SerializedName("is_override") val isOverride: Boolean? = false
+    @SerializedName("is_override") val isOverride: Boolean? = false,
+    @SerializedName("is_motor") val isMotor: Boolean? = false
 )
 
 data class TransactionData(
