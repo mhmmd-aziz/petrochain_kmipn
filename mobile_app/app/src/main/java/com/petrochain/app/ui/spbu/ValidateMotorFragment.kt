@@ -10,6 +10,8 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.petrochain.app.R
@@ -61,6 +63,13 @@ class ValidateMotorFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Pastikan scroll bisa sampai ke bawah tombol, tidak ketutup navigation bar sistem
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBarHeight)
+            insets
+        }
 
         // Reset semua state saat fragment dibuka agar tidak menampilkan hasil validasi sebelumnya
         viewModel.clearResults()
