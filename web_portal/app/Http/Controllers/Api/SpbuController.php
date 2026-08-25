@@ -88,7 +88,7 @@ class SpbuController extends Controller
         try {
             $response = Http::timeout(15)->attach(
                 'file', file_get_contents($absPath), basename($absPath)
-            )->post(env('AI_OCR_SPBU_URL', 'http://127.0.0.1:5003') . '/detect');
+            )->post(env('AI_OCR_SPBU_URL', 'http://ai_ocr_spbu:5003') . '/detect');
 
             if ($response->successful()) {
                 $aiResult = $response->json();
@@ -164,7 +164,7 @@ class SpbuController extends Controller
         try {
             $response = Http::timeout(15)->attach(
                 'file', file_get_contents($absPath), basename($absPath)
-            )->post(env('AI_KLASIFIKASI_MOTOR_URL', 'http://127.0.0.1:5001') . '/api/classify');
+            )->post(env('AI_KLASIFIKASI_MOTOR_URL', 'http://ai_klasifikasi_motor:5001') . '/api/classify');
 
             if ($response->successful()) {
                 $aiResult = $response->json();
