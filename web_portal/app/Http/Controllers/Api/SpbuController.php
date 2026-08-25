@@ -302,7 +302,7 @@ class SpbuController extends Controller
 
         $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicleId)
             ->whereDate('transacted_at', now()->toDateString())
-            ->sum('volume');
+            ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(original_volume, volume)'));
 
         return response()->json([
             'remaining_quota' => max(0, $maxQuota - $usedToday),
