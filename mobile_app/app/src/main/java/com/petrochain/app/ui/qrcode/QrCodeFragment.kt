@@ -35,9 +35,23 @@ class QrCodeFragment : Fragment() {
         val plateNumber = arguments?.getString("plate_number") ?: ""
         val brand = arguments?.getString("brand") ?: ""
         val model = arguments?.getString("model") ?: ""
+        val vehicleType = arguments?.getString("vehicle_type") ?: "mobil_pribadi"
 
         binding.tvPlateNumber.text = plateNumber
         binding.tvVehicleInfo.text = "$brand $model".trim()
+
+        val quota = when (vehicleType) {
+            "motor" -> 9999
+            "angkutan_umum" -> 80
+            "angkutan_barang" -> 200
+            else -> 50 // mobil_pribadi
+        }
+        
+        if (quota > 1000) {
+            binding.tvQuota.text = "Sisa Kuota Hari Ini: Tanpa Batas"
+        } else {
+            binding.tvQuota.text = "Sisa Kuota Hari Ini: $quota L"
+        }
 
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()

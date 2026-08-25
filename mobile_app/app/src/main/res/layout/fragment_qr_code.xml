@@ -157,6 +157,7 @@
                                 android:src="@drawable/ic_gas_station_logo"
                                 app:tint="#15803D" />
                             <TextView
+                                android:id="@+id/tvQuota"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"

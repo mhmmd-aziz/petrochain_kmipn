@@ -173,10 +173,10 @@ class SpbuController extends Controller
             if ($isMotor) {
                 $maxQuota = 9999; // Motor tidak ada limit liter
             } else if ($fuelType === 'pertalite') {
-                $maxQuota = 60;
+                $maxQuota = 50;
             } else if ($fuelType === 'solar') {
                 if ($vehicle->vehicle_type === 'mobil_pribadi') {
-                    $maxQuota = 60;
+                    $maxQuota = 50;
                 } else if ($vehicle->vehicle_type === 'angkutan_umum') {
                     $maxQuota = 80;
                 } else {
