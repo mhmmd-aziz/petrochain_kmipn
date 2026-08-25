@@ -30,6 +30,7 @@ class RegistrationController extends Controller
                 'id' => $vehicle->id,
                 'plate_number' => $vehicle->plate_number,
                 'vehicle_type' => $vehicle->vehicle_type,
+                'fuel_type' => $vehicle->fuel_type,
                 'brand' => $vehicle->brand,
                 'model' => $vehicle->model,
                 'qr_code_url' => $vehicle->qr_code_token ? "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($vehicle->qr_code_token) : null,

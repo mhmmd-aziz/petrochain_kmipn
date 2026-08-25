@@ -241,7 +241,7 @@ class SpbuController extends Controller
                         'registered_plate' => $vehicle ? $vehicle->plate_number : 'MOTOR TANPA QR',
                         'detected_plate' => $detectedClass,
                         'confidence' => $confidence,
-                        'is_match' => true, // motor validation depends on classification
+                        'is_match' => $isMatch,
                         'annotated_image' => $aiResult['data']['media_url'] ?? null,
                         'vehicle_type' => 'motor',
                         'fuel_type' => $fuelType,
