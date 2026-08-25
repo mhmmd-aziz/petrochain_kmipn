@@ -354,7 +354,7 @@ class SpbuController extends Controller
             // Calculate used quota today
             $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicleId)
                 ->whereDate('transacted_at', now()->toDateString())
-                ->sum('volume');
+                ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(original_volume, volume)'));
 
             if (!$isMotor && ($usedToday + $volume > $maxQuota)) {
                 return response()->json([
@@ -386,7 +386,7 @@ class SpbuController extends Controller
                 })
                 ->whereDate('transacted_at', now()->toDateString())
                 ->whereRaw("REPLACE(UPPER(plate_result), ' ', '') = ?", [$cleanPlate])
-                ->sum('volume');
+                ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(original_volume, volume)'));
 
             if (!$request->is_motor && ($usedToday + $volume > $maxQuota)) {
                 return response()->json([
@@ -415,6 +415,9 @@ class SpbuController extends Controller
         $dbQrResult = $qrResultMap[$request->qr_result] ?? 'manual_review';
 
         $dbStatus = $request->is_override ? 'manual_review' : ($request->qr_result === 'match' ? 'validated' : 'pending');
+        if ($request->is_motor) {
+            $dbStatus = 'validated';
+        }
 
         $transaction = \App\Models\Transaction::create([
             'vehicle_id' => $vehicleId,
@@ -422,6 +425,7 @@ class SpbuController extends Controller
             'operator_id' => $operatorId,
             'fuel_type' => $fuelType,
             'volume' => $volume,
+            'original_volume' => $volume,
             'qr_result' => $dbQrResult,
             'plate_result' => $request->plate_result,
             'plate_confidence' => $request->plate_confidence,

@@ -15,6 +15,7 @@ class Transaction extends Model
         'operator_id',
         'fuel_type',
         'volume',
+        'original_volume',
         'qr_result',
         'plate_result',
         'plate_confidence',

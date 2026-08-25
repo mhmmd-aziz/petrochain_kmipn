@@ -221,12 +221,6 @@ export default function Welcome({ auth }: { auth: any }) {
                                     >
                                         Log In
                                     </Link>
-                                    <Link
-                                        href={route('register')}
-                                        className="bg-white text-[#980f12] px-5 py-2.5 rounded-full text-sm font-bold shadow-md hover:bg-gray-100 transition-all hover:shadow-lg hover:-translate-y-0.5"
-                                    >
-                                        Daftar Subsidi
-                                    </Link>
                                     <a
                                         href="/app-release.apk"
                                         download
@@ -317,12 +311,6 @@ export default function Welcome({ auth }: { auth: any }) {
                                             className="w-full text-center py-2.5 rounded-full text-sm font-semibold text-white bg-white/10"
                                         >
                                             Log In
-                                        </Link>
-                                        <Link
-                                            href={route('register')}
-                                            className="w-full text-center bg-white text-[#980f12] py-2.5 rounded-full text-sm font-bold shadow-md"
-                                        >
-                                            Daftar Subsidi
                                         </Link>
                                     </>
                                 )}
