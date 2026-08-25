@@ -248,6 +248,54 @@ def detect_vehicles_and_plates(
                 f"crop={'✓' if crop_path else '✗'}"
             )
 
+    if len(detections) == 0 and USE_PLATE_MODEL:
+        plate_model = get_plate_model()
+        if plate_model is not None:
+            plate_class_id = None
+            for cls_id, cls_name in plate_model.names.items():
+                if "plate" in cls_name.lower():
+                    plate_class_id = cls_id
+                    break
+
+            results_plate = plate_model.predict(
+                image,
+                conf=0.15,
+                classes=[plate_class_id] if plate_class_id is not None else None,
+                verbose=False,
+            )
+            
+            for result in results_plate:
+                if result.boxes is None or len(result.boxes) == 0:
+                    continue
+                
+                # Ambil plat dengan confidence tertinggi
+                best_box = result.boxes[result.boxes.conf.argmax()]
+                conf = float(best_box.conf[0])
+                bx1, by1, bx2, by2 = map(int, best_box.xyxy[0])
+                
+                plate_crop = image[by1:by2, bx1:bx2]
+                
+                if plate_crop.size > 0:
+                    h, w = plate_crop.shape[:2]
+                    plate_crop_top = plate_crop[:int(h * 0.75), :]
+                    
+                    crop_processed = preprocess_plate_crop(plate_crop_top)
+                    crop_filename = f"{uuid.uuid4().hex[:8]}_unknown_fallback.jpg"
+                    crop_path = str(CROPS_DIR / crop_filename)
+                    cv2.imwrite(crop_path, crop_processed)
+
+                    detections.append({
+                        "vehicle_type": "unknown",
+                        "confidence_det": 1.0,
+                        "bbox": [0, 0, image.shape[1], image.shape[0]],
+                        "crop_path": crop_path,
+                        "crop_image": crop_processed,
+                        "plate_conf": conf,
+                    })
+                    
+                    logger.info(f"[DETECT] Fallback full image plate conf={conf:.2f}")
+                    break
+
     return detections
 
 
