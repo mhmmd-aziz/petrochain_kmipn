@@ -424,6 +424,7 @@ class SpbuController extends Controller
             'spbu_id' => $spbuId,
             'operator_id' => $operatorId,
             'fuel_type' => $fuelType,
+            'original_fuel_type' => $fuelType,
             'volume' => $volume,
             'original_volume' => $volume,
             'qr_result' => $dbQrResult,

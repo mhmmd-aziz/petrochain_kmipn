@@ -14,6 +14,7 @@ class Transaction extends Model
         'spbu_id',
         'operator_id',
         'fuel_type',
+        'original_fuel_type',
         'volume',
         'original_volume',
         'qr_result',

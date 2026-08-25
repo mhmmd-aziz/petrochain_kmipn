@@ -197,8 +197,21 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                                         )}
                                     </td>
                                     <td className="px-5 py-4 whitespace-nowrap">
-                                        <div className="font-medium text-gray-900">{trx.fuel_type}</div>
-                                        <div className="text-xs text-gray-500">{trx.volume} Liter</div>
+                                        {trx.original_volume && (trx.volume != trx.original_volume || trx.fuel_type !== (trx.original_fuel_type || trx.fuel_type)) ? (
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-1.5 text-red-500" title="Data Telah Dimanipulasi!">
+                                                    <span className="line-through text-xs font-medium">{trx.fuel_type} {trx.volume} Liter</span>
+                                                </div>
+                                                <div className="text-sm font-bold text-emerald-600" title="Data Asli Sebelum Dimanipulasi">
+                                                    {trx.original_fuel_type || trx.fuel_type} {trx.original_volume} Liter <span className="text-xs font-normal">(Asli)</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="font-medium text-gray-900">{trx.fuel_type}</div>
+                                                <div className="text-xs text-gray-500">{trx.volume} Liter</div>
+                                            </>
+                                        )}
                                     </td>
                                     <td className="px-5 py-4 text-center">
                                         {isMatch ? (

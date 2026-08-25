@@ -383,7 +383,24 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                         </td>
 
                                         <td className="px-6 py-4 text-gray-800 font-bold whitespace-nowrap">
-                                            {tx.volume}L <span className="uppercase text-[10px] font-black bg-red-50 text-[#980f12] px-2 py-0.5 rounded-md ml-1">{tx.fuel_type}</span>
+                                            {tx.original_volume && (tx.volume != tx.original_volume || tx.fuel_type !== (tx.original_fuel_type || tx.fuel_type)) ? (
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1.5 text-red-500" title="Data Telah Dimanipulasi!">
+                                                        <span className="line-through">{tx.volume}L</span>
+                                                        <span className="uppercase text-[10px] font-black bg-red-50 text-red-700 px-2 py-0.5 rounded-md line-through opacity-70">{tx.fuel_type}</span>
+                                                    </div>
+                                                    <div className="text-emerald-600 font-black text-xs flex items-center gap-1.5" title="Data Asli On-Chain">
+                                                        <span>{tx.original_volume}L</span>
+                                                        <span className="uppercase text-[9px] font-black bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">{tx.original_fuel_type || tx.fuel_type}</span>
+                                                        <span className="font-normal">(Asli)</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span>{tx.volume}L</span>
+                                                    <span className="uppercase text-[10px] font-black bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md">{tx.fuel_type}</span>
+                                                </div>
+                                            )}
                                         </td>
 
                                         <td className="px-6 py-4 whitespace-nowrap">
