@@ -122,19 +122,25 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
-        locationRequest?.let { req ->
-            locationCallback?.let { cb ->
-                fusedLocationClient.requestLocationUpdates(req, cb, Looper.getMainLooper())
+        try {
+            locationRequest?.let { req ->
+                locationCallback?.let { cb ->
+                    fusedLocationClient.requestLocationUpdates(req, cb, Looper.getMainLooper())
+                }
             }
-        }
-        
-        // Coba fetch sekali secara instan jika update interval terlalu lama
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
-            if (location != null) {
-                userLat = location.latitude
-                userLng = location.longitude
-                viewModel.spbus.value?.let { updateUIWithData(it) }
+            
+            // Coba fetch sekali secara instan jika update interval terlalu lama
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
+                if (location != null) {
+                    userLat = location.latitude
+                    userLng = location.longitude
+                    viewModel.spbus.value?.let { updateUIWithData(it) }
+                }
             }
+        } catch (e: SecurityException) {
+            // Ignore if permission is unexpectedly revoked
+        } catch (e: Exception) {
+            // Ignore other location fetch exceptions
         }
     }
 
@@ -157,12 +163,12 @@ class HomeFragment : Fragment() {
         }
         
         binding.btnNavVehicles?.setOnClickListener {
-            requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavPublic)
+            activity?.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavPublic)
                 ?.selectedItemId = R.id.myVehiclesFragment
         }
         
         binding.btnNavRegister?.setOnClickListener {
-            requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavPublic)
+            activity?.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavPublic)
                 ?.selectedItemId = R.id.registerVehicleFragment
         }
     }
@@ -201,6 +207,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateUIWithData(spbuList: List<com.petrochain.app.data.model.Spbu>) {
+        if (_binding == null) return
         val filteredList = (if (currentFilter == "Semua") {
             spbuList
         } else {

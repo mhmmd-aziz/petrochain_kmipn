@@ -121,7 +121,9 @@ class ScanQrFragment : Fragment() {
             result?.let {
                 binding.layoutResult.visible()
                 it.onSuccess { data ->
-                    binding.tvResultStatus.text = "✅ QR Code Valid"
+                    binding.tvResultStatus.text = "QR Code Valid"
+                    binding.tvResultStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check, 0, 0, 0)
+                    binding.tvResultStatus.compoundDrawablePadding = 8
                     binding.tvResultStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_approved)
                     )
@@ -131,7 +133,9 @@ class ScanQrFragment : Fragment() {
                     binding.btnValidateVehicle.visible()
                 }
                 it.onFailure { error ->
-                    binding.tvResultStatus.text = "❌ ${error.message}"
+                    binding.tvResultStatus.text = "${error.message}"
+                    binding.tvResultStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_block, 0, 0, 0)
+                    binding.tvResultStatus.compoundDrawablePadding = 8
                     binding.tvResultStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_rejected)
                     )

@@ -145,7 +145,9 @@ class ValidateVehicleFragment : Fragment() {
                     if (data.isMatch) {
                         binding.cardTransaction.visible() // Show transaction block
                         binding.btnOverride.gone()
-                        binding.tvMatchStatus.text = "✅ COCOK (MATCH)"
+                        binding.tvMatchStatus.text = "COCOK (MATCH)"
+                        binding.tvMatchStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check, 0, 0, 0)
+                        binding.tvMatchStatus.compoundDrawablePadding = 8
                         binding.tvMatchStatus.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.status_approved)
                         )
@@ -162,7 +164,9 @@ class ValidateVehicleFragment : Fragment() {
                             binding.btnOverride.gone()
                         }
 
-                        binding.tvMatchStatus.text = "❌ TIDAK COCOK (MISMATCH)"
+                        binding.tvMatchStatus.text = "TIDAK COCOK (MISMATCH)"
+                        binding.tvMatchStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_block, 0, 0, 0)
+                        binding.tvMatchStatus.compoundDrawablePadding = 8
                         binding.tvMatchStatus.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.status_rejected)
                         )
@@ -212,7 +216,10 @@ class ValidateVehicleFragment : Fragment() {
                     }
                 }
                 it.onFailure { error ->
-                    binding.tvMatchStatus.text = "⚠️ Gagal: ${error.message}"
+                    binding.cardResult.visible()
+                    binding.tvMatchStatus.text = "Gagal: ${error.message}"
+                    binding.tvMatchStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_info, 0, 0, 0)
+                    binding.tvMatchStatus.compoundDrawablePadding = 8
                     binding.tvMatchStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_rejected)
                     )

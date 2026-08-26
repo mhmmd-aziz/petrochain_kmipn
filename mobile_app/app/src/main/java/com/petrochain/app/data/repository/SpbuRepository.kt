@@ -41,7 +41,13 @@ class SpbuRepository {
             if (response.isSuccessful && response.body()?.isSuccess == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                val errorMsg = response.body()?.message ?: "QR Code tidak valid"
+                var errorMsg = response.body()?.message ?: "QR Code tidak valid"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
@@ -71,7 +77,13 @@ class SpbuRepository {
             if (response.isSuccessful && response.body()?.isSuccess == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                val errorMsg = response.body()?.message ?: "Validasi kendaraan gagal"
+                var errorMsg = response.body()?.message ?: "Validasi kendaraan gagal"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
@@ -93,7 +105,13 @@ class SpbuRepository {
             if (response.isSuccessful && response.body()?.isSuccess == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                val errorMsg = response.body()?.message ?: "Validasi motor gagal"
+                var errorMsg = response.body()?.message ?: "Validasi motor gagal"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
@@ -107,7 +125,13 @@ class SpbuRepository {
             if (response.isSuccessful && response.body()?.isSuccess == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                val errorMsg = response.body()?.message ?: "Gagal memproses transaksi"
+                var errorMsg = response.body()?.message ?: "Gagal memproses transaksi"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {

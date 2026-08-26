@@ -143,7 +143,9 @@ class ValidateMotorFragment : Fragment() {
                     if (data.isMatch) {
                         binding.cardTransaction.visible()
                         binding.btnOverride.gone()
-                        binding.tvMatchStatus.text = "✅ VALID (UNDER 250CC)"
+                        binding.tvMatchStatus.text = "VALID (UNDER 250CC)"
+                        binding.tvMatchStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check, 0, 0, 0)
+                        binding.tvMatchStatus.compoundDrawablePadding = 8
                         binding.tvMatchStatus.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.status_approved)
                         )
@@ -160,7 +162,9 @@ class ValidateMotorFragment : Fragment() {
                             binding.btnOverride.gone()
                         }
 
-                        binding.tvMatchStatus.text = "❌ DITOLAK (OVER 250CC)"
+                        binding.tvMatchStatus.text = "DITOLAK (OVER 250CC)"
+                        binding.tvMatchStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_block, 0, 0, 0)
+                        binding.tvMatchStatus.compoundDrawablePadding = 8
                         binding.tvMatchStatus.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.status_rejected)
                         )
@@ -168,7 +172,7 @@ class ValidateMotorFragment : Fragment() {
                             ContextCompat.getColor(requireContext(), R.color.error_bg)
                         )
                     }
-                    binding.tvDetectedPlate.text = if (data.isMatch) "Klasifikasi: ✅ Under 250cc" else "Klasifikasi: ❌ Over 250cc"
+                    binding.tvDetectedPlate.text = if (data.isMatch) "Klasifikasi: Under 250cc (Valid)" else "Klasifikasi: Over 250cc (Ditolak)"
                     val confDisplay = if (data.confidence > 0) String.format("Confidence: %.1f%%", data.confidence * 100) else "Confidence: N/A"
                     binding.tvConfidence.text = confDisplay
 
@@ -211,7 +215,9 @@ class ValidateMotorFragment : Fragment() {
                 }
                 it.onFailure { error ->
                     binding.cardResult.visible()
-                    binding.tvMatchStatus.text = "⚠️ Gagal: ${error.message}"
+                    binding.tvMatchStatus.text = "Gagal: ${error.message}"
+                    binding.tvMatchStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_info, 0, 0, 0)
+                    binding.tvMatchStatus.compoundDrawablePadding = 8
                     binding.tvMatchStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_rejected)
                     )

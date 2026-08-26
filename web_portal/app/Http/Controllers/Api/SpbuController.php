@@ -418,7 +418,7 @@ class SpbuController extends Controller
         ];
         $dbQrResult = $qrResultMap[$request->qr_result] ?? 'manual_review';
 
-        $dbStatus = $request->is_override ? 'manual_review' : ($request->qr_result === 'match' ? 'validated' : 'pending');
+        $dbStatus = $request->is_override ? 'manual_review' : (in_array($request->qr_result, ['match', 'no_qr']) ? 'validated' : 'pending');
         if ($request->is_motor) {
             $dbStatus = 'validated';
         }
