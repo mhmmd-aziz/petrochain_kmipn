@@ -19,7 +19,7 @@ class IotController extends Controller
         // using transacted_at to check when it was recorded
         $latestTx = Transaction::with('vehicle')
             ->where('transaction_status', 'validated')
-            ->where('transacted_at', '>=', Carbon::now()->subSeconds(15))
+            ->where('transacted_at', '>=', Carbon::now()->subMinutes(2))
             ->orderBy('transacted_at', 'desc')
             ->first();
 
@@ -32,6 +32,7 @@ class IotController extends Controller
 
         return response()->json([
             'status' => 'dispense',
+            'transaction_id' => $latestTx->id,
             'plate_number' => $latestTx->plate_result ?? ($latestTx->vehicle ? $latestTx->vehicle->plate_number : 'UNKNOWN'),
             'volume_liters' => (float) ($latestTx->original_volume ?? $latestTx->volume ?? 0),
         ]);

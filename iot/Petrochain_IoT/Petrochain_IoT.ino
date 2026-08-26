@@ -10,8 +10,8 @@ const char* ssid = "NAMA_WIFI_ANDA";
 const char* password = "PASSWORD_WIFI_ANDA";
 
 // --- KONFIGURASI API ---
-// Ganti IP dengan IP VPS/Server Anda (jika pakai VPS: http://202.155.17.4/api/iot/latest-transaction)
-const String apiUrl = "http://202.155.17.4/api/iot/latest-transaction"; 
+// Ganti IP dengan IP VPS/Server Anda (jika pakai VPS: http://202.155.17.4:8001/api/iot/latest-transaction)
+const String apiUrl = "http://202.155.17.4:8001/api/iot/latest-transaction"; 
 
 // --- KONFIGURASI PIN ESP32 ---
 #define RELAY_PIN 25
@@ -33,7 +33,7 @@ const String apiUrl = "http://202.155.17.4/api/iot/latest-transaction";
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // --- VARIABEL GLOBAL ---
-String lastPlate = "";
+int lastTxId = -1;
 unsigned long lastCheckTime = 0;
 const unsigned long checkInterval = 2000; // Cek API setiap 2 detik
 
@@ -113,12 +113,13 @@ void checkLatestTransaction() {
       String status = doc["status"];
       
       if (status == "dispense") {
+        int txId = doc["transaction_id"];
         String plateNumber = doc["plate_number"];
         float volumeLiters = doc["volume_liters"];
         
         // Cek apakah ini transaksi baru yang belum kita proses
-        if (plateNumber != lastPlate) {
-          lastPlate = plateNumber;
+        if (txId != lastTxId) {
+          lastTxId = txId;
           dispenseFuel(plateNumber, volumeLiters);
         }
       }
