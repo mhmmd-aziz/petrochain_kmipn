@@ -12,6 +12,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 // Public endpoints
 Route::get('/public/spbus', [SpbuController::class, 'publicList']);
+Route::get('/iot/latest-transaction', [App\Http\Controllers\Api\IotController::class, 'getLatestTransaction']);
 
 // Protected routes (Requires Sanctum Token)
 Route::middleware('auth:sanctum')->group(function () {
