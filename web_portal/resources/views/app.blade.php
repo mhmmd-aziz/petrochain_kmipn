@@ -19,7 +19,7 @@
         <meta property="og:url" content="https://petrochain.my.id/">
         <meta property="og:title" content="PETROCHAIN - Intelligent Fuel Subsidy Ecosystem">
         <meta property="og:description" content="Platform verifikasi ganda AI YOLO & STNK dengan Hyperledger Fabric untuk mengawal distribusi BBM nasional secara transparan dan anti-fraud.">
-        <meta property="og:image" content="https://petrochain.my.id/images/hero_citizen.jpg">
+        <meta property="og:image" content="https://petrochain.my.id/images/hero_spbu.png">
         <meta property="og:site_name" content="PETROCHAIN">
 
         <!-- Twitter -->
@@ -27,9 +27,12 @@
         <meta property="twitter:url" content="https://petrochain.my.id/">
         <meta property="twitter:title" content="PETROCHAIN - Intelligent Fuel Subsidy Ecosystem">
         <meta property="twitter:description" content="Platform verifikasi ganda AI YOLO & STNK dengan Hyperledger Fabric untuk mengawal distribusi BBM nasional secara transparan dan anti-fraud.">
-        <meta property="twitter:image" content="https://petrochain.my.id/images/hero_citizen.jpg">
+        <meta property="twitter:image" content="https://petrochain.my.id/images/hero_spbu.png">
 
-        <!-- Fonts -->
+        <!-- Modern Google Fonts: Plus Jakarta Sans, Outfit & JetBrains Mono -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
@@ -39,7 +42,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/Pages/{$page['component']}.tsx"])
         @inertiaHead
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-white text-gray-900">
         @inertia
     </body>
 </html>
