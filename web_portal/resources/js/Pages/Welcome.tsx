@@ -1592,7 +1592,7 @@ export default function Welcome({ auth }: { auth: any }) {
                                         </div>
                                         <div>
                                             <div className="text-sm font-bold text-gray-900">Amirullah</div>
-                                            <div className="text-xs text-gray-500">NIM: 2024573010089</div>
+                                            <div className="text-xs text-gray-500">NIM: 2024573010018</div>
                                         </div>
                                     </div>
                                 </div>

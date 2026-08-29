@@ -6,8 +6,8 @@
 #include <Adafruit_SSD1306.h>
 
 // --- KONFIGURASI WIFI ---
-const char* ssid = "NAMA_WIFI_ANDA";
-const char* password = "PASSWORD_WIFI_ANDA";
+const char* ssid = "IMZY HP";
+const char* password = "gilagila";
 
 // --- KONFIGURASI API ---
 // Ganti IP dengan IP VPS/Server Anda (jika pakai VPS: http://202.155.17.4:8001/api/iot/latest-transaction)
