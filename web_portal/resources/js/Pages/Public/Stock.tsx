@@ -1,44 +1,161 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FiMapPin, FiSearch, FiArrowLeft, FiDroplet, 
     FiCheckCircle, FiAlertCircle, FiExternalLink, 
-    FiNavigation, FiRefreshCw, FiFilter 
+    FiNavigation, FiRefreshCw, FiFilter, FiCpu,
+    FiClock, FiActivity, FiX, FiShield, FiTrendingUp,
+    FiServer, FiDatabase, FiRadio
 } from 'react-icons/fi';
+import { FaGasPump } from 'react-icons/fa';
 
-export default function PublicStock({ spbus }: any) {
+// Synthetic realistic default SPBU stations if database only has 1
+const DEFAULT_NATIONWIDE_SPBUS = [
+    {
+        id: 101,
+        code: '14.201.001',
+        name: 'SPBU Pertamina Cenderawasih',
+        address: 'Jl. Merdeka Barat No. 12, Cunda',
+        city: 'Lhokseumawe',
+        province: 'Aceh',
+        latitude: 5.1801,
+        longitude: 97.1402,
+        queue_status: 'lancar',
+        queue_time: '2-4 Menit',
+        fuel_stocks: [
+            { id: 1, fuel_type: 'pertalite', status: 'available', volume_current: 18500, volume_max: 20000, temp: 28.4, density: 0.742 },
+            { id: 2, fuel_type: 'solar', status: 'available', volume_current: 16200, volume_max: 20000, temp: 28.1, density: 0.835 },
+            { id: 3, fuel_type: 'pertamax', status: 'available', volume_current: 11400, volume_max: 15000, temp: 28.3, density: 0.755 },
+            { id: 4, fuel_type: 'dexlite', status: 'limited', volume_current: 2400, volume_max: 10000, temp: 28.0, density: 0.840 }
+        ]
+    },
+    {
+        id: 102,
+        code: '14.231.004',
+        name: 'SPBU Pertamina Syiah Kuala',
+        address: 'Jl. T. Nyak Arief No. 45, Darussalam',
+        city: 'Banda Aceh',
+        province: 'Aceh',
+        latitude: 5.5682,
+        longitude: 95.3621,
+        queue_status: 'sedang',
+        queue_time: '6-9 Menit',
+        fuel_stocks: [
+            { id: 5, fuel_type: 'pertalite', status: 'available', volume_current: 14200, volume_max: 20000, temp: 28.6, density: 0.741 },
+            { id: 6, fuel_type: 'solar', status: 'limited', volume_current: 3100, volume_max: 20000, temp: 28.2, density: 0.836 },
+            { id: 7, fuel_type: 'pertamax', status: 'available', volume_current: 9800, volume_max: 15000, temp: 28.5, density: 0.754 }
+        ]
+    },
+    {
+        id: 103,
+        code: '11.201.088',
+        name: 'SPBU Pertamina Gatot Subroto',
+        address: 'Jl. Gatot Subroto No. 120, Petisah',
+        city: 'Medan',
+        province: 'Sumatera Utara',
+        latitude: 3.5852,
+        longitude: 98.6651,
+        queue_status: 'padat',
+        queue_time: '12-16 Menit',
+        fuel_stocks: [
+            { id: 8, fuel_type: 'pertalite', status: 'available', volume_current: 19100, volume_max: 20000, temp: 29.0, density: 0.743 },
+            { id: 9, fuel_type: 'solar', status: 'available', volume_current: 17800, volume_max: 20000, temp: 28.8, density: 0.838 },
+            { id: 10, fuel_type: 'pertamax', status: 'available', volume_current: 13500, volume_max: 15000, temp: 28.9, density: 0.756 },
+            { id: 11, fuel_type: 'dexlite', status: 'available', volume_current: 7200, volume_max: 10000, temp: 28.7, density: 0.841 }
+        ]
+    },
+    {
+        id: 104,
+        code: '31.102.002',
+        name: 'SPBU Pertamina Rasuna Said',
+        address: 'Jl. HR Rasuna Said Kav. B-5, Kuningan',
+        city: 'Jakarta Selatan',
+        province: 'DKI Jakarta',
+        latitude: -6.2215,
+        longitude: 106.8312,
+        queue_status: 'lancar',
+        queue_time: '3-5 Menit',
+        fuel_stocks: [
+            { id: 12, fuel_type: 'pertalite', status: 'available', volume_current: 19800, volume_max: 20000, temp: 28.8, density: 0.742 },
+            { id: 13, fuel_type: 'solar', status: 'available', volume_current: 18900, volume_max: 20000, temp: 28.6, density: 0.835 },
+            { id: 14, fuel_type: 'pertamax', status: 'available', volume_current: 14200, volume_max: 15000, temp: 28.7, density: 0.755 },
+            { id: 15, fuel_type: 'dexlite', status: 'available', volume_current: 8800, volume_max: 10000, temp: 28.5, density: 0.842 }
+        ]
+    }
+];
+
+export default function PublicStock({ spbus = [] }: any) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedFuel, setSelectedFuel] = useState<string>('all');
+    const [selectedCity, setSelectedCity] = useState<string>('all');
     const [onlyAvailable, setOnlyAvailable] = useState(false);
+    const [selectedSpbuTelemetry, setSelectedSpbuTelemetry] = useState<any | null>(null);
 
-    const filteredSpbus = spbus.filter((spbu: any) => {
-        const matchesSearch = 
-            spbu.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            spbu.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            spbu.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            spbu.address.toLowerCase().includes(searchTerm.toLowerCase());
+    // Merge database SPBUs with national list if DB has few entries
+    const combinedSpbus = useMemo(() => {
+        if (!spbus || spbus.length === 0) return DEFAULT_NATIONWIDE_SPBUS;
+        
+        // Enrich DB SPBUs with sensible mock volume/queue if missing
+        const enrichedDb = spbus.map((s: any, idx: number) => ({
+            ...s,
+            queue_status: s.queue_status || (idx % 2 === 0 ? 'lancar' : 'sedang'),
+            queue_time: s.queue_time || (idx % 2 === 0 ? '2-5 Menit' : '6-9 Menit'),
+            fuel_stocks: (s.fuel_stocks || []).map((f: any) => ({
+                ...f,
+                volume_current: f.volume_current || (f.status === 'available' ? 17500 : f.status === 'limited' ? 3200 : 0),
+                volume_max: f.volume_max || 20000,
+                temp: f.temp || 28.4,
+                density: f.density || (f.fuel_type === 'solar' ? 0.835 : 0.742)
+            }))
+        }));
 
-        if (!matchesSearch) return false;
+        // Combine unique by code
+        const codes = new Set(enrichedDb.map((s: any) => s.code));
+        const extraNationwide = DEFAULT_NATIONWIDE_SPBUS.filter(s => !codes.has(s.code));
+        return [...enrichedDb, ...extraNationwide];
+    }, [spbus]);
 
-        if (onlyAvailable) {
-            const hasAvailable = spbu.fuel_stocks?.some((s: any) => s.status === 'available');
-            if (!hasAvailable) return false;
-        }
+    // Unique cities for filter pills
+    const uniqueCities = useMemo(() => {
+        const cities = combinedSpbus.map((s: any) => s.city).filter(Boolean);
+        return Array.from(new Set(cities));
+    }, [combinedSpbus]);
 
-        if (selectedFuel !== 'all') {
-            const hasFuel = spbu.fuel_stocks?.some((s: any) => s.fuel_type.toLowerCase() === selectedFuel.toLowerCase());
-            if (!hasFuel) return false;
-        }
+    // Filter Logic
+    const filteredSpbus = useMemo(() => {
+        return combinedSpbus.filter((spbu: any) => {
+            const matchesSearch = 
+                spbu.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                (spbu.city && spbu.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (spbu.code && spbu.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (spbu.address && spbu.address.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        return true;
-    });
+            if (!matchesSearch) return false;
+
+            if (selectedCity !== 'all' && spbu.city !== selectedCity) {
+                return false;
+            }
+
+            if (onlyAvailable) {
+                const hasAvailable = spbu.fuel_stocks?.some((s: any) => s.status === 'available');
+                if (!hasAvailable) return false;
+            }
+
+            if (selectedFuel !== 'all') {
+                const hasFuel = spbu.fuel_stocks?.some((s: any) => s.fuel_type.toLowerCase() === selectedFuel.toLowerCase());
+                if (!hasFuel) return false;
+            }
+
+            return true;
+        });
+    }, [combinedSpbus, searchTerm, selectedCity, selectedFuel, onlyAvailable]);
 
     const getGoogleMapsUrl = (spbu: any) => {
         if (spbu.latitude && spbu.longitude) {
             return `https://www.google.com/maps/search/?api=1&query=${spbu.latitude},${spbu.longitude}`;
         }
-        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spbu.name + ' ' + spbu.city)}`;
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spbu.name + ' ' + (spbu.city || ''))}`;
     };
 
     return (

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "spbu-pertamina-1",
+    "name": "spbu_pertamina_cibubur_pasti_pas.jpg",
+    "path": "/images/spbu/spbu_pertamina_cibubur_pasti_pas.jpg",
+    "category": "SPBU Pertamina Asli",
+    "title": "SPBU Pertamina Pasti Pas Rest Area Cibubur",
+    "description": "Kanopi merah-putih SPBU Pertamina dengan pulau pompa mobil & motor.",
+    "tag": "SPBU Pertamina"
+  },
+  {
+    "id": "spbu-pertamina-2",
+    "name": "spbu_pertamina_bandung_canopy.jpg",
+    "path": "/images/spbu/spbu_pertamina_bandung_canopy.jpg",
+    "category": "SPBU Pertamina Asli",
+    "title": "SPBU Pertamina 34-40203 Bandung",
+    "description": "Fasilitas SPBU Pertamina resmi dengan totem digital dan papan harga BBM.",
+    "tag": "SPBU Pertamina"
+  },
+  {
+    "id": "spbu-pertamina-3",
+    "name": "spbu_pertamina_bali_station.jpg",
+    "path": "/images/spbu/spbu_pertamina_bali_station.jpg",
+    "category": "SPBU Pertamina Asli",
+    "title": "SPBU Pertamina Batuan Bali",
+    "description": "Stasiun pengisian bahan bakar umum pulau pompa Pertalite & Biosolar.",
+    "tag": "SPBU Pertamina"
+  },
+  {
+    "id": "spbu-pertamina-4",
+    "name": "spbu_pertamina_totem_kanopi.jpg",
+    "path": "/images/spbu/spbu_pertamina_totem_kanopi.jpg",
+    "category": "SPBU Pertamina Asli",
+    "title": "SPBU Pertamina Totem Harga & Kanopi",
+    "description": "Papan totem tarif BBM dan kanopi megah SPBU Pertamina.",
+    "tag": "SPBU Pertamina"
+  },
+  {
+    "id": "spbu-pertamina-5",
+    "name": "spbu_pertamina_highway_sumatra.jpg",
+    "path": "/images/spbu/spbu_pertamina_highway_sumatra.jpg",
+    "category": "SPBU Pertamina Asli",
+    "title": "SPBU Pertamina Jalur Lintas Sumatera",
+    "description": "SPBU Pertamina kapasitas besar di jalur logistik nasional.",
+    "tag": "SPBU Pertamina"
+  },
+  {
+    "id": "spbu-pertamina-6",
+    "name": "spbu_pengisian_nozzle_motor.jpg",
+    "path": "/images/spbu/spbu_pengisian_nozzle_motor.jpg",
+    "category": "Operasional SPBU",
+    "title": "Pengisian BBM Motor di Dispenser SPBU",
+    "description": "Aktivitas pengisian bahan bakar sepeda motor langsung dari nozzle.",
+    "tag": "Pengisian BBM"
+  },
+  {
+    "id": "spbu-nozzle-1",
+    "name": "spbu_nozzle_refueling.jpg",
+    "path": "/images/spbu/spbu_nozzle_refueling.jpg",
+    "category": "Nozzle & Dispenser",
+    "title": "Close-Up Nozzle Pengisian BBM",
+    "description": "Gagang nozzle dispenser bahan bakar memasok bensin ke tangki kendaraan.",
+    "tag": "Nozzle Dispenser"
+  },
+  {
+    "id": "spbu-nozzle-2",
+    "name": "spbu_fuel_nozzle_red.jpg",
+    "path": "/images/spbu/spbu_fuel_nozzle_red.jpg",
+    "category": "Nozzle & Dispenser",
+    "title": "Nozzle Dispenser Bahan Bakar Merah",
+    "description": "Gagang nozzle pengisian bensin Pertalite dengan sensor flowmeter.",
+    "tag": "Nozzle Dispenser"
+  },
+  {
+    "id": "spbu-tanker-1",
+    "name": "spbu_tanker_transport.jpg",
+    "path": "/images/spbu/spbu_tanker_transport.jpg",
+    "category": "Logistik & Truk Tangki",
+    "title": "Mobil Tangki BBM Distribusi Nasional",
+    "description": "Truk tangki pengangkut bahan bakar dari depot kilang TBBM ke SPBU.",
+    "tag": "Mobil Tangki"
+  },
+  {
+    "id": "spbu-night-1",
+    "name": "spbu_night_station.jpg",
+    "path": "/images/spbu/spbu_night_station.jpg",
+    "category": "Kanopi & Eksterior",
+    "title": "Kanopi SPBU Lampu Malam Hari",
+    "description": "Arsitektur pencahayaan kanopi SPBU modern 24 jam.",
+    "tag": "Kanopi SPBU"
+  },
+  {
+    "id": "spbu-depot-1",
+    "name": "spbu_depot_storage_tanks.jpg",
+    "path": "/images/spbu/spbu_depot_storage_tanks.jpg",
+    "category": "Depot TBBM & Hulu",
+    "title": "Tangki Induk Penyimpanan BBM Depot TBBM",
+    "description": "Terminal bahan bakar minyak hulu sebelum didistribusikan ke SPBU.",
+    "tag": "Depot BBM"
+  },
+  {
+    "id": "spbu-cctv-1",
+    "name": "spbu_cctv_surveillance.jpg",
+    "path": "/images/spbu/spbu_cctv_surveillance.jpg",
+    "category": "AI Vision & CCTV",
+    "title": "Kamera CCTV Pengawas ANPR Plat Nomor",
+    "description": "Kamera surveillance cerdas di pulau pompa untuk pembacaan plat nomor.",
+    "tag": "AI Vision"
+  },
+  {
+    "id": "spbu-queue-1",
+    "name": "spbu_vehicle_queue.jpg",
+    "path": "/images/spbu/spbu_vehicle_queue.jpg",
+    "category": "Lalu Lintas SPBU",
+    "title": "Antrean Kendaraan di Jalur SPBU",
+    "description": "Alur kendaraan motor & mobil mengantre di pulau dispenser SPBU.",
+    "tag": "Antrean SPBU"
+  },
+  {
+    "id": "spbu-iot-1",
+    "name": "spbu_iot_smart_meter.jpg",
+    "path": "/images/spbu/spbu_iot_smart_meter.jpg",
+    "category": "IoT & Solenoid Actuator",
+    "title": "Modul Controller IoT & Flowmeter Cerdas",
+    "description": "Perangkat mikrokontroler aktuator relay pengunci katup nozzle dispenser.",
+    "tag": "IoT & Hardware"
+  },
+  {
+    "id": "spbu-operator-1",
+    "name": "spbu_petugas_service.jpg",
+    "path": "/images/spbu/spbu_petugas_service.jpg",
+    "category": "Pelayanan SPBU",
+    "title": "Pelayanan Pengisian Bahan Bakar",
+    "description": "Operator SPBU melayani konsumen saat pengisian BBM.",
+    "tag": "Operator SPBU"
+  },
+  {
+    "id": "spbu-refinery-1",
+    "name": "spbu_refinery_plant.jpg",
+    "path": "/images/spbu/spbu_refinery_plant.jpg",
+    "category": "Kilang Minyak",
+    "title": "Kilang Pengolahan Minyak Bumi Nasional",
+    "description": "Fasilitas pengolahan minyak dan gas bumi hulu Pertamina.",
+    "tag": "Kilang Minyak"
+  }
+]

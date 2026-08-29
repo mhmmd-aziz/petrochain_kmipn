@@ -61,6 +61,110 @@ export default function Welcome({ auth }: { auth: any }) {
     const [simBrand, setSimBrand] = useState<string>('Honda Vario');
     const [hasInteracted, setHasInteracted] = useState(false);
     const prevEligibleRef = useRef<boolean | null>(null);
+    const [publicToolMode, setPublicToolMode] = useState<'plate_checker' | 'cc_simulator'>('plate_checker');
+
+    // Public Quick Plate Search State
+    const [plateQuery, setPlateQuery] = useState('BL 1234 AB');
+    const [isSearchingPlate, setIsSearchingPlate] = useState(false);
+    const [searchedPlateData, setSearchedPlateData] = useState<{
+        plate: string;
+        type: string;
+        model: string;
+        cc: number;
+        status: 'verified' | 'pending' | 'rejected' | 'not_registered';
+        quotaDaily: number;
+        quotaRemaining: number;
+        lastRefuel: string;
+        spbuLocation: string;
+        stnkExpiry: string;
+    } | null>({
+        plate: 'BL 1234 AB',
+        type: 'Sepeda Motor',
+        model: 'Honda Vario 125 CBS',
+        cc: 125,
+        status: 'verified',
+        quotaDaily: 8.0,
+        quotaRemaining: 6.2,
+        lastRefuel: 'Hari ini, 09:14 WIB',
+        spbuLocation: 'SPBU 14.201.001 Banda Aceh',
+        stnkExpiry: '10/2028',
+    });
+
+    const handleCheckPlate = (plateInput?: string) => {
+        const query = (plateInput || plateQuery).trim().toUpperCase();
+        if (!query) return;
+        setPlateQuery(query);
+        setIsSearchingPlate(true);
+        setTimeout(() => {
+            setIsSearchingPlate(false);
+            if (query === 'BL 1234 AB') {
+                setSearchedPlateData({
+                    plate: 'BL 1234 AB',
+                    type: 'Sepeda Motor',
+                    model: 'Honda Vario 125 CBS',
+                    cc: 125,
+                    status: 'verified',
+                    quotaDaily: 8.0,
+                    quotaRemaining: 6.2,
+                    lastRefuel: 'Hari ini, 09:14 WIB',
+                    spbuLocation: 'SPBU 14.201.001 Banda Aceh',
+                    stnkExpiry: '10/2028',
+                });
+            } else if (query === 'B 9988 XYZ') {
+                setSearchedPlateData({
+                    plate: 'B 9988 XYZ',
+                    type: 'Mobil Penumpang',
+                    model: 'Toyota Avanza 1.3 G',
+                    cc: 1298,
+                    status: 'verified',
+                    quotaDaily: 30.0,
+                    quotaRemaining: 22.5,
+                    lastRefuel: 'Kemarin, 16:40 WIB',
+                    spbuLocation: 'SPBU 31.129.02 Jakarta',
+                    stnkExpiry: '06/2027',
+                });
+            } else if (query === 'BK 4567 CD') {
+                setSearchedPlateData({
+                    plate: 'BK 4567 CD',
+                    type: 'Sepeda Motor',
+                    model: 'Kawasaki Ninja ZX-25R',
+                    cc: 250,
+                    status: 'rejected',
+                    quotaDaily: 0,
+                    quotaRemaining: 0,
+                    lastRefuel: 'Tidak Ada (Non-Subsidi)',
+                    spbuLocation: 'SPBU 14.243.012 Medan',
+                    stnkExpiry: '11/2026',
+                });
+            } else if (query === 'D 1088 EF') {
+                setSearchedPlateData({
+                    plate: 'D 1088 EF',
+                    type: 'Sepeda Motor',
+                    model: 'Yamaha NMAX 155 Connected',
+                    cc: 155,
+                    status: 'verified',
+                    quotaDaily: 10.0,
+                    quotaRemaining: 8.5,
+                    lastRefuel: 'Hari ini, 11:05 WIB',
+                    spbuLocation: 'SPBU 34.401.05 Bandung',
+                    stnkExpiry: '04/2029',
+                });
+            } else {
+                setSearchedPlateData({
+                    plate: query,
+                    type: 'Kendaraan Belum Terdaftar',
+                    model: 'Data STNK Belum Ditemukan di Ledger',
+                    cc: 0,
+                    status: 'not_registered',
+                    quotaDaily: 0,
+                    quotaRemaining: 0,
+                    lastRefuel: '-',
+                    spbuLocation: '-',
+                    stnkExpiry: '-',
+                });
+            }
+        }, 350);
+    };
 
     // Interactive Tech Tab State
     const [activeTechTab, setActiveTechTab] = useState<'yolo' | 'iot' | 'blockchain' | 'fraud'>('yolo');
@@ -282,7 +386,14 @@ export default function Welcome({ auth }: { auth: any }) {
                                         : 'text-white/90 hover:text-white drop-shadow-xs'
                                 }`}
                             >
-                                Rantai Pasok Nasional
+                                Rantai Pasok
+                            </a>
+                            <a 
+                                href="#dampak" 
+                                onClick={(e) => scrollToSection(e, 'dampak')}
+                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
+                            >
+                                Dampak APBN
                             </a>
                             <a 
                                 href="#teknologi" 
@@ -415,6 +526,13 @@ export default function Welcome({ auth }: { auth: any }) {
                                 Rantai Pasok Nasional
                             </a>
                             <a 
+                                href="#dampak" 
+                                onClick={(e) => scrollToSection(e, 'dampak')}
+                                className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
+                            >
+                                Dampak APBN & Regulasi
+                            </a>
+                            <a 
                                 href="#teknologi" 
                                 onClick={(e) => scrollToSection(e, 'teknologi')}
                                 className={`block px-3 py-2 rounded-lg text-sm font-medium cursor-pointer ${
@@ -422,6 +540,13 @@ export default function Welcome({ auth }: { auth: any }) {
                                 }`}
                             >
                                 Arsitektur AI & Blockchain
+                            </a>
+                            <a 
+                                href="#tim" 
+                                onClick={(e) => scrollToSection(e, 'tim')}
+                                className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
+                            >
+                                Tim Inovator (TIMBERAPA)
                             </a>
                             <a 
                                 href="#faq" 
@@ -796,6 +921,8 @@ export default function Welcome({ auth }: { auth: any }) {
                                     </p>
                                 </div>
                             </div>
+                        </motion.div>
+                    )}
 
                             <div className="pt-3.5 border-t border-gray-100 flex items-center justify-between text-xs font-mono text-gray-500">
                                 <span>Validasi</span>
@@ -1089,8 +1216,8 @@ export default function Welcome({ auth }: { auth: any }) {
                             <div className="text-gray-600 text-center sm:text-right">
                                 Kuota dibatasi ketat maksimal <strong className="text-gray-950 font-black font-mono">20 Liter / Hari</strong> untuk semua kendaraan subsidi.
                             </div>
-                        </div>
-                    </div>
+                        </motion.div>
+                    )}
                 </div>
             </section>
 
@@ -1618,6 +1745,172 @@ export default function Welcome({ auth }: { auth: any }) {
                             ))}
                         </div>
 
+                    </div>
+                </div>
+            </section>
+
+
+            {/* ========================================================================= */}
+            {/* INNOVATION TEAM & FACULTY ADVISOR SECTION (KMIPN 2026)                    */}
+            {/* ========================================================================= */}
+            <section id="tim" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
+                <div className="w-full">
+                    <div className="text-center max-w-3xl mx-auto mb-14">
+                        <span className="text-xs font-black uppercase tracking-widest text-[#980f12] bg-red-50 px-3.5 py-1.5 rounded-full border border-red-100 inline-flex items-center gap-1.5">
+                            <FiUsers /> TIM PENGEMBANG INOVASI • KMIPN 2026
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-3">
+                            Inovator di Balik Ekosistem PETROCHAIN
+                        </h2>
+                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                            Karya kolaborasi mahasiswa dan dosen pembimbing Jurusan Teknologi Informasi dan Komputer, <strong>Politeknik Negeri Lhokseumawe</strong> dalam Kompetisi Mahasiswa Informatika Politeknik Nasional.
+                        </p>
+                    </div>
+
+                    {/* Faculty Advisor Featured Card */}
+                    <div className="bg-gradient-to-r from-gray-950 via-[#700b0e] to-[#980f12] rounded-3xl p-6 sm:p-8 lg:p-10 text-white border border-red-900/30 shadow-xl mb-8 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+                            <div className="lg:col-span-3 flex justify-center">
+                                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl bg-black/20">
+                                    <img 
+                                        src="/images/team_advisor.jpg" 
+                                        alt="Dosen Pembimbing PNL" 
+                                        className="w-full h-full object-cover object-top"
+                                    />
+                                    <div className="absolute bottom-2 left-2 right-2 bg-black/70 backdrop-blur-xs py-1 px-2 rounded-lg text-center text-[10px] font-mono font-bold text-amber-300 border border-white/10">
+                                        DOSEN PEMBIMBING
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="lg:col-span-9 space-y-3 text-center lg:text-left">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-mono text-amber-300 font-bold">
+                                    <FiAward /> Faculty Advisor & System Architecture Mentor
+                                </div>
+                                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                                    M. Aziz, S.Kom., M.Kom.
+                                </h3>
+                                <p className="text-red-100/90 text-xs sm:text-sm font-medium leading-relaxed max-w-2xl">
+                                    Dosen Jurusan Teknologi Informasi dan Komputer, <strong>Politeknik Negeri Lhokseumawe</strong>. Mengarahkan riset arsitektur Artificial Intelligence Computer Vision, Distributed Ledger Technology (DLT), dan keselarasan regulasi Perpres Subsidi Energi.
+                                </p>
+                                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2 text-[11px] font-mono text-red-200">
+                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">AI & Computer Vision Research</span>
+                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">Blockchain Consensus</span>
+                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">Politeknik Negeri Lhokseumawe</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 4 Student Innovators Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Member 1 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_1.jpg" 
+                                        alt="Muhammad Zaky" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-[#980f12] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        KETUA TIM
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Muhammad Zaky</h4>
+                                <div className="text-xs font-bold text-[#980f12] mb-2 flex items-center gap-1">
+                                    <FiCpu /> Lead AI & Vision Engineer
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Pengembangan model YOLOv8 Dual-Camera ANPR, pipeline PaddleOCR ekstraksi STNK, dan inferensi Edge SPBU.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-emerald-700">YOLOv8 & OCR</span>
+                            </div>
+                        </div>
+
+                        {/* Member 2 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_2.jpg" 
+                                        alt="Farhan Al-Fayed" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-purple-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        BLOCKCHAIN
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Farhan Al-Fayed</h4>
+                                <div className="text-xs font-bold text-purple-700 mb-2 flex items-center gap-1">
+                                    <FiLayers /> Blockchain Core Specialist
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Implementasi arsitektur Hyperledger Fabric, Smart Contract Chaincode transaksi kuota, dan audit multi-instansi.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-purple-700">Fabric & Raft</span>
+                            </div>
+                        </div>
+
+                        {/* Member 3 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_3.jpg" 
+                                        alt="Cut Annisa Rahma" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-blue-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        HARDWARE IOT
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Cut Annisa Rahma</h4>
+                                <div className="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
+                                    <FiZap /> IoT Hardware & Firmware
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Integrasi modul Raspberry Pi, solenoid relay dispenser actuator cut-off, dan telemetri flowmeter sensor BBM.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-blue-700">IoT & Firmware</span>
+                            </div>
+                        </div>
+
+                        {/* Member 4 */}
+                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                            <div>
+                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
+                                    <img 
+                                        src="/images/team_member_4.jpg" 
+                                        alt="Rizki Maulana" 
+                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute top-2 left-2 bg-emerald-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
+                                        FRONTEND / UX
+                                    </div>
+                                </div>
+                                <h4 className="text-base font-black text-gray-900 mb-1">Rizki Maulana</h4>
+                                <div className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
+                                    <FiCode /> Full-Stack & UI/UX Lead
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Perancangan antarmuka portal publik, WebGL 3D Globe interaktif, dan integrasi Inertia.js React 19.
+                                </p>
+                            </div>
+                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
+                                <span>TIK PNL</span>
+                                <span className="text-emerald-700">React & 3D WebGL</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
