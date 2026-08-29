@@ -5,8 +5,8 @@ package com.petrochain.app.util
  * Change BASE_URL to your server IP when testing on a real device.
  */
 object Constants {
-    // Changed to local Wi-Fi IP since ADB reverse is unavailable in PATH
-    const val BASE_URL = "http://192.168.1.102:8000/api/"
+    // Production URL: https://petrochain.my.id/api/
+    const val BASE_URL = "https://petrochain.my.id/api/"
 
     // SharedPreferences keys
     const val PREFS_NAME = "petrochain_prefs"

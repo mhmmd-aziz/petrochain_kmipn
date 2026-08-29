@@ -41,7 +41,13 @@ class SpbuRepository {
             if (response.isSuccessful && response.body()?.isSuccess == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                val errorMsg = response.body()?.message ?: "QR Code tidak valid"
+                var errorMsg = response.body()?.message ?: "QR Code tidak valid"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
@@ -71,7 +77,61 @@ class SpbuRepository {
             if (response.isSuccessful && response.body()?.isSuccess == true) {
                 Result.success(response.body()!!.data!!)
             } else {
-                val errorMsg = response.body()?.message ?: "Validasi kendaraan gagal"
+                var errorMsg = response.body()?.message ?: "Validasi kendaraan gagal"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Koneksi gagal: ${e.message}"))
+        }
+    }
+
+    suspend fun validateMotor(
+        vehicleImageFile: File
+    ): Result<VehicleValidationData> {
+        return try {
+            val imageRequestBody = vehicleImageFile
+                .asRequestBody("image/*".toMediaTypeOrNull())
+            val imagePart = MultipartBody.Part.createFormData(
+                "vehicle_image", vehicleImageFile.name, imageRequestBody
+            )
+
+            val response = api.validateMotor(imagePart)
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                Result.success(response.body()!!.data!!)
+            } else {
+                var errorMsg = response.body()?.message ?: "Validasi motor gagal"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Koneksi gagal: ${e.message}"))
+        }
+    }
+
+    suspend fun submitTransaction(request: com.petrochain.app.data.model.SubmitTransactionRequest): Result<com.petrochain.app.data.model.TransactionData> {
+        return try {
+            val response = api.submitTransaction(request)
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                Result.success(response.body()!!.data!!)
+            } else {
+                var errorMsg = response.body()?.message ?: "Gagal memproses transaksi"
+                response.errorBody()?.string()?.let { errorString ->
+                    try {
+                        val jsonObject = org.json.JSONObject(errorString)
+                        if (jsonObject.has("message")) errorMsg = jsonObject.getString("message")
+                    } catch (e: Exception) {}
+                }
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {

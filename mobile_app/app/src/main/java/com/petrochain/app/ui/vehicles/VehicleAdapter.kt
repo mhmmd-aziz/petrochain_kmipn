@@ -1,8 +1,8 @@
 package com.petrochain.app.ui.vehicles
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -34,71 +34,85 @@ class VehicleAdapter(
 
         fun bind(vehicle: VehicleData) {
             val isApproved = vehicle.registrationStatus == "approved"
-            val hasImage = !vehicle.carImageUrl.isNullOrEmpty()
-
+            
             val vehicleName = buildString {
                 append(vehicle.brand ?: "")
                 if (vehicle.model != null) append(" ${vehicle.model}")
-            }.trim().ifEmpty { "Kendaraan" }
+            }.trim().ifEmpty { "Kendaraan Anda" }
 
-            if (isApproved && hasImage) {
-                // Show large image card layout
-                binding.layoutApproved.visible()
-                binding.layoutSimple.gone()
-                
-                binding.tvApprovedTitle.text = vehicleName
-                binding.tvApprovedSubtitle.text = vehicle.plateNumber
-                
-                binding.ivCarBackground.load(vehicle.carImageUrl) {
+            binding.tvVehicleName.text = vehicleName
+            binding.tvPlateNumber.text = vehicle.plateNumber
+
+            // Handle Thumbnail Image
+            if (!vehicle.carImageUrl.isNullOrEmpty()) {
+                binding.ivCarImage.setPadding(0, 0, 0, 0)
+                binding.ivCarImage.setColorFilter(null) // clear tint
+                binding.ivCarImage.load(vehicle.carImageUrl) {
                     crossfade(true)
-                }
-
-                binding.root.setOnClickListener {
-                    onQrClick(vehicle)
+                    placeholder(R.drawable.bg_placeholder)
                 }
             } else {
-                // Show simple list layout
-                binding.layoutApproved.gone()
-                binding.layoutSimple.visible()
+                binding.ivCarImage.setPadding(32, 32, 32, 32)
+                binding.ivCarImage.setImageResource(R.drawable.ic_car)
+                binding.ivCarImage.setColorFilter(android.graphics.Color.parseColor("#9CA3AF"))
+            }
 
-                binding.tvSimpleTitle.text = vehicleName
-                binding.tvSimpleSubtitle.text = vehicle.plateNumber
-
-                val context = binding.root.context
-                when (vehicle.registrationStatus) {
-                    "approved" -> {
-                        binding.chipStatus.text = "Disetujui"
-                        binding.chipStatus.setChipBackgroundColorResource(R.color.status_approved)
-                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    }
-                    "pending", "pending_review", "ocr_processing" -> {
-                        binding.chipStatus.text = "Menunggu"
-                        binding.chipStatus.setChipBackgroundColorResource(R.color.status_pending)
-                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    }
-                    "rejected" -> {
-                        binding.chipStatus.text = "Ditolak"
-                        binding.chipStatus.setChipBackgroundColorResource(R.color.status_rejected)
-                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    }
-                    else -> {
-                        binding.chipStatus.text = "Belum Terdaftar"
-                        binding.chipStatus.setChipBackgroundColorResource(R.color.gray_400)
-                        binding.chipStatus.setTextColor(ContextCompat.getColor(context, R.color.white))
-                    }
+            // Handle Status Badge
+            val statusText: String
+            val colorRes: Int
+            val iconRes: Int
+            
+            when (vehicle.registrationStatus) {
+                "approved" -> {
+                    statusText = "Disetujui"
+                    colorRes = android.graphics.Color.parseColor("#10B981") // Green
+                    iconRes = R.drawable.ic_check
+                    binding.ivQrAction.visible()
                 }
-
-                if (!vehicle.adminNotes.isNullOrBlank()) {
-                    binding.tvAdminNotes.visible()
-                    binding.tvAdminNotes.text = "Catatan Admin: ${vehicle.adminNotes}"
-                } else {
-                    binding.tvAdminNotes.gone()
+                "pending", "pending_review", "ocr_processing" -> {
+                    statusText = "Menunggu Verifikasi"
+                    colorRes = android.graphics.Color.parseColor("#F59E0B") // Amber
+                    iconRes = R.drawable.ic_info
+                    binding.ivQrAction.gone()
                 }
+                "rejected" -> {
+                    statusText = "Ditolak Admin"
+                    colorRes = android.graphics.Color.parseColor("#EF4444") // Red
+                    iconRes = R.drawable.ic_block
+                    binding.ivQrAction.gone()
+                }
+                else -> {
+                    statusText = "Tidak Terdaftar"
+                    colorRes = android.graphics.Color.parseColor("#6B7280") // Gray
+                    iconRes = R.drawable.ic_info
+                    binding.ivQrAction.gone()
+                }
+            }
 
-                binding.root.setOnClickListener {
-                    if (isApproved) {
-                        onQrClick(vehicle)
-                    }
+            binding.tvStatusText.text = statusText
+            binding.tvStatusText.setTextColor(colorRes)
+            binding.ivStatusDot.setImageResource(iconRes)
+            binding.ivStatusDot.setColorFilter(colorRes)
+
+            val bg = android.graphics.drawable.GradientDrawable()
+            bg.shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            bg.cornerRadius = 40f
+            bg.setColor(android.graphics.Color.WHITE)
+            bg.setStroke(3, colorRes)
+            binding.layoutStatus.background = bg
+
+            // Handle Admin Notes
+            if (!vehicle.adminNotes.isNullOrBlank() && vehicle.registrationStatus == "rejected") {
+                binding.tvAdminNotes.visible()
+                binding.tvAdminNotes.text = "Alasan: ${vehicle.adminNotes}"
+            } else {
+                binding.tvAdminNotes.gone()
+            }
+
+            // Click listener
+            binding.root.setOnClickListener {
+                if (isApproved) {
+                    onQrClick(vehicle)
                 }
             }
         }
@@ -108,7 +122,6 @@ class VehicleAdapter(
         override fun areItemsTheSame(oldItem: VehicleData, newItem: VehicleData): Boolean {
             return oldItem.id == newItem.id
         }
-
         override fun areContentsTheSame(oldItem: VehicleData, newItem: VehicleData): Boolean {
             return oldItem == newItem
         }

@@ -13,11 +13,15 @@ import com.petrochain.app.data.model.Spbu
 
 class SpbuAdapter(
     private var spbuList: List<Spbu>,
+    private var userLat: Double = 0.0,
+    private var userLng: Double = 0.0,
     private val onItemClick: ((Spbu) -> Unit)? = null
 ) : RecyclerView.Adapter<SpbuAdapter.SpbuViewHolder>() {
 
-    fun updateData(newList: List<Spbu>) {
-        spbuList = newList
+    fun updateData(newList: List<Spbu>, lat: Double, lng: Double) {
+        this.spbuList = newList
+        this.userLat = lat
+        this.userLng = lng
         notifyDataSetChanged()
     }
 
@@ -28,7 +32,7 @@ class SpbuAdapter(
 
     override fun onBindViewHolder(holder: SpbuViewHolder, position: Int) {
         val spbu = spbuList[position]
-        holder.bind(spbu)
+        holder.bind(spbu, userLat, userLng)
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(spbu)
         }
@@ -42,18 +46,26 @@ class SpbuAdapter(
         private val tvAddress: TextView = itemView.findViewById(R.id.tvSpbuAddress)
         private val llFuelStocks: LinearLayout = itemView.findViewById(R.id.llFuelStocks)
 
-        fun bind(spbu: Spbu) {
+        fun bind(spbu: Spbu, userLat: Double, userLng: Double) {
             tvName.text = spbu.name
-            tvAddress.text = spbu.address
+            
+            if (spbu.latitude != null && spbu.longitude != null && userLat != 0.0 && userLng != 0.0) {
+                val results = FloatArray(1)
+                android.location.Location.distanceBetween(userLat, userLng, spbu.latitude, spbu.longitude, results)
+                val distanceKm = results[0] / 1000f
+                tvAddress.text = "${String.format("%.1f", distanceKm)} km • ${spbu.address}"
+            } else {
+                tvAddress.text = spbu.address
+            }
 
             if (!spbu.imageUrl.isNullOrEmpty()) {
                 ivSpbuImage.load(spbu.imageUrl) {
                     crossfade(true)
-                    placeholder(R.drawable.bg_placeholder)
-                    error(R.drawable.bg_placeholder)
+                    placeholder(R.drawable.img_spbu_placeholder)
+                    error(R.drawable.img_spbu_placeholder)
                 }
             } else {
-                ivSpbuImage.setImageResource(R.drawable.bg_placeholder)
+                ivSpbuImage.setImageResource(R.drawable.img_spbu_placeholder)
             }
 
             llFuelStocks.removeAllViews()
@@ -77,21 +89,27 @@ class SpbuAdapter(
                 }
                 tvBadge.text = "$fuelName: $statusName"
                 
-                // Color coding based on status
+                val colorRes: Int
                 if (stock.status == "empty") {
-                    tvBadge.setTextColor(android.graphics.Color.parseColor("#991b1b"))
-                    badgeView.setBackgroundResource(R.drawable.bg_search_bar)
+                    colorRes = android.graphics.Color.parseColor("#EF4444")
                     ivBadgeIcon.setImageResource(R.drawable.ic_block)
-                    ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#991b1b"))
                 } else if (stock.status == "limited") {
-                    tvBadge.setTextColor(android.graphics.Color.parseColor("#b45309"))
+                    colorRes = android.graphics.Color.parseColor("#F59E0B")
                     ivBadgeIcon.setImageResource(R.drawable.ic_info)
-                    ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#b45309"))
                 } else {
-                    tvBadge.setTextColor(android.graphics.Color.parseColor("#166534"))
+                    colorRes = android.graphics.Color.parseColor("#10B981")
                     ivBadgeIcon.setImageResource(R.drawable.ic_check)
-                    ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#166534"))
                 }
+
+                tvBadge.setTextColor(colorRes)
+                ivBadgeIcon.setColorFilter(colorRes)
+                
+                val bg = android.graphics.drawable.GradientDrawable()
+                bg.shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                bg.cornerRadius = 40f
+                bg.setColor(android.graphics.Color.WHITE)
+                bg.setStroke(3, colorRes)
+                badgeView.background = bg
 
                 llFuelStocks.addView(badgeView)
             }

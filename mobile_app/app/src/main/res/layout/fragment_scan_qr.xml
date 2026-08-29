@@ -103,4 +103,20 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Button Non-QR (Manual) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNoQr"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="32dp"
+        android:text="Pelanggan Tanpa QR Code"
+        app:cornerRadius="16dp"
+        app:backgroundTint="#EF4444"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:icon="@android:drawable/ic_menu_help"
+        app:iconTint="@color/white" />
+
 </FrameLayout>

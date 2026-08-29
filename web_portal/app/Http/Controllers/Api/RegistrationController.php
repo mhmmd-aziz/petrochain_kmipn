@@ -30,6 +30,7 @@ class RegistrationController extends Controller
                 'id' => $vehicle->id,
                 'plate_number' => $vehicle->plate_number,
                 'vehicle_type' => $vehicle->vehicle_type,
+                'fuel_type' => $vehicle->fuel_type,
                 'brand' => $vehicle->brand,
                 'model' => $vehicle->model,
                 'qr_code_url' => $vehicle->qr_code_token ? "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($vehicle->qr_code_token) : null,
@@ -55,13 +56,13 @@ class RegistrationController extends Controller
 
         $request->validate([
             'plate_number' => 'required|string|max:20',
-            'vehicle_type' => 'required|string|in:car,motorcycle',
+            'vehicle_type' => 'required|string|in:mobil_pribadi,angkutan_umum,angkutan_barang',
             'brand' => 'required|string|max:50',
             'model' => 'required|string|max:50',
             'engine_capacity_cc' => 'required|integer|min:0|max:20000',
             'fuel_type' => 'required|string|max:30',
-            'stnk_image' => 'required|image|max:5120', // Max 5MB
-            'car_image' => 'required|image|max:5120',
+            'stnk_image' => 'required|image|max:15360', // Max 15MB
+            'car_image' => 'required|image|max:15360', // Max 15MB
         ]);
 
         $user = $request->user();
@@ -195,15 +196,38 @@ class RegistrationController extends Controller
                 'processed_at' => now(),
             ]);
             
+            // Check if it's a motorcycle based on input or OCR detection
+            $documentType = $aiResult['document_type'] ?? 'unknown';
+            $isMotorcycle = $request->vehicle_type === 'motorcycle' || 
+                            str_contains($documentType, 'motorcycle') || 
+                            (isset($aiResult['car_detected_type']) && $aiResult['car_detected_type'] === 'motorcycle');
+
+            if ($isMotorcycle) {
+                $motorClassResult = $aiService->classifyMotorcycle($absCarPath);
+                
+                if ($motorClassResult) {
+                    $detectedClass = $motorClassResult['detected_class'] ?? 'unknown';
+                    $eligibility = $motorClassResult['eligibility_result'] ?? 'UNKNOWN';
+                    
+                    if ($eligibility === 'NOT_ELIGIBLE') {
+                        $motorWarning = "[AI WARNING] YOLO mendeteksi kendaraan fisik sebagai motor OVER 250cc (" . strtoupper($detectedClass) . "). Mohon tolak pengajuan ini jika bukan subsidi.";
+                        $existingNotes = $application->admin_notes;
+                        $application->update([
+                            'admin_notes' => $existingNotes ? $existingNotes . "\n" . $motorWarning : $motorWarning
+                        ]);
+                    }
+                }
+            }
+            
             // Do NOT overwrite $vehicle->engine_capacity_cc with the AI's detected CC!
             // The AI's detected CC is safely saved in the OcrResult table, while $vehicle->engine_capacity_cc 
             // should strictly represent the USER'S INPUT from the mobile app.
             $detectedCc = $aiResult['stnk_cc'] ?? null;
             
-            // Check Government Rule: Subsidized fuel only for <= 1400 CC
+            // Check Government Rule: Subsidized fuel only for <= 1400 CC (PERTALITE ONLY)
             $ccToValidate = $detectedCc ?: $vehicle->engine_capacity_cc;
-            if ($ccToValidate && intval($ccToValidate) > 1400) {
-                $ccWarning = "[AI WARNING] Kapasitas mesin " . $ccToValidate . " CC melebihi batas regulasi subsidi (maks 1400 CC). Kendaraan tidak berhak.";
+            if ($vehicle->fuel_type === 'pertalite' && $ccToValidate && intval($ccToValidate) > 1400) {
+                $ccWarning = "[AI WARNING] Kapasitas mesin " . $ccToValidate . " CC melebihi batas regulasi Pertalite (maks 1400 CC). Mohon tolak pengajuan ini.";
                 $existingNotes = $application->admin_notes;
                 
                 $application->update([

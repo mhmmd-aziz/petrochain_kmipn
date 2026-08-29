@@ -12,7 +12,7 @@ export default function Vehicles({ vehicles, users }: any) {
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         user_id: '',
         plate_number: '',
-        vehicle_type: 'mobil',
+        vehicle_type: 'mobil_pribadi',
         fuel_type: 'pertalite',
         brand: '',
         model: '',
@@ -199,7 +199,9 @@ export default function Vehicles({ vehicles, users }: any) {
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Kendaraan</label>
                                         <select value={data.vehicle_type} onChange={e => setData('vehicle_type', e.target.value)} className="w-full border-gray-300 rounded-lg shadow-sm sm:text-sm">
-                                            <option value="mobil">Mobil</option>
+                                            <option value="mobil_pribadi">Mobil Pribadi</option>
+                                            <option value="angkutan_umum">Angkutan Umum</option>
+                                            <option value="angkutan_barang">Angkutan Barang (Truk/Pickup)</option>
                                             <option value="motor">Motor</option>
                                         </select>
                                     </div>

@@ -134,10 +134,29 @@ export default function AuditorTransactions({ transactions }: any) {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-gray-800 font-bold whitespace-nowrap">
-                                        <span className="inline-flex items-center gap-1 text-[#980f12]">
-                                            <FiDroplet size={13} /> {tx.fuel_type}
-                                        </span>
-                                        <span className="text-gray-400 font-mono font-normal ml-1 text-xs">({tx.volume}L)</span>
+                                        {tx.original_volume && (tx.volume != tx.original_volume || tx.fuel_type !== (tx.original_fuel_type || tx.fuel_type)) ? (
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-1.5 text-red-500 line-through opacity-80" title="Data Manipulasi">
+                                                    <span className="inline-flex items-center gap-1 text-[#980f12]">
+                                                        <FiDroplet size={13} /> {tx.fuel_type}
+                                                    </span>
+                                                    <span className="font-mono font-normal ml-1 text-xs">({tx.volume}L)</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-emerald-700" title="Data Asli On-Chain">
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <FiDroplet size={13} /> {tx.original_fuel_type || tx.fuel_type}
+                                                    </span>
+                                                    <span className="font-mono font-bold ml-1 text-xs">({tx.original_volume}L) Asli</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <span className="inline-flex items-center gap-1 text-[#980f12]">
+                                                    <FiDroplet size={13} /> {tx.fuel_type}
+                                                </span>
+                                                <span className="text-gray-400 font-mono font-normal ml-1 text-xs">({tx.volume}L)</span>
+                                            </>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold border ${

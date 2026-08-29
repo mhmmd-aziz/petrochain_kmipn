@@ -23,15 +23,23 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
         setTimeout(() => setCopiedHash(null), 2000);
     };
 
+    React.useEffect(() => {
+        // Auto-verify ALL transactions on page load to prove real-time audit
+        transactions.forEach(tx => {
+            if (!verificationStatus[tx.id]) {
+                verifyTransaction(tx);
+            }
+        });
+    }, [transactions]);
+
     const verifyTransaction = async (tx: any) => {
         setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'loading' } }));
         try {
-            const provider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
-            const contract = new ethers.Contract(PetrochainAuditABI.address, PetrochainAuditABI.abi, provider);
-            
             // Generate what the hash SHOULD be based on DB data
+            // Format must match PHP: "{id}|{plate_result}|{fuel_type}|{volume}|{spbu_code}"
             const spbuCode = tx.spbu?.code || '14.201.001';
-            const dataString = `${tx.id}|${tx.plate_result}|${tx.fuel_type}|${tx.volume}|${spbuCode}`;
+            const plateResult = tx.plate_result ?? '';
+            const dataString = `${tx.id}|${plateResult}|${tx.fuel_type}|${tx.volume}|${spbuCode}`;
             
             const encoder = new TextEncoder();
             const dataBuffer = encoder.encode(dataString);
@@ -39,27 +47,24 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const calculatedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-            // Fetch from blockchain
-            const onChainData = await contract.verifyTransaction(tx.id.toString());
-            const onChainHash = onChainData.dataHash;
+            // Compare against stored blockchain_reference in DB
+            const storedHash = tx.blockchain_reference;
 
-            if (!onChainHash) {
+            if (!storedHash) {
                 setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'not_found' } }));
                 return;
             }
 
-            if (calculatedHash === onChainHash) {
-                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'matched', onChainHash } }));
+            if (calculatedHash === storedHash) {
+                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'matched', onChainHash: storedHash } }));
             } else {
-                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'tampered', onChainHash } }));
+                setVerificationStatus(prev => ({ ...prev, [tx.id]: { status: 'tampered', onChainHash: storedHash } }));
             }
         } catch (error) {
             console.error("Verification error:", error);
-            // Simulate verified status for demo when local RPC node is standby
-            const calculatedMockHash = `0x${tx.plate_result?.replace(/\s/g, '').toLowerCase() || '7f2a'}a4e98f023b9cd41e${tx.id}88301`;
             setVerificationStatus(prev => ({ 
                 ...prev, 
-                [tx.id]: { status: 'matched', onChainHash: tx.blockchain_reference || calculatedMockHash } 
+                [tx.id]: { status: 'error' } 
             }));
         }
     };
@@ -378,7 +383,24 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                         </td>
 
                                         <td className="px-6 py-4 text-gray-800 font-bold whitespace-nowrap">
-                                            {tx.volume}L <span className="uppercase text-[10px] font-black bg-red-50 text-[#980f12] px-2 py-0.5 rounded-md ml-1">{tx.fuel_type}</span>
+                                            {tx.original_volume && (tx.volume != tx.original_volume || tx.fuel_type !== (tx.original_fuel_type || tx.fuel_type)) ? (
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-1.5 text-red-500" title="Data Telah Dimanipulasi!">
+                                                        <span className="line-through">{tx.volume}L</span>
+                                                        <span className="uppercase text-[10px] font-black bg-red-50 text-red-700 px-2 py-0.5 rounded-md line-through opacity-70">{tx.fuel_type}</span>
+                                                    </div>
+                                                    <div className="text-emerald-600 font-black text-xs flex items-center gap-1.5" title="Data Asli On-Chain">
+                                                        <span>{tx.original_volume}L</span>
+                                                        <span className="uppercase text-[9px] font-black bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">{tx.original_fuel_type || tx.fuel_type}</span>
+                                                        <span className="font-normal">(Asli)</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-1.5">
+                                                    <span>{tx.volume}L</span>
+                                                    <span className="uppercase text-[10px] font-black bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md">{tx.fuel_type}</span>
+                                                </div>
+                                            )}
                                         </td>
 
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -409,7 +431,7 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                                         ? 'bg-blue-100 text-blue-800'
                                                         : currentStatus === 'matched'
                                                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                                                        : currentStatus === 'tampered'
+                                                        : currentStatus === 'tampered' || currentStatus === 'error' || currentStatus === 'not_found'
                                                         ? 'bg-rose-50 text-rose-800 border border-rose-200'
                                                         : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200'
                                                 }`}
@@ -420,6 +442,8 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                                     <span className="text-emerald-700 flex items-center gap-1.5"><FiCheckCircle /> Hash Valid (Match)</span>
                                                 ) : currentStatus === 'tampered' ? (
                                                     <span className="text-rose-700 flex items-center gap-1.5"><FiAlertTriangle /> Dimanipulasi!</span>
+                                                ) : currentStatus === 'error' || currentStatus === 'not_found' ? (
+                                                    <span className="text-rose-700 flex items-center gap-1.5"><FiAlertTriangle /> Tidak Valid / Data Kosong</span>
                                                 ) : (
                                                     <><FiShield /> Cek Integritas On-Chain</>
                                                 )}

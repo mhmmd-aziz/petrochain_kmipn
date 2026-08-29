@@ -51,8 +51,8 @@ class SpbuDetailFragment : Fragment() {
         if (!spbu.imageUrl.isNullOrEmpty() && ivBanner != null) {
             ivBanner.load(spbu.imageUrl) {
                 crossfade(true)
-                placeholder(R.drawable.bg_placeholder)
-                error(R.drawable.bg_placeholder)
+                placeholder(R.drawable.img_spbu_placeholder)
+                error(R.drawable.img_spbu_placeholder)
             }
         }
 
@@ -66,20 +66,28 @@ class SpbuDetailFragment : Fragment() {
             
             tvBadge.text = "${stock.fuelType.replaceFirstChar { it.uppercase() }}: ${stock.status.replaceFirstChar { it.uppercase() }}"
             
+            val colorRes: Int
             if (stock.status == "empty") {
-                tvBadge.setTextColor(android.graphics.Color.parseColor("#991b1b"))
-                badgeView.setBackgroundResource(R.drawable.bg_search_bar)
+                colorRes = android.graphics.Color.parseColor("#EF4444")
                 ivBadgeIcon.setImageResource(R.drawable.ic_block)
-                ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#991b1b"))
             } else if (stock.status == "limited") {
-                tvBadge.setTextColor(android.graphics.Color.parseColor("#b45309"))
+                colorRes = android.graphics.Color.parseColor("#F59E0B")
                 ivBadgeIcon.setImageResource(R.drawable.ic_info)
-                ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#b45309"))
             } else {
-                tvBadge.setTextColor(android.graphics.Color.parseColor("#166534"))
+                colorRes = android.graphics.Color.parseColor("#10B981")
                 ivBadgeIcon.setImageResource(R.drawable.ic_check)
-                ivBadgeIcon.setColorFilter(android.graphics.Color.parseColor("#166534"))
             }
+
+            tvBadge.setTextColor(colorRes)
+            ivBadgeIcon.setColorFilter(colorRes)
+            
+            val bg = android.graphics.drawable.GradientDrawable()
+            bg.shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            bg.cornerRadius = 40f
+            bg.setColor(android.graphics.Color.WHITE)
+            bg.setStroke(3, colorRes)
+            badgeView.background = bg
+
             binding.llDetailFuelStocks.addView(badgeView)
         }
     }

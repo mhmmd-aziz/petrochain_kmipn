@@ -41,10 +41,16 @@ class MainActivity : AppCompatActivity() {
             binding.bottomNavPublic.visibility = android.view.View.GONE
             binding.bottomNavOperator.visibility = android.view.View.VISIBLE
             binding.bottomNavOperator.setupWithNavController(navController)
+            binding.bottomNavOperator.setOnItemReselectedListener { item ->
+                navController.popBackStack(item.itemId, false)
+            }
         } else {
             binding.bottomNavOperator.visibility = android.view.View.GONE
             binding.bottomNavPublic.visibility = android.view.View.VISIBLE
             binding.bottomNavPublic.setupWithNavController(navController)
+            binding.bottomNavPublic.setOnItemReselectedListener { item ->
+                navController.popBackStack(item.itemId, false)
+            }
         }
 
         // Hide bottom navigation on certain screens
@@ -52,7 +58,10 @@ class MainActivity : AppCompatActivity() {
             when (destination.id) {
                 R.id.qrCodeFragment,
                 R.id.scanQrFragment,
-                R.id.validateVehicleFragment -> {
+                R.id.validateVehicleFragment,
+                R.id.validateMotorFragment,
+                R.id.mapFragment,
+                R.id.spbuDetailFragment -> {
                     binding.bottomNavigationContainer.visibility = android.view.View.GONE
                 }
                 else -> {

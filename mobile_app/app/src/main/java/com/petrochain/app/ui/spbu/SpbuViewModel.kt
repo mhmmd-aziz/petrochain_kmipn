@@ -15,12 +15,12 @@ class SpbuViewModel : ViewModel() {
     private val repository = SpbuRepository()
 
     // QR Validation
-    private val _qrResult = MutableLiveData<Result<QrValidationData>>()
-    val qrResult: LiveData<Result<QrValidationData>> = _qrResult
+    private val _qrResult = MutableLiveData<Result<QrValidationData>?>()
+    val qrResult: LiveData<Result<QrValidationData>?> = _qrResult
 
     // Vehicle Validation
-    private val _vehicleResult = MutableLiveData<Result<VehicleValidationData>>()
-    val vehicleResult: LiveData<Result<VehicleValidationData>> = _vehicleResult
+    private val _vehicleResult = MutableLiveData<Result<VehicleValidationData>?>()
+    val vehicleResult: LiveData<Result<VehicleValidationData>?> = _vehicleResult
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -47,9 +47,31 @@ class SpbuViewModel : ViewModel() {
         }
     }
 
+    fun validateMotor(imageFile: File) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.validateMotor(imageFile)
+            _vehicleResult.value = result
+            _isLoading.value = false
+        }
+    }
+
     fun clearResults() {
         _qrResult.value = null
         _vehicleResult.value = null
+        _transactionResult.value = null
         currentQrData = null
+    }
+
+    private val _transactionResult = MutableLiveData<Result<com.petrochain.app.data.model.TransactionData>?>()
+    val transactionResult: LiveData<Result<com.petrochain.app.data.model.TransactionData>?> = _transactionResult
+
+    fun submitTransaction(request: com.petrochain.app.data.model.SubmitTransactionRequest) {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.submitTransaction(request)
+            _transactionResult.value = result
+            _isLoading.value = false
+        }
     }
 }

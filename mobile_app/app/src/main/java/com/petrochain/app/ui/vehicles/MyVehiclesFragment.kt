@@ -44,10 +44,13 @@ class MyVehiclesFragment : Fragment() {
         adapter = VehicleAdapter { vehicle ->
             if (vehicle.registrationStatus == "approved" && vehicle.qrCodeUrl != null) {
                 val bundle = bundleOf(
+                    "vehicle_id" to vehicle.id,
                     "qr_code_url" to vehicle.qrCodeUrl,
                     "plate_number" to vehicle.plateNumber,
                     "brand" to (vehicle.brand ?: ""),
-                    "model" to (vehicle.model ?: "")
+                    "model" to (vehicle.model ?: ""),
+                    "vehicle_type" to vehicle.vehicleType,
+                    "fuel_type" to (vehicle.fuelType ?: "pertalite")
                 )
                 findNavController().navigate(R.id.qrCodeFragment, bundle)
             } else {

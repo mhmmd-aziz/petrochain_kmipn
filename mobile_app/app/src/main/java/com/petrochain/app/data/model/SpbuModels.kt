@@ -27,9 +27,13 @@ data class QrValidationData(
 data class VehicleValidationData(
     @SerializedName("registered_plate") val registeredPlate: String,
     @SerializedName("detected_plate") val detectedPlate: String?,
-    @SerializedName("confidence") val confidence: Double,
+    @SerializedName("confidence") val confidence: Float,
     @SerializedName("is_match") val isMatch: Boolean,
-    @SerializedName("annotated_image") val annotatedImage: String?
+    @SerializedName("annotated_image") val annotatedImage: String?,
+    @SerializedName("vehicle_type") val vehicleType: String? = null,
+    @SerializedName("fuel_type") val fuelType: String? = null,
+    @SerializedName("remaining_quota") val remainingQuota: Double? = null,
+    @SerializedName("max_quota") val maxQuota: Double? = null
 )
 
 /**
@@ -55,4 +59,29 @@ data class Spbu(
     @SerializedName("latitude") val latitude: Double?,
     @SerializedName("longitude") val longitude: Double?,
     @SerializedName("fuel_stocks") val fuelStocks: List<FuelStock>?
+)
+
+data class SubmitTransactionRequest(
+    @SerializedName("vehicle_id") val vehicleId: Int?,
+    @SerializedName("fuel_type") val fuelType: String,
+    @SerializedName("volume") val volume: Double,
+    @SerializedName("qr_result") val qrResult: String,
+    @SerializedName("plate_result") val plateResult: String?,
+    @SerializedName("plate_confidence") val plateConfidence: Double?,
+    @SerializedName("is_override") val isOverride: Boolean? = false,
+    @SerializedName("is_motor") val isMotor: Boolean? = false
+)
+
+data class TransactionData(
+    @SerializedName("id") val id: Int,
+    @SerializedName("vehicle_id") val vehicleId: Int?,
+    @SerializedName("fuel_type") val fuelType: String,
+    @SerializedName("volume") val volume: Double,
+    @SerializedName("transaction_status") val transactionStatus: String
+)
+
+data class QuotaData(
+    @SerializedName("remaining_quota") val remainingQuota: Double,
+    @SerializedName("max_quota") val maxQuota: Double,
+    @SerializedName("used_today") val usedToday: Double
 )

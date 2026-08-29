@@ -63,4 +63,19 @@ interface ApiService {
         @Part("vehicle_id") vehicleId: RequestBody,
         @Part vehicleImage: MultipartBody.Part
     ): Response<ApiResponse<VehicleValidationData>>
+
+    @Multipart
+    @POST("spbu/validate-motor")
+    suspend fun validateMotor(
+        @Part vehicleImage: MultipartBody.Part
+    ): Response<ApiResponse<VehicleValidationData>>
+
+    @POST("spbu/submit-transaction")
+    suspend fun submitTransaction(@Body request: SubmitTransactionRequest): Response<ApiResponse<TransactionData>>
+
+    @GET("spbu/check-quota")
+    suspend fun checkQuota(
+        @Query("vehicle_id") vehicleId: Int,
+        @Query("fuel_type") fuelType: String = "pertalite"
+    ): Response<QuotaData>
 }

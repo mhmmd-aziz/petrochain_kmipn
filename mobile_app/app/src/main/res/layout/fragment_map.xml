@@ -61,14 +61,6 @@
                 android:textColor="#111827"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="Lihat sebagai list"
-                android:textColor="#0047BA"
-                android:textSize="14sp" />
         </RelativeLayout>
 
         <!-- Filter Chips -->

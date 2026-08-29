@@ -38,65 +38,116 @@
         app:layout_constraintStart_toStartOf="@id/tvWelcomeName"
         app:layout_constraintTop_toBottomOf="@id/tvWelcomeName" />
 
-    <!-- Scan QR Card Overlapping -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardScanQr"
+    <!-- Main Content in ScrollView to allow scrolling -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="32dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="12dp"
-        app:rippleColor="@color/ripple_primary"
-        app:layout_constraintTop_toBottomOf="@id/tvWelcomeSubtitle">
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcomeSubtitle"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center"
-            android:padding="32dp">
+            android:paddingHorizontal="24dp">
 
-            <ImageView
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/ic_qr_code"
-                android:padding="16dp"
-                app:tint="@color/primary"
-                android:background="@drawable/bg_icon_circle_red"
-                android:layout_marginBottom="24dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Scan QR Pelanggan"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Validasi QR Code pelanggan untuk verifikasi kendaraan dan lanjutkan proses pengisian BBM bersubsidi"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
-                android:gravity="center"
-                android:lineSpacingExtra="4dp"
-                android:layout_marginTop="12dp" />
-
-            <com.google.android.material.button.MaterialButton
+            <!-- Scan QR Card Overlapping (Mobil) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardScanQr"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Mulai Scan"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="14dp"
-                app:backgroundTint="@color/primary"
-                android:layout_marginTop="24dp"
-                android:clickable="false" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:rippleColor="@color/ripple_primary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:src="@drawable/ic_qr_code"
+                        android:padding="16dp"
+                        app:tint="@color/primary"
+                        android:background="@drawable/bg_icon_circle_red"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Validasi Mobil (QR)"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Validasi via Token MyPertamina (Mobil)"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Scan Motor Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardScanMotor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:rippleColor="@color/ripple_primary">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="24dp">
+
+                    <ImageView
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:src="@drawable/ic_camera"
+                        android:padding="16dp"
+                        app:tint="@color/primary"
+                        android:background="@drawable/bg_icon_circle_red"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Validasi Motor"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pengecekan Motor Under/Over 250cc Tanpa QR"
+                        android:textSize="13sp"
+                        android:textColor="@color/text_secondary"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,78 @@
+name: Docker Build and Publish
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    strategy:
+      # Jangan matikan job lain jika salah satu gagal (biarkan sisanya jalan)
+      fail-fast: false
+      matrix:
+        include:
+          - context: ./web_portal
+            dockerfile: ./web_portal/Dockerfile
+            image-name: app
+          - context: ./web_portal
+            dockerfile: ./web_portal/nginx.Dockerfile
+            image-name: web
+          - context: ./ai_services/ocr_mobile
+            dockerfile: ./ai_services/ocr_mobile/Dockerfile
+            image-name: ai-ocr-mobile
+          - context: ./ai_services/ocr_spbu
+            dockerfile: ./ai_services/ocr_spbu/Dockerfile
+            image-name: ai-ocr-spbu
+          - context: ./ai_services/klasifikasi_motor
+            dockerfile: ./ai_services/klasifikasi_motor/Dockerfile
+            image-name: ai-klasifikasi-motor
+          - context: ./blockchain
+            dockerfile: ./blockchain/Dockerfile
+            image-name: blockchain
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image (${{ matrix.image-name }})
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.image-name }}:latest
+          # Fitur magis: Docker Layer Caching menggunakan penyimpanan GitHub Actions (gha)
+          cache-from: type=gha,scope=${{ matrix.image-name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image-name }}

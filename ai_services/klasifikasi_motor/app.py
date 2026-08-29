@@ -108,7 +108,7 @@ def api_classify():
                     "confidence": 0.0,
                     "eligibility_result": "UNKNOWN",
                     "message": "No vehicle detected.",
-                    "media_url": f"http://127.0.0.1:5001/static/results/{result_filename}",
+                    "media_url": f"/static/results/{result_filename}",
                     "media_type": media_type
                 }
             })
@@ -123,7 +123,7 @@ def api_classify():
                 "confidence": best_confidence,
                 "eligibility_result": eligibility,
                 "bbox": best_bbox,
-                "media_url": f"http://127.0.0.1:5001/static/results/{result_filename}",
+                "media_url": f"/static/results/{result_filename}",
                 "media_type": media_type
             }
         })
@@ -190,4 +190,4 @@ def serve_result(filename):
     return send_from_directory(app.config['RESULT_FOLDER'], filename)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(host='0.0.0.0', debug=True, port=5001)

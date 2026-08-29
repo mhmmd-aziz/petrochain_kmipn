@@ -70,6 +70,16 @@ class ScanQrFragment : Fragment() {
                 findNavController().navigate(R.id.validateVehicleFragment, bundle)
             }
         }
+
+        binding.btnNoQr.setOnClickListener {
+            val bundle = bundleOf(
+                "vehicle_id" to 0,
+                "plate_number" to "TANPA QR",
+                "brand" to "Pelanggan",
+                "model" to "Non-Subsidi Terdaftar"
+            )
+            findNavController().navigate(R.id.validateVehicleFragment, bundle)
+        }
     }
 
     private val barcodeCallback = object : BarcodeCallback {
@@ -111,7 +121,9 @@ class ScanQrFragment : Fragment() {
             result?.let {
                 binding.layoutResult.visible()
                 it.onSuccess { data ->
-                    binding.tvResultStatus.text = "✅ QR Code Valid"
+                    binding.tvResultStatus.text = "QR Code Valid"
+                    binding.tvResultStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_check, 0, 0, 0)
+                    binding.tvResultStatus.compoundDrawablePadding = 8
                     binding.tvResultStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_approved)
                     )
@@ -121,7 +133,9 @@ class ScanQrFragment : Fragment() {
                     binding.btnValidateVehicle.visible()
                 }
                 it.onFailure { error ->
-                    binding.tvResultStatus.text = "❌ ${error.message}"
+                    binding.tvResultStatus.text = "${error.message}"
+                    binding.tvResultStatus.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_block, 0, 0, 0)
+                    binding.tvResultStatus.compoundDrawablePadding = 8
                     binding.tvResultStatus.setTextColor(
                         ContextCompat.getColor(requireContext(), R.color.status_rejected)
                     )
@@ -136,7 +150,10 @@ class ScanQrFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        isScanning = true
+        binding.layoutResult.gone()
         binding.barcodeScanner.resume()
+        binding.barcodeScanner.decodeContinuous(barcodeCallback)
     }
 
     override fun onPause() {

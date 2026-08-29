@@ -17,11 +17,11 @@ class AiVerificationService
     public function extractPlates($stnkPath, $carPath)
     {
         try {
-            $response = Http::timeout(30)->attach(
+            $response = Http::timeout(180)->attach(
                 'stnk_image', file_get_contents($stnkPath), basename($stnkPath)
             )->attach(
                 'car_image', file_get_contents($carPath), basename($carPath)
-            )->post('http://127.0.0.1:5002/api/extract');
+            )->post(env('AI_OCR_MOBILE_URL', 'http://ai_ocr_mobile:5002') . '/api/extract');
 
             if ($response->successful()) {
                 return $response->json('data');
@@ -52,5 +52,31 @@ class AiVerificationService
             'conclusion' => 'pending',
             'is_demo_mode' => true,
         ];
+    }
+
+    /**
+     * Call the Python AI Microservice to classify motorcycle (under 250cc vs over 250cc).
+     * 
+     * @param string $carPath The absolute path to the Car image
+     * @return array|null The AI extraction results
+     */
+    public function classifyMotorcycle($carPath)
+    {
+        try {
+            $response = Http::timeout(180)->attach(
+                'file', file_get_contents($carPath), basename($carPath)
+            )->post(env('AI_KLASIFIKASI_MOTOR_URL', 'http://ai_klasifikasi_motor:5001') . '/api/classify');
+
+            if ($response->successful()) {
+                return $response->json('data');
+            }
+            
+            Log::error('AI Klasifikasi Motor Service Error: ' . $response->body());
+            return null;
+            
+        } catch (\Exception $e) {
+            Log::error('AI Klasifikasi Motor Service Connection Failed: ' . $e->getMessage());
+            return null;
+        }
     }
 }

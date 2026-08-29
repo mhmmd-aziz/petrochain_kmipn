@@ -87,9 +87,120 @@
             android:layout_marginBottom="8dp"
             android:layout_marginStart="4dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:baselineAligned="false">
+
+            <!-- Prefix (Kode Wilayah) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPlatePrefix"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:layout_marginEnd="4dp"
+                app:hintEnabled="false"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:boxBackgroundColor="#F2F2F2"
+                app:boxCornerRadiusTopStart="24dp"
+                app:boxCornerRadiusTopEnd="24dp"
+                app:boxCornerRadiusBottomStart="24dp"
+                app:boxCornerRadiusBottomEnd="24dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actvPlatePrefix"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="BL"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:inputType="none"
+                    android:textAlignment="center" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Core (Angka) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPlateNumberCore"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.4"
+                android:layout_marginEnd="4dp"
+                app:hintEnabled="false"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:boxBackgroundColor="#F2F2F2"
+                app:boxCornerRadiusTopStart="24dp"
+                app:boxCornerRadiusTopEnd="24dp"
+                app:boxCornerRadiusBottomStart="24dp"
+                app:boxCornerRadiusBottomEnd="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPlateNumberCore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="1234"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:singleLine="true"
+                    android:textAlignment="center"
+                    android:fontFamily="monospace" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Suffix (Huruf Belakang) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPlateSuffix"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                app:hintEnabled="false"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:boxBackgroundColor="#F2F2F2"
+                app:boxCornerRadiusTopStart="24dp"
+                app:boxCornerRadiusTopEnd="24dp"
+                app:boxCornerRadiusBottomStart="24dp"
+                app:boxCornerRadiusBottomEnd="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPlateSuffix"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="AB"
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:inputType="textCapCharacters"
+                    android:maxLength="3"
+                    android:singleLine="true"
+                    android:textAlignment="center"
+                    android:fontFamily="monospace" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- Vehicle Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tipe Kendaraan"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="4dp" />
+
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilPlateNumber"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/tilVehicleType"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:hintEnabled="false"
@@ -102,17 +213,15 @@
             app:boxCornerRadiusBottomEnd="24dp"
             android:layout_marginBottom="16dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etPlateNumber"
+            <AutoCompleteTextView
+                android:id="@+id/actvVehicleType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Contoh: BL 1234 AB"
+                android:hint="Pilih Tipe Kendaraan"
                 android:textColorHint="@color/text_hint"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
-                android:inputType="textCapCharacters"
-                android:singleLine="true"
-                android:fontFamily="monospace" />
+                android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Brand -->

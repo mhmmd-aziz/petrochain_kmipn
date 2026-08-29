@@ -11,9 +11,11 @@ import {
 import { FaMotorcycle, FaCar, FaTruckMoving, FaBus, FaQrcode } from 'react-icons/fa';
 
 export default function Create() {
-    const { data, setData, post, processing, errors } = useForm({
-        plate_number: '',
-        vehicle_type: 'motorcycle',
+    const { data, setData, post, processing, errors, transform } = useForm({
+        plate_prefix: 'BL',
+        plate_number_core: '',
+        plate_suffix: '',
+        vehicle_type: 'mobil_pribadi',
         brand: '',
         model: '',
         engine_capacity_cc: '',
@@ -21,18 +23,15 @@ export default function Create() {
         vehicle_photo: null as File | null,
     });
 
-    const [currentStep, setCurrentStep] = useState<number>(1);
-    const [stnkPreview, setStnkPreview] = useState<string | null>(null);
-    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-    const [isScanning, setIsScanning] = useState<boolean>(false);
-    const [ocrConfidence, setOcrConfidence] = useState<number | null>(null);
-    const [ocrDetails, setOcrDetails] = useState<{
-        plate?: string;
-        brand?: string;
-        model?: string;
-        cc?: number;
-        expiry?: string;
-    } | null>(null);
+    transform((data) => ({
+        ...data,
+        plate_number: `${data.plate_prefix} ${data.plate_number_core} ${data.plate_suffix}`.trim(),
+    }));
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        post('/registrations');
+    };
 
     // Calculate eligibility based on Perpres 191/2014
     const ccValue = Number(data.engine_capacity_cc) || 0;
@@ -193,6 +192,13 @@ export default function Create() {
         post('/registrations');
     };
 
+    // Daftar Kode Wilayah Indonesia (Contoh umum, bisa disesuaikan)
+    const regionCodes = [
+        'BL', 'B', 'D', 'E', 'F', 'T', 'Z', 'A', 'G', 'H', 'K', 'R', 'AA', 'AB', 'AD', 'AE', 'AG',
+        'S', 'W', 'L', 'M', 'N', 'P', 'DK', 'DR', 'EA', 'DH', 'EB', 'ED', 'KB', 'DA', 'KH', 'KT', 'KU',
+        'DB', 'DL', 'DM', 'DN', 'DT', 'DD', 'DP', 'DW', 'PA', 'PB'
+    ];
+
     return (
         <>
             <Head title="Pendaftaran Kendaraan Subsidi BBM - PETROCHAIN" />
@@ -276,23 +282,57 @@ export default function Create() {
                 </div>
             </div>
 
-            {/* Quick Demo Presets Bar for KMIPN Judging Evaluation */}
-            <div className="mb-8 bg-gradient-to-r from-gray-900 to-slate-900 text-white p-5 rounded-3xl shadow-lg border border-gray-800">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-red-600/30 border border-red-500/40 flex items-center justify-center text-[#ff4d4f]">
-                            <FiZap size={20} />
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm max-w-3xl">
+                <form onSubmit={handleSubmit} className="p-8 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Pelat</label>
+                            <div className="flex gap-2">
+                                <select
+                                    value={data.plate_prefix}
+                                    onChange={e => setData('plate_prefix', e.target.value)}
+                                    className="w-24 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold"
+                                >
+                                    {regionCodes.map(code => (
+                                        <option key={code} value={code}>{code}</option>
+                                    ))}
+                                </select>
+                                <input 
+                                    type="text" 
+                                    value={data.plate_number_core}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 4); // Hanya angka, maks 4
+                                        setData('plate_number_core', val);
+                                    }}
+                                    className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold tracking-widest"
+                                    placeholder="1234"
+                                    required
+                                />
+                                <input 
+                                    type="text" 
+                                    value={data.plate_suffix}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase(); // Hanya huruf, maks 3
+                                        setData('plate_suffix', val);
+                                    }}
+                                    className="w-24 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold uppercase"
+                                    placeholder="AB"
+                                />
+                            </div>
+                            {errors.plate_number && <p className="text-red-500 text-xs mt-1">{errors.plate_number}</p>}
                         </div>
                         <div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-mono font-bold uppercase tracking-widest text-amber-400">
-                                    Simulasi Penilaian Juri KMIPN
-                                </span>
-                                <span className="text-[10px] bg-red-950/80 text-red-300 px-2 py-0.5 rounded border border-red-800/60 font-mono">1-Klik Demo</span>
-                            </div>
-                            <p className="text-xs text-gray-300 mt-0.5">
-                                Klik salah satu sampel STNK di bawah untuk menguji pembacaan AI PaddleOCR secara instan:
-                            </p>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Kendaraan</label>
+                            <select 
+                                value={data.vehicle_type}
+                                onChange={e => setData('vehicle_type', e.target.value)}
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+                            >
+                                <option value="mobil_pribadi">Mobil / Kendaraan Pribadi</option>
+                                <option value="angkutan_umum">Bus / Angkutan Umum</option>
+                                <option value="angkutan_barang">Truk / Angkutan Barang</option>
+                            </select>
+                            {errors.vehicle_type && <p className="text-red-500 text-xs mt-1">{errors.vehicle_type}</p>}
                         </div>
                     </div>
 

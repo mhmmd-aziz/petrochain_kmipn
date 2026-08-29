@@ -12,6 +12,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 // Public endpoints
 Route::get('/public/spbus', [SpbuController::class, 'publicList']);
+Route::get('/iot/latest-transaction', [App\Http\Controllers\Api\IotController::class, 'getLatestTransaction']);
 
 // Protected routes (Requires Sanctum Token)
 Route::middleware('auth:sanctum')->group(function () {
@@ -27,6 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // SPBU Operator Endpoints
     Route::post('/spbu/validate-qr', [SpbuController::class, 'validateQr']);
     Route::post('/spbu/validate-vehicle', [SpbuController::class, 'validateVehicle']);
+    Route::post('/spbu/validate-motor', [SpbuController::class, 'validateMotor']);
+    Route::post('/spbu/submit-transaction', [SpbuController::class, 'submitTransaction']);
+    Route::get('/spbu/check-quota', [SpbuController::class, 'checkQuota']);
     
 });
 

@@ -31,6 +31,10 @@ class SpbuDashboardFragment : Fragment() {
         binding.cardScanQr.setOnClickListener {
             findNavController().navigate(R.id.scanQrFragment)
         }
+
+        binding.cardScanMotor.setOnClickListener {
+            findNavController().navigate(R.id.validateMotorFragment)
+        }
     }
 
     override fun onDestroyView() {
