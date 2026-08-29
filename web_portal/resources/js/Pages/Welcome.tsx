@@ -10,7 +10,7 @@ import {
     FiSearch, FiMenu, FiX, FiCpu, FiLock, FiLayers, 
     FiChevronDown, FiDatabase, FiTruck, FiZap, FiExternalLink,
     FiCode, FiServer, FiCheck, FiRadio, FiMapPin, FiRefreshCw,
-    FiSliders, FiAlertCircle, FiInfo, FiFileText, FiAlertTriangle, FiUsers
+    FiSliders, FiAlertCircle, FiInfo, FiFileText, FiAlertTriangle, FiUsers, FiAward
 } from 'react-icons/fi';
 import { FaMotorcycle, FaQrcode, FaGasPump, FaAndroid } from 'react-icons/fa';
 
