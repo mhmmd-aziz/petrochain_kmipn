@@ -142,6 +142,7 @@ class AdminRegistrationController extends Controller
             'confidence'                  => $aiResult['stnk_confidence'] ?? 0.0,
             'normalized_result'           => ($aiResult['stnk_plate'] ?? '')
                 . ($detectedCc ? ' | ' . $detectedCc . ' CC' : '')
+                . (isset($aiResult['stnk_fuel_type']) ? ' | FUEL:' . $aiResult['stnk_fuel_type'] : '')
                 . (isset($aiResult['document_type']) ? ' | DOC:' . $aiResult['document_type'] : ''),
             'comparison_result'           => $aiResult['conclusion'] ?? 'low_confidence',
             'engine'                      => 'easyocr',

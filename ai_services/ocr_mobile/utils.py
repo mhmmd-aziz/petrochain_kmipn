@@ -482,6 +482,14 @@ def extract_info_from_stnk(image_path: str):
                 return val, conf
         return None
 
+    def fuel_extractor(text, conf):
+        text_upper = text.upper()
+        valid_fuels = ["PERTALITE", "BENSIN", "SOLAR", "BIO SOLAR", "BIOSOLAR", "PERTAMAX", "DEX", "DEXLITE"]
+        for fuel in valid_fuels:
+            if fuel in text_upper:
+                return fuel, conf
+        return None
+
     # --- Step 1: Smart label-based search for PLATE ---
     plate_labels = ["NOMOR REGISTRASI", "NO. POL", "NO POL", "NOPOL", "NOMOR POLISI", "KENDARAAN BARU"]
     best_plate, plate_conf = _find_value_near_label(ocr_results, plate_labels, plate_extractor)
@@ -489,6 +497,10 @@ def extract_info_from_stnk(image_path: str):
     # --- Step 2: Smart label-based search for CC ---
     cc_labels = ["SILINDER", "ISI SILINDER", "DAYA", "CC", "CYLINDER", "KAPASITAS"]
     best_cc, _ = _find_value_near_label(ocr_results, cc_labels, cc_extractor)
+
+    # --- Step 2.5: Smart label-based search for FUEL ---
+    fuel_labels = ["BAHAN BAKAR", "BAHANBAKAR", "B.BAKAR", "B BAKAR"]
+    best_fuel, _ = _find_value_near_label(ocr_results, fuel_labels, fuel_extractor)
 
     # --- Step 3: Fallback — scan all text if label search failed ---
     all_text = " ".join([t.upper() for (_, t, _) in ocr_results])
@@ -553,6 +565,14 @@ def extract_info_from_stnk(image_path: str):
     if not best_cc:
         best_cc = None  # Don't fake it — let admin know it wasn't found
 
+    if not best_fuel:
+        logger.info("Label-based Fuel search failed, falling back to full-document scan")
+        valid_fuels = ["PERTALITE", "BENSIN", "PERTAMAX", "SOLAR", "BIO SOLAR", "BIOSOLAR", "DEX", "DEXLITE"]
+        for fuel in valid_fuels:
+            if fuel in all_text:
+                best_fuel = fuel
+                break
+
     # --- Detect document type from OCR text ---
     # This serves as a fallback when validate_stnk_document misses it
     motor_keywords_in_text = ["SEPEDA MOTOR", "RODA DUA", "SEPEDAMOTOR", "SPEDA MOTOR", "SEPEDA"]
@@ -566,8 +586,9 @@ def extract_info_from_stnk(image_path: str):
         detected_doc_type = "car_stnk"
 
     logger.info(f"[EXTRACT] doc_type from text: {detected_doc_type} (motor={m_hits}, car={c_hits})")
+    logger.info(f"[EXTRACT] fuel from text: {best_fuel}")
 
-    return best_plate, plate_conf, best_cc, detected_doc_type
+    return best_plate, plate_conf, best_cc, detected_doc_type, best_fuel
 
 def generate_qr_code(data: str, save_dir="static/qrcodes"):
     """Generate QR code and return the path."""

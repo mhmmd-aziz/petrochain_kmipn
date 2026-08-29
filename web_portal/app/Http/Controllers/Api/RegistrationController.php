@@ -179,6 +179,7 @@ class RegistrationController extends Controller
                 // Store both plate, CC, and document type in normalized_result so frontend can parse it
                 'normalized_result' => $aiResult['stnk_plate'] 
                     . ($detectedCc ? ' | ' . $detectedCc . ' CC' : '')
+                    . (isset($aiResult['stnk_fuel_type']) ? ' | FUEL:' . $aiResult['stnk_fuel_type'] : '')
                     . (isset($aiResult['document_type']) ? ' | DOC:' . $aiResult['document_type'] : ''),
                 'comparison_result' => $aiResult['conclusion'],
                 'engine' => 'easyocr',

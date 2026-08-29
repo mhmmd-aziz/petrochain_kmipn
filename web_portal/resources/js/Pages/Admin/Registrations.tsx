@@ -177,6 +177,7 @@ export default function AdminRegistrations({ applications }: { applications: App
         const carResult = app.ocr_results.find(r => r.source_type === 'vehicle_photo');
         const rawStnkType = stnkResult?.normalized_result?.match(/DOC:([\w_]+)/)?.[1] ?? null;
         const rawCarType  = carResult?.normalized_result?.match(/CAR:([\w_]+)/)?.[1] ?? null;
+        const rawFuelType = stnkResult?.normalized_result?.match(/FUEL:([\w_\s]+)/)?.[1] ?? null;
 
         const formatType = (raw: string | null) => {
             if (!raw) return null;
@@ -202,6 +203,7 @@ export default function AdminRegistrations({ applications }: { applications: App
             stnk_cc:         stnkResult?.normalized_result?.match(/(\d+)\s*CC/i)?.[1] ?? null,
             stnk_type:       formatType(rawStnkType),
             car_type:        formatType(rawCarType),
+            stnk_fuel_type:  rawFuelType,
         };
     };
 
@@ -611,6 +613,35 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                             {ai?.stnk_type ? `STNK ${ai.stnk_type}` : '— Tidak Terbaca'}
                                                         </span>
                                                     </div>
+                                                    
+                                                    {/* Row 6: Jenis BBM */}
+                                                    {(() => {
+                                                        // Rule: Pertalite && CC > 1400 -> Warning Merah
+                                                        const userFuel = selectedApp.vehicle.fuel_type || '-';
+                                                        const aiFuel = ai?.stnk_fuel_type;
+                                                        const isPertaliteRuleViolated = 
+                                                            (userFuel.toLowerCase() === 'pertalite' || aiFuel?.toLowerCase() === 'pertalite' || aiFuel?.toLowerCase() === 'bensin') && 
+                                                            (ai?.stnk_cc && parseInt(ai.stnk_cc) > 1400);
+
+                                                        return (
+                                                            <div className={`grid grid-cols-3 p-3 items-center hover:bg-gray-50/50 ${isPertaliteRuleViolated ? 'bg-rose-50/40' : ''}`}>
+                                                                <span className="font-bold text-gray-600">Jenis BBM & Aturan Subsidi</span>
+                                                                <span className="font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg text-center mx-1 uppercase">
+                                                                    {userFuel}
+                                                                </span>
+                                                                <span className={`font-bold px-2.5 py-1 rounded-lg text-center mx-1 uppercase ${
+                                                                    !aiFuel
+                                                                        ? 'text-gray-400 bg-gray-50'
+                                                                        : isPertaliteRuleViolated
+                                                                        ? 'text-rose-700 bg-rose-100 border border-rose-300 ring-2 ring-rose-200 animate-pulse'
+                                                                        : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                                                                }`}>
+                                                                    {aiFuel ? `${aiFuel}` : '— Tidak Terbaca'}
+                                                                    {isPertaliteRuleViolated && <div className="text-[9px] mt-1 text-rose-600">PELANGGARAN: &gt;1400 CC</div>}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         </div>

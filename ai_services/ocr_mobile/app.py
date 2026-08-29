@@ -113,8 +113,8 @@ def process():
     car_file.save(car_path)
 
     # Process STNK
-    stnk_plate, stnk_conf, stnk_cc, _ = extract_info_from_stnk(stnk_path)
-    logger.info(f"STNK: {stnk_plate} (Conf: {stnk_conf}) CC: {stnk_cc}")
+    stnk_plate, stnk_conf, stnk_cc, extract_doc_type, stnk_fuel = extract_info_from_stnk(stnk_path)
+    logger.info(f"STNK: {stnk_plate} (Conf: {stnk_conf}) CC: {stnk_cc} Fuel: {stnk_fuel}")
 
     # Process Car Image
     car_plate, car_conf = extract_plate_from_car(car_path)
@@ -221,7 +221,7 @@ def api_extract():
         })
 
     # Step 3: Extract plates and CC
-    stnk_plate, stnk_conf, stnk_cc, extract_doc_type = extract_info_from_stnk(stnk_path)
+    stnk_plate, stnk_conf, stnk_cc, extract_doc_type, stnk_fuel = extract_info_from_stnk(stnk_path)
     car_plate, car_conf = extract_plate_from_car(car_path)
     
     logger.info(f"[API] STNK extracted: plate='{stnk_plate}' conf={stnk_conf:.3f} cc={stnk_cc} doc={extract_doc_type}")
@@ -273,6 +273,7 @@ def api_extract():
             "car_plate": car_plate,
             "car_confidence": float(car_conf),
             "stnk_cc": stnk_cc,
+            "stnk_fuel_type": stnk_fuel,
             "is_match": is_match,
             "conclusion": ai_conclusion,
             "document_valid": True,
