@@ -19,6 +19,19 @@ export default function Welcome({ auth }: { auth: any }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
+    const [spbus, setSpbus] = useState<any[]>([]);
+    useEffect(() => {
+        fetch('/api/public/spbus')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    setSpbus(data.data.slice(0, 3));
+                }
+            })
+            .catch(err => console.error('Error fetching SPBU stock:', err));
+    }, []);
+
+
     // Download App Alert Handler (prevents automatic repeated file downloads)
     const handleDownloadApp = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -649,7 +662,7 @@ export default function Welcome({ auth }: { auth: any }) {
                             <div className="flex flex-wrap lg:flex-nowrap items-center gap-3 mb-5 sm:mb-6">
                                 <Link
                                     href={route('register')}
-                                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-[#980f12] px-5 sm:px-6 py-3.5 rounded-lg font-bold text-xs sm:text-sm shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                                    className="hidden inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-[#980f12] px-5 sm:px-6 py-3.5 rounded-lg font-bold text-xs sm:text-sm shadow-md hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                                 >
                                     <span>Daftar Kendaraan Subsidi</span>
                                     <FiArrowRight size={16} />
@@ -1243,9 +1256,9 @@ export default function Welcome({ auth }: { auth: any }) {
                         {/* Pillar 1: Depot */}
                         <div className="bg-white rounded-none p-7 sm:p-8 lg:p-10 hover:bg-gray-50/90 transition-all flex flex-col justify-between group">
                             <div>
-                                <div className="w-14 h-14 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl font-black mb-5 border border-amber-100 group-hover:scale-105 transition-transform">
+                                {/* <div className="w-14 h-14 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl font-black mb-5 border border-amber-100 group-hover:scale-105 transition-transform">
                                     <FiDatabase />
-                                </div>
+                                </div> */}
                                 <span className="text-[11px] font-mono font-bold text-amber-700 uppercase tracking-wider">PILAR 1 • HULU</span>
                                 <h3 className="text-lg sm:text-xl font-black text-gray-900 mt-1.5 mb-2.5">Depot Kilang Pertamina</h3>
                                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
@@ -1346,242 +1359,7 @@ export default function Welcome({ auth }: { auth: any }) {
             {/* ========================================================================= */}
             {/* TABBED DEEP-DIVE TECHNOLOGY MATRIX                                        */}
             {/* ========================================================================= */}
-            <section id="teknologi" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
-                <div className="w-full">
-                    {/* Section Header: Left-Aligned, Large Typography (Matching Image 2) */}
-                    <div className="w-full text-left mb-8">
-                        <div className="text-xs sm:text-sm font-sans font-extrabold tracking-widest text-[#980f12] uppercase mb-2">
-                            Teknologi &amp; Arsitektur
-                        </div>
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-950 mt-1 mb-3 tracking-tight">
-                            4 Lapisan Teknologi PETROCHAIN
-                        </h2>
-                        <p className="text-gray-800 text-base sm:text-lg max-w-3xl leading-relaxed font-medium">
-                            Pilih lapisan teknologi di bawah untuk melihat rincian spesifikasi teknis dan integrasi perangkat keras.
-                        </p>
-                    </div>
-
-                    {/* Unified Console Box: Tab Buttons & Content perfectly aligned with the section below */}
-                    <div className="w-full border border-gray-200 shadow-2xs">
-                        {/* Tab Buttons */}
-                        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border-b border-gray-200 divide-y sm:divide-y-0 sm:divide-x divide-gray-200 bg-white">
-                            {[
-                                { key: 'yolo', label: '1. Computer Vision (YOLO & OCR)', icon: FiCpu },
-                                { key: 'iot', label: '2. Smart Dispenser Actuator', icon: FiZap },
-                                { key: 'blockchain', label: '3. Hyperledger Fabric Ledger', icon: FiLayers },
-                                { key: 'fraud', label: '4. Anti-Replay Security Guard', icon: FiShield },
-                            ].map((tab) => {
-                                const TabIcon = tab.icon;
-                                const isActive = activeTechTab === tab.key;
-                                return (
-                                    <button
-                                        key={tab.key}
-                                        onClick={() => setActiveTechTab(tab.key as any)}
-                                        className={`w-full py-4 px-3 sm:px-5 rounded-none text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
-                                            isActive
-                                                ? 'bg-[#980f12] text-white shadow-inner'
-                                                : 'bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-950'
-                                        }`}
-                                    >
-                                        <TabIcon size={18} className={isActive ? 'text-white' : 'text-[#980f12]'} />
-                                        <span className="whitespace-nowrap">{tab.label}</span>
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        {/* Active Tab Content Card */}
-                        <div className="w-full bg-white">
-                        {activeTechTab === 'yolo' && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 bg-white">
-                                <div className="p-8 sm:p-10 lg:p-14 bg-white flex flex-col justify-between">
-                                    <div>
-                                        <div className="text-xs font-sans font-extrabold tracking-wider text-[#980f12] uppercase mb-1">
-                                            Edge Computer Vision
-                                        </div>
-                                        <h3 className="text-2xl sm:text-3xl font-black mt-3 mb-4 text-gray-950">
-                                            YOLOv8 + PaddleOCR Dual Inference
-                                        </h3>
-                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
-                                            Model machine learning berjalan langsung pada edge microservice SPBU (Port 5001). Memproses video feed 30 FPS untuk membaca plat nomor kendaraan dan mengekstrak kubikasi mesin STNK Samsat dengan akurasi 98.8%.
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 font-mono text-xs pt-4">
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Latency Inference</div>
-                                            <div className="text-lg font-black text-emerald-600 mt-1">42 ms / frame</div>
-                                        </div>
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Model Dataset</div>
-                                            <div className="text-lg font-black text-gray-900 mt-1">Plat & Moge 250cc</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-8 sm:p-10 lg:p-14 bg-gray-50/70 flex flex-col justify-center">
-                                    <div className="bg-white rounded-none p-6 sm:p-8 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800 w-full">
-                                        <div className="text-gray-500 pb-3 mb-3 border-b border-gray-100 flex justify-between">
-                                            <span className="font-semibold text-gray-600">// YOLOv8_Inference_Log.json</span>
-                                            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">HTTP 200 OK</span>
-                                        </div>
-                                        <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`{
-  "status": "MATCH",
-  "detected_plate": "BL 1234 AB",
-  "ocr_confidence": 0.9882,
-  "vehicle_class": "motorcycle",
-  "capacity_check": "UNDER_250CC",
-  "decision": "SUBSIDY_ELIGIBLE",
-  "actuator_signal": "RELAY_HIGH_UNLOCKED"
-}`}
-                                        </pre>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {activeTechTab === 'iot' && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 bg-white">
-                                <div className="p-8 sm:p-10 lg:p-14 bg-white flex flex-col justify-between">
-                                    <div>
-                                        <div className="text-xs font-sans font-extrabold tracking-wider text-amber-700 uppercase mb-1">
-                                            Hardware Actuator
-                                        </div>
-                                        <h3 className="text-2xl sm:text-3xl font-black mt-3 mb-4 text-gray-950">
-                                            Smart Dispenser Relay Controller
-                                        </h3>
-                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
-                                            Mikrokontroler ESP32 / Raspberry Pi terpasang pada modul pompa dispenser. Nozzle pengisian hanya akan mengalirkan bahan bakar jika sinyal otorisasi digital diterima dari server AI lokal.
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 font-mono text-xs pt-4">
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Actuator Pin</div>
-                                            <div className="text-lg font-black text-amber-600 mt-1">GPIO PIN 18</div>
-                                        </div>
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Fail-Safe Cutoff</div>
-                                            <div className="text-lg font-black text-emerald-600 mt-1">Auto-Lock &lt; 100ms</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-8 sm:p-10 lg:p-14 bg-gray-50/70 flex flex-col justify-center">
-                                    <div className="bg-white rounded-none p-6 sm:p-8 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800 w-full">
-                                        <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                            <span className="font-semibold text-gray-600">// ESP32_Relay_Command.c</span>
-                                            <span className="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded">HARDWARE READY</span>
-                                        </div>
-                                        <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`void executeNozzleCutoff() {
-  if (validationResult == MISMATCH || vehicleCC > 250) {
-    digitalWrite(RELAY_NOZZLE_PIN, LOW); // Cutoff pump
-    triggerAlarmBuzzer(PATTERN_FRAUD);
-    logBlockchainAnomaly(TRANSACTION_ID);
-  }
-}`}
-                                        </pre>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {activeTechTab === 'blockchain' && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 bg-white">
-                                <div className="p-8 sm:p-10 lg:p-14 bg-white flex flex-col justify-between">
-                                    <div>
-                                        <div className="text-xs font-sans font-extrabold tracking-wider text-purple-700 uppercase mb-1">
-                                            Enterprise Blockchain
-                                        </div>
-                                        <h3 className="text-2xl sm:text-3xl font-black mt-3 mb-4 text-gray-950">
-                                            Hyperledger Fabric v2.5 / EVM Audit
-                                        </h3>
-                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
-                                            Setiap transaksi pengisian bahan bakar dienkripsi dan dicatat ke dalam blok buku besar terdistribusi dengan konsensus RAFT/BFT. Menghilangkan resiko data transaksi dimanipulasi oleh oknum internal.
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 font-mono text-xs pt-4">
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Hashing Standard</div>
-                                            <div className="text-lg font-black text-purple-700 mt-1">SHA-256 Merkle</div>
-                                        </div>
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Smart Contract</div>
-                                            <div className="text-lg font-black text-emerald-600 mt-1">PetrochainAudit.sol</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-8 sm:p-10 lg:p-14 bg-gray-50/70 flex flex-col justify-center">
-                                    <div className="bg-white rounded-none p-6 sm:p-8 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800 w-full">
-                                        <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                            <span className="font-semibold text-gray-600">// SmartContract_Ledger.sol</span>
-                                            <span className="text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded">VERIFIED CONTRACT</span>
-                                        </div>
-                                        <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`function recordTransaction(
-    string memory txId,
-    string memory plate,
-    uint256 volumeLiters,
-    bytes32 dataHash
-) public onlySPBUNode {
-    auditLedger[txId] = AuditRecord(plate, volumeLiters, dataHash, block.timestamp);
-    emit TransactionAudited(txId, block.number);
-}`}
-                                        </pre>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-
-                        {activeTechTab === 'fraud' && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 bg-white">
-                                <div className="p-8 sm:p-10 lg:p-14 bg-white flex flex-col justify-between">
-                                    <div>
-                                        <div className="text-xs font-sans font-extrabold tracking-wider text-emerald-700 uppercase mb-1">
-                                            Security & Anti-Fraud
-                                        </div>
-                                        <h3 className="text-2xl sm:text-3xl font-black mt-3 mb-4 text-gray-950">
-                                            Zero-Fraud Multi-Tier Guard
-                                        </h3>
-                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
-                                            Mencegah modus umum kecurangan subsidi BBM: (1) Tangkapan layar QR orang lain, (2) Pengisian berulang di SPBU berbeda dalam 1 hari, dan (3) Pemalsuan pelat nomor modifikasi.
-                                        </p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 font-mono text-xs pt-4">
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Anti-Replay OTP</div>
-                                            <div className="text-lg font-black text-emerald-600 mt-1">60s Dynamic Token</div>
-                                        </div>
-                                        <div className="p-4 rounded-none bg-gray-50 border border-gray-200 shadow-2xs">
-                                            <div className="text-gray-500 font-sans">Geofence Radius</div>
-                                            <div className="text-lg font-black text-blue-700 mt-1">SPBU 50m Bound</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="p-8 sm:p-10 lg:p-14 bg-gray-50/70 flex flex-col justify-center">
-                                    <div className="bg-white rounded-none p-6 sm:p-8 border border-gray-200 shadow-2xs font-mono text-xs text-gray-800 w-full">
-                                        <div className="text-gray-500 pb-2 mb-3 border-b border-gray-100 flex justify-between">
-                                            <span className="font-semibold text-gray-600">// Fraud_Prevention_Matrix.json</span>
-                                            <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">PROTECTED</span>
-                                        </div>
-                                        <pre className="overflow-x-auto text-[11px] leading-relaxed text-gray-800">
-{`{
-  "anpr_physical_match": true,
-  "qr_token_validity": "CURRENT_SESSION",
-  "daily_quota_remaining_liters": 15.0,
-  "cross_spbu_replay_detected": false,
-  "verdict": "APPROVED_TRANSACTION"
-}`}
-                                        </pre>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-
-            {/* ========================================================================= */}
+                        {/* ========================================================================= */}
             {/* LIVE SPBU FUEL STOCK LOCATOR MINI-PREVIEW (BRIGHT SPBU IMAGE BACKGROUND)  */}
             {/* ========================================================================= */}
             <section className="pt-16 pb-0 relative overflow-hidden bg-gray-100">
@@ -1620,56 +1398,35 @@ export default function Welcome({ auth }: { auth: any }) {
 
                     {/* Edge-to-Edge SPBU Mini Sample Cards: 0 Gap, Straight Corners, Flush with Screen */}
                     <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-b border-gray-200 divide-y md:divide-y-0 md:divide-x divide-gray-200 bg-white/95 backdrop-blur-md">
-                        <div className="bg-transparent p-6 sm:p-8 rounded-none hover:bg-white transition-colors">
-                            <div className="text-xs font-bold text-gray-950 flex items-center justify-between">
-                                <span>SPBU 14.201.001 Banda Aceh</span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            </div>
-                            <div className="mt-4 space-y-2 font-mono text-xs">
-                                <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
-                                    <span className="text-gray-600">Pertalite:</span>
-                                    <strong className="text-emerald-700 font-bold">14.250 L (Aman)</strong>
+                        {spbus.length > 0 ? spbus.map((spbu: any) => {
+                            const pertalite = spbu.fuel_stocks?.find((s: any) => s.fuel_type === 'pertalite');
+                            const biosolar = spbu.fuel_stocks?.find((s: any) => s.fuel_type === 'solar' || s.fuel_type === 'biosolar');
+                            
+                            return (
+                                <div key={spbu.id} className="bg-transparent p-6 sm:p-8 rounded-none hover:bg-white transition-colors">
+                                    <div className="text-xs font-bold text-gray-950 flex items-center justify-between">
+                                        <span>{spbu.name}</span>
+                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    </div>
+                                    <div className="mt-4 space-y-2 font-mono text-xs">
+                                        <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
+                                            <span className="text-gray-600">Pertalite:</span>
+                                            <strong className={`font-bold ${pertalite?.status === 'empty' ? 'text-red-600' : (pertalite?.status === 'limited' ? 'text-amber-600' : 'text-emerald-700')}`}>
+                                                {pertalite?.status === 'empty' ? 'Habis' : (pertalite?.status === 'limited' ? 'Menipis' : 'Tersedia')}
+                                            </strong>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-600">Biosolar:</span>
+                                            <strong className={`font-bold ${biosolar?.status === 'empty' ? 'text-red-600' : (biosolar?.status === 'limited' ? 'text-amber-600' : 'text-emerald-700')}`}>
+                                                {biosolar?.status === 'empty' ? 'Habis' : (biosolar?.status === 'limited' ? 'Menipis' : 'Tersedia')}
+                                            </strong>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Biosolar:</span>
-                                    <strong className="text-amber-600 font-bold">3.800 L (Menipis)</strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-transparent p-6 sm:p-8 rounded-none hover:bg-white transition-colors">
-                            <div className="text-xs font-bold text-gray-950 flex items-center justify-between">
-                                <span>SPBU 14.243.012 Lhokseumawe</span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            </div>
-                            <div className="mt-4 space-y-2 font-mono text-xs">
-                                <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
-                                    <span className="text-gray-600">Pertalite:</span>
-                                    <strong className="text-emerald-700 font-bold">18.100 L (Aman)</strong>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Biosolar:</span>
-                                    <strong className="text-emerald-700 font-bold">11.400 L (Aman)</strong>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-transparent p-6 sm:p-8 rounded-none hover:bg-white transition-colors">
-                            <div className="text-xs font-bold text-gray-950 flex items-center justify-between">
-                                <span>SPBU 31.129.02 Jakarta</span>
-                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            </div>
-                            <div className="mt-4 space-y-2 font-mono text-xs">
-                                <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
-                                    <span className="text-gray-600">Pertalite:</span>
-                                    <strong className="text-emerald-700 font-bold">22.500 L (Aman)</strong>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Biosolar:</span>
-                                    <strong className="text-emerald-700 font-bold">16.900 L (Aman)</strong>
-                                </div>
-                            </div>
-                        </div>
+                            );
+                        }) : (
+                            <div className="col-span-3 p-8 text-center text-gray-500 text-sm">Memuat data stok SPBU...</div>
+                        )}
                     </div>
 
                 </div>
@@ -1752,167 +1509,74 @@ export default function Welcome({ auth }: { auth: any }) {
             {/* INNOVATION TEAM & FACULTY ADVISOR SECTION (KMIPN 2026)                    */}
             {/* ========================================================================= */}
             <section id="tim" className="py-20 bg-white border-b border-gray-100 scroll-mt-24 px-4 sm:px-6 lg:px-10 xl:px-14">
-                <div className="w-full">
-                    <div className="text-center max-w-3xl mx-auto mb-14">
-                        <span className="text-xs font-black uppercase tracking-widest text-[#980f12] bg-red-50 px-3.5 py-1.5 rounded-full border border-red-100 inline-flex items-center gap-1.5">
-                            <FiUsers /> TIM PENGEMBANG INOVASI • KMIPN 2026
-                        </span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-4 mb-3">
-                            Inovator di Balik Ekosistem PETROCHAIN
-                        </h2>
-                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                            Karya kolaborasi mahasiswa dan dosen pembimbing Jurusan Teknologi Informasi dan Komputer, <strong>Politeknik Negeri Lhokseumawe</strong> dalam Kompetisi Mahasiswa Informatika Politeknik Nasional.
-                        </p>
+                <div className="w-full max-w-5xl mx-auto">
+                    <div className="flex items-center gap-3 mb-8 border-b pb-4">
+                        <FiUsers className="text-[#3b82f6] text-2xl" />
+                        <h2 className="text-xl font-bold text-gray-900">Informasi Tim</h2>
                     </div>
 
-                    {/* Faculty Advisor Featured Card */}
-                    <div className="bg-gradient-to-r from-gray-950 via-[#700b0e] to-[#980f12] rounded-3xl p-6 sm:p-8 lg:p-10 text-white border border-red-900/30 shadow-xl mb-8 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-                            <div className="lg:col-span-3 flex justify-center">
-                                <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl bg-black/20">
-                                    <img 
-                                        src="/images/team_advisor.jpg" 
-                                        alt="Dosen Pembimbing PNL" 
-                                        className="w-full h-full object-cover object-top"
-                                    />
-                                    <div className="absolute bottom-2 left-2 right-2 bg-black/70 backdrop-blur-xs py-1 px-2 rounded-lg text-center text-[10px] font-mono font-bold text-amber-300 border border-white/10">
-                                        DOSEN PEMBIMBING
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="lg:col-span-9 space-y-3 text-center lg:text-left">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-mono text-amber-300 font-bold">
-                                    <FiAward /> Faculty Advisor & System Architecture Mentor
-                                </div>
-                                <h3 className="text-2xl sm:text-3xl font-black text-white">
-                                    M. Aziz, S.Kom., M.Kom.
-                                </h3>
-                                <p className="text-red-100/90 text-xs sm:text-sm font-medium leading-relaxed max-w-2xl">
-                                    Dosen Jurusan Teknologi Informasi dan Komputer, <strong>Politeknik Negeri Lhokseumawe</strong>. Mengarahkan riset arsitektur Artificial Intelligence Computer Vision, Distributed Ledger Technology (DLT), dan keselarasan regulasi Perpres Subsidi Energi.
-                                </p>
-                                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 pt-2 text-[11px] font-mono text-red-200">
-                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">AI & Computer Vision Research</span>
-                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">Blockchain Consensus</span>
-                                    <span className="bg-white/10 px-3 py-1 rounded-lg border border-white/10">Politeknik Negeri Lhokseumawe</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 4 Student Innovators Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Member 1 */}
-                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                        {/* Kolom Kiri */}
+                        <div className="space-y-6">
                             <div>
-                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
-                                    <img 
-                                        src="/images/team_member_1.jpg" 
-                                        alt="Muhammad Zaky" 
-                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                    <div className="absolute top-2 left-2 bg-[#980f12] text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
-                                        KETUA TIM
+                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">NAMA TIM</div>
+                                <div className="text-base font-semibold text-gray-900">TimBerapa</div>
+                            </div>
+                            
+                            <div>
+                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">KATEGORI KOMPETISI</div>
+                                <div className="text-base font-semibold text-gray-900">E-Government</div>
+                            </div>
+
+                            <div>
+                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">KETUA TIM</div>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-[#3b82f6] text-white flex items-center justify-center font-bold text-lg">
+                                        M
+                                    </div>
+                                    <div>
+                                        <div className="text-sm font-bold text-gray-900">Muhammad Aziz</div>
+                                        <div className="text-xs text-gray-500">NIM: 2024573010089</div>
                                     </div>
                                 </div>
-                                <h4 className="text-base font-black text-gray-900 mb-1">Muhammad Zaky</h4>
-                                <div className="text-xs font-bold text-[#980f12] mb-2 flex items-center gap-1">
-                                    <FiCpu /> Lead AI & Vision Engineer
-                                </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">
-                                    Pengembangan model YOLOv8 Dual-Camera ANPR, pipeline PaddleOCR ekstraksi STNK, dan inferensi Edge SPBU.
-                                </p>
                             </div>
-                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
-                                <span>TIK PNL</span>
-                                <span className="text-emerald-700">YOLOv8 & OCR</span>
+
+                            <div>
+                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">DOSEN PEMBIMBING</div>
+                                <div className="text-sm font-bold text-gray-900">Dr. Rahmad Hidayat, S.Kom., M.Cs</div>
+                                <div className="text-xs text-gray-500">NIDN: 0120048303 | NIP: 198304202012121003</div>
                             </div>
                         </div>
 
-                        {/* Member 2 */}
-                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
+                        {/* Kolom Kanan */}
+                        <div className="space-y-6">
                             <div>
-                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
-                                    <img 
-                                        src="/images/team_member_2.jpg" 
-                                        alt="Farhan Al-Fayed" 
-                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                    <div className="absolute top-2 left-2 bg-purple-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
-                                        BLOCKCHAIN
+                                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">ANGGOTA TIM</div>
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-[#10b981] text-white flex items-center justify-center font-bold text-lg">
+                                            D
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-900">Deswita Nazwa Ariani</div>
+                                            <div className="text-xs text-gray-500">NIM: 2024573010003</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-full bg-[#10b981] text-white flex items-center justify-center font-bold text-lg">
+                                            A
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-gray-900">Amirullah</div>
+                                            <div className="text-xs text-gray-500">NIM: 2024573010089</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <h4 className="text-base font-black text-gray-900 mb-1">Farhan Al-Fayed</h4>
-                                <div className="text-xs font-bold text-purple-700 mb-2 flex items-center gap-1">
-                                    <FiLayers /> Blockchain Core Specialist
-                                </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">
-                                    Implementasi arsitektur Hyperledger Fabric, Smart Contract Chaincode transaksi kuota, dan audit multi-instansi.
-                                </p>
-                            </div>
-                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
-                                <span>TIK PNL</span>
-                                <span className="text-purple-700">Fabric & Raft</span>
-                            </div>
-                        </div>
-
-                        {/* Member 3 */}
-                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
-                            <div>
-                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
-                                    <img 
-                                        src="/images/team_member_3.jpg" 
-                                        alt="Cut Annisa Rahma" 
-                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                    <div className="absolute top-2 left-2 bg-blue-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
-                                        HARDWARE IOT
-                                    </div>
-                                </div>
-                                <h4 className="text-base font-black text-gray-900 mb-1">Cut Annisa Rahma</h4>
-                                <div className="text-xs font-bold text-blue-700 mb-2 flex items-center gap-1">
-                                    <FiZap /> IoT Hardware & Firmware
-                                </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">
-                                    Integrasi modul Raspberry Pi, solenoid relay dispenser actuator cut-off, dan telemetri flowmeter sensor BBM.
-                                </p>
-                            </div>
-                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
-                                <span>TIK PNL</span>
-                                <span className="text-blue-700">IoT & Firmware</span>
-                            </div>
-                        </div>
-
-                        {/* Member 4 */}
-                        <div className="bg-gray-50/80 rounded-3xl p-5 border border-gray-200/80 shadow-xs hover:shadow-xl hover:bg-white transition-all duration-300 flex flex-col justify-between group">
-                            <div>
-                                <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-gray-200 bg-white">
-                                    <img 
-                                        src="/images/team_member_4.jpg" 
-                                        alt="Rizki Maulana" 
-                                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                    <div className="absolute top-2 left-2 bg-emerald-700 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shadow-xs">
-                                        FRONTEND / UX
-                                    </div>
-                                </div>
-                                <h4 className="text-base font-black text-gray-900 mb-1">Rizki Maulana</h4>
-                                <div className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
-                                    <FiCode /> Full-Stack & UI/UX Lead
-                                </div>
-                                <p className="text-xs text-gray-600 leading-relaxed">
-                                    Perancangan antarmuka portal publik, WebGL 3D Globe interaktif, dan integrasi Inertia.js React 19.
-                                </p>
-                            </div>
-                            <div className="pt-3 mt-4 border-t border-gray-200/60 text-[10px] font-mono font-bold text-gray-500 flex justify-between">
-                                <span>TIK PNL</span>
-                                <span className="text-emerald-700">React & 3D WebGL</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-
 
             {/* ========================================================================= */}
             {/* FOOTER (FULL-WIDTH)                                                       */}
