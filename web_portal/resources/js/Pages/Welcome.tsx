@@ -921,8 +921,6 @@ export default function Welcome({ auth }: { auth: any }) {
                                     </p>
                                 </div>
                             </div>
-                        </motion.div>
-                    )}
 
                             <div className="pt-3.5 border-t border-gray-100 flex items-center justify-between text-xs font-mono text-gray-500">
                                 <span>Validasi</span>
@@ -1216,8 +1214,8 @@ export default function Welcome({ auth }: { auth: any }) {
                             <div className="text-gray-600 text-center sm:text-right">
                                 Kuota dibatasi ketat maksimal <strong className="text-gray-950 font-black font-mono">20 Liter / Hari</strong> untuk semua kendaraan subsidi.
                             </div>
-                        </motion.div>
-                    )}
+                        </div>
+                    </div>
                 </div>
             </section>
 

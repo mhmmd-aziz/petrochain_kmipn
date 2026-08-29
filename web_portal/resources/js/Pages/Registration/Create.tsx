@@ -187,10 +187,6 @@ export default function Create() {
         triggerOcrScan(`${presetType}_stnk.jpg`, presetType);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        post('/registrations');
-    };
 
     // Daftar Kode Wilayah Indonesia (Contoh umum, bisa disesuaikan)
     const regionCodes = [
@@ -282,94 +278,41 @@ export default function Create() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm max-w-3xl">
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Nomor Pelat</label>
-                            <div className="flex gap-2">
-                                <select
-                                    value={data.plate_prefix}
-                                    onChange={e => setData('plate_prefix', e.target.value)}
-                                    className="w-24 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold"
-                                >
-                                    {regionCodes.map(code => (
-                                        <option key={code} value={code}>{code}</option>
-                                    ))}
-                                </select>
-                                <input 
-                                    type="text" 
-                                    value={data.plate_number_core}
-                                    onChange={e => {
-                                        const val = e.target.value.replace(/\D/g, '').slice(0, 4); // Hanya angka, maks 4
-                                        setData('plate_number_core', val);
-                                    }}
-                                    className="flex-1 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold tracking-widest"
-                                    placeholder="1234"
-                                    required
-                                />
-                                <input 
-                                    type="text" 
-                                    value={data.plate_suffix}
-                                    onChange={e => {
-                                        const val = e.target.value.replace(/[^a-zA-Z]/g, '').slice(0, 3).toUpperCase(); // Hanya huruf, maks 3
-                                        setData('plate_suffix', val);
-                                    }}
-                                    className="w-24 border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20 text-center font-bold uppercase"
-                                    placeholder="AB"
-                                />
-                            </div>
-                            {errors.plate_number && <p className="text-red-500 text-xs mt-1">{errors.plate_number}</p>}
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Tipe Kendaraan</label>
-                            <select 
-                                value={data.vehicle_type}
-                                onChange={e => setData('vehicle_type', e.target.value)}
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
-                            >
-                                <option value="mobil_pribadi">Mobil / Kendaraan Pribadi</option>
-                                <option value="angkutan_umum">Bus / Angkutan Umum</option>
-                                <option value="angkutan_barang">Truk / Angkutan Barang</option>
-                            </select>
-                            {errors.vehicle_type && <p className="text-red-500 text-xs mt-1">{errors.vehicle_type}</p>}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                        <button
-                            type="button"
-                            onClick={() => applyDemoPreset('vario')}
-                            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-red-900/60 border border-slate-700 hover:border-red-500/50 text-xs font-bold text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
-                        >
-                            <FaMotorcycle className="text-amber-400" />
-                            <span>Vario 125cc (Lolos)</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => applyDemoPreset('avanza')}
-                            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-red-900/60 border border-slate-700 hover:border-red-500/50 text-xs font-bold text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
-                        >
-                            <FaCar className="text-sky-400" />
-                            <span>Avanza 1.300cc (Lolos)</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => applyDemoPreset('ninja')}
-                            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-red-900/60 border border-slate-700 hover:border-red-500/50 text-xs font-bold text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
-                        >
-                            <FaMotorcycle className="text-emerald-400" />
-                            <span>Ninja 250cc (Batas Max)</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => applyDemoPreset('pajero')}
-                            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/60 border border-slate-700 hover:border-rose-500/50 text-xs font-bold text-rose-200 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
-                        >
-                            <FaCar className="text-rose-400" />
-                            <span>Pajero 2.442cc (Non-Subsidi)</span>
-                        </button>
-                    </div>
+            {/* Demo Presets */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm max-w-3xl mb-8 p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={() => applyDemoPreset('vario')}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-red-900/60 border border-slate-700 hover:border-red-500/50 text-xs font-bold text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                        <FaMotorcycle className="text-amber-400" />
+                        <span>Vario 125cc (Lolos)</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => applyDemoPreset('avanza')}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-red-900/60 border border-slate-700 hover:border-red-500/50 text-xs font-bold text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                        <FaCar className="text-sky-400" />
+                        <span>Avanza 1.300cc (Lolos)</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => applyDemoPreset('ninja')}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-red-900/60 border border-slate-700 hover:border-red-500/50 text-xs font-bold text-white transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                        <FaMotorcycle className="text-emerald-400" />
+                        <span>Ninja 250cc (Batas Max)</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => applyDemoPreset('pajero')}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/60 border border-slate-700 hover:border-rose-500/50 text-xs font-bold text-rose-200 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                        <FaCar className="text-rose-400" />
+                        <span>Pajero 2.442cc (Non-Subsidi)</span>
+                    </button>
                 </div>
             </div>
 
