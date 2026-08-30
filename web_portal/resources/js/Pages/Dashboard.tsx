@@ -135,16 +135,23 @@ const statusBadge = (status: string) => {
     );
 };
 
-const qrBadge = (result: string) => {
-    const isMatch = result === 'qr_match';
+const aiMatchBadge = (tx: RecentTransaction) => {
+    const plateStr = (tx.plate_number || '').toLowerCase();
+    const isMotor = plateStr.includes('250cc');
+    const isMotorUnder = isMotor && plateStr.includes('under');
+    const isMobilQrMatch = !isMotor && tx.qr_result === 'qr_match';
+    
+    const isMatch = isMotorUnder || isMobilQrMatch;
+
     return (
         <span 
             className={`text-xs px-2.5 py-1 rounded-xl font-bold inline-flex items-center gap-1.5 border ${
                 isMatch ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'
             }`}
+            title={isMotor ? "Klasifikasi AI Motor" : "Verifikasi QR Code"}
         >
             {isMatch ? <FiCheckCircle size={12} /> : <FiAlertTriangle size={12} />}
-            {isMatch ? 'Match' : 'Mismatch'}
+            {isMatch ? 'Match' : (isMotor ? 'Flagged' : 'Mismatch')}
         </span>
     );
 };
@@ -382,7 +389,7 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                                 <th className="px-6 py-4">Nomor Pelat</th>
                                 <th className="px-6 py-4">Lokasi SPBU</th>
                                 <th className="px-6 py-4">BBM Subsidi</th>
-                                <th className="px-6 py-4">Hasil QR</th>
+                                <th className="px-6 py-4">AI Match</th>
                                 <th className="px-6 py-4">Status Transaksi</th>
                                 <th className="px-6 py-4 text-right">Waktu</th>
                             </tr>
@@ -405,7 +412,7 @@ export default function Dashboard({ stats = defaultStats, recent_transactions = 
                                             <FiDroplet size={13} /> {tx.fuel_type}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">{qrBadge(tx.qr_result)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{aiMatchBadge(tx)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">{statusBadge(tx.status)}</td>
                                     <td className="px-6 py-4 text-gray-400 text-xs font-mono text-right whitespace-nowrap">
                                         <span className="inline-flex items-center gap-1">
