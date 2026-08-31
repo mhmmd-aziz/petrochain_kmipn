@@ -319,7 +319,13 @@ export default function AdminRegistrations({ applications }: { applications: App
                             <tbody className="divide-y divide-gray-100">
                                 {filteredApplications.map((app) => {
                                     const ai = getAiConclusion(app);
-                                    const isMatch = ai?.conclusion === 'match';
+                                    const userFuel = app.vehicle.fuel_type || '-';
+                                    const aiFuel = ai?.stnk_fuel_type;
+                                    const isPertaliteRuleViolated = 
+                                        (userFuel.toLowerCase() === 'pertalite' || aiFuel?.toLowerCase() === 'pertalite' || aiFuel?.toLowerCase() === 'bensin') && 
+                                        (ai?.stnk_cc && parseInt(ai.stnk_cc) > 1400);
+
+                                    const isMatch = ai?.conclusion === 'match' && !isPertaliteRuleViolated;
                                     const isMismatch = ai?.conclusion === 'mismatch';
 
                                     return (
@@ -345,6 +351,10 @@ export default function AdminRegistrations({ applications }: { applications: App
                                                 {isMatch ? (
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                                         <FiCheckCircle /> 98% Match
+                                                    </span>
+                                                ) : isPertaliteRuleViolated ? (
+                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                        <FiXCircle /> Pelanggaran &gt;1400 CC
                                                     </span>
                                                 ) : isMismatch ? (
                                                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">

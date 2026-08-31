@@ -179,11 +179,10 @@ class ValidateMotorFragment : Fragment() {
                     val fuelLabel = if (data.fuelType?.lowercase()?.contains("solar") == true) "Biosolar" else "Pertalite"
                     binding.tvVehicleFuelType.text = "Jenis BBM Terdaftar: $fuelLabel"
                     
-                    if (data.fuelType?.lowercase()?.contains("solar") == true) {
-                        binding.rbSolar.isChecked = true
-                    } else {
-                        binding.rbPertalite.isChecked = true
-                    }
+                    // Motor selalu Pertalite, dan opsi Solar disembunyikan
+                    binding.rbPertalite.isChecked = true
+                    binding.rbPertalite.visibility = View.VISIBLE
+                    binding.rbSolar.visibility = View.GONE
                     
                     if (data.remainingQuota != null) {
                         val maxQuota = data.maxQuota ?: 0.0

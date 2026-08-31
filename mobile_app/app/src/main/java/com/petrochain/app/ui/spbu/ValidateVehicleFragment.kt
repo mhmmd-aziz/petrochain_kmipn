@@ -183,8 +183,12 @@ class ValidateVehicleFragment : Fragment() {
                     
                     if (data.fuelType?.lowercase()?.contains("solar") == true) {
                         binding.rbSolar.isChecked = true
+                        binding.rbSolar.visibility = View.VISIBLE
+                        binding.rbPertalite.visibility = View.GONE
                     } else {
                         binding.rbPertalite.isChecked = true
+                        binding.rbPertalite.visibility = View.VISIBLE
+                        binding.rbSolar.visibility = View.GONE
                     }
                     
                     if (data.remainingQuota != null) {
