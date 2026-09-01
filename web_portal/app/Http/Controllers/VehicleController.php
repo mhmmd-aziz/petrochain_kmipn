@@ -14,6 +14,34 @@ class VehicleController extends Controller
         $vehicles = Vehicle::with('user')->get();
         $users = User::where('role', 'public')->select('id', 'name', 'email')->get();
         
+        // Calculate dynamic quota for each approved vehicle
+        foreach ($vehicles as $vehicle) {
+            if ($vehicle->registration_status === 'approved') {
+                $fuelType = strtolower($vehicle->fuel_type ?? 'pertalite');
+                $isMotor = ($vehicle->vehicle_type === 'motor');
+                
+                if ($isMotor) {
+                    $maxQuota = 9999;
+                } else if ($fuelType === 'solar' || $fuelType === 'biosolar') {
+                    $maxQuota = match($vehicle->vehicle_type) {
+                        'angkutan_umum' => 80,
+                        'angkutan_barang' => 200,
+                        default => 50,
+                    };
+                } else {
+                    $maxQuota = 50;
+                }
+
+                $usedToday = \App\Models\Transaction::where('vehicle_id', $vehicle->id)
+                    ->whereDate('transacted_at', now()->toDateString())
+                    ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(original_volume, volume)'));
+
+                $vehicle->max_quota = $maxQuota;
+                $vehicle->used_today = $usedToday;
+                $vehicle->remaining_quota = max(0, $maxQuota - $usedToday);
+            }
+        }
+
         return Inertia::render('Admin/Vehicles', [
             'vehicles' => $vehicles,
             'users' => $users

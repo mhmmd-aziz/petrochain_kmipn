@@ -62,8 +62,8 @@ void setup() {
     Serial.println(F("OLED gagal diinisialisasi"));
   }
   
-  // Memutar layar 180 derajat untuk menyesuaikan wiring hardware
-  display.setRotation(2);
+  // Memutar layar ke orientasi default (pin di atas)
+  display.setRotation(0);
   
   display.clearDisplay();
   display.setTextColor(WHITE);

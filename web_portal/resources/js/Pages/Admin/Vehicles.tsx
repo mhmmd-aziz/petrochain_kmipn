@@ -134,6 +134,28 @@ export default function Vehicles({ vehicles, users }: any) {
                                         }`}>
                                             {v.registration_status}
                                         </span>
+                                        {v.registration_status === 'approved' && v.max_quota !== undefined && (
+                                            <div className="mt-2 text-xs font-mono w-32">
+                                                {v.max_quota > 1000 ? (
+                                                    <div className="text-gray-500">Kuota: Tanpa Batas</div>
+                                                ) : (
+                                                    <>
+                                                        <div className="flex justify-between text-gray-500 mb-1 text-[10px]">
+                                                            <span>Sisa: {v.remaining_quota}L</span>
+                                                            <span>{v.max_quota}L</span>
+                                                        </div>
+                                                        <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                                            <div 
+                                                                className={`h-full rounded-full transition-all duration-500 ${
+                                                                    (v.remaining_quota / v.max_quota) < 0.2 ? 'bg-red-500' : 'bg-emerald-500'
+                                                                }`}
+                                                                style={{ width: `${Math.max(0, Math.min(100, (v.remaining_quota / v.max_quota) * 100))}%` }}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="px-5 py-4">
                                         <div className="flex gap-2">
