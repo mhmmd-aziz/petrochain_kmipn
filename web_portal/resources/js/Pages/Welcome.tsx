@@ -380,6 +380,17 @@ export default function Welcome({ auth }: { auth: any }) {
                                 Cara Kerja
                             </a>
                             <a 
+                                href="#fitur" 
+                                onClick={(e) => scrollToSection(e, 'fitur')}
+                                className={`text-xs 2xl:text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                                    isScrolled 
+                                        ? 'text-gray-700 hover:text-[#980f12]' 
+                                        : 'text-white/90 hover:text-white drop-shadow-xs'
+                                }`}
+                            >
+                                Fitur Inovatif
+                            </a>
+                            <a 
                                 href="#aturan" 
                                 onClick={(e) => scrollToSection(e, 'aturan')}
                                 className={`text-xs 2xl:text-sm font-semibold transition-colors cursor-pointer flex items-center gap-1 whitespace-nowrap ${
@@ -388,7 +399,7 @@ export default function Welcome({ auth }: { auth: any }) {
                                         : 'text-white/90 hover:text-white drop-shadow-xs'
                                 }`}
                             >
-                                <FiSliders className={isScrolled ? 'text-[#980f12]' : 'text-yellow-300'} /> Aturan &amp; Limit Kuota
+                                <FiSliders className={isScrolled ? 'text-[#980f12]' : 'text-yellow-300'} /> Aturan &amp; Limit
                             </a>
                             <a 
                                 href="#alur" 
@@ -399,25 +410,18 @@ export default function Welcome({ auth }: { auth: any }) {
                                         : 'text-white/90 hover:text-white drop-shadow-xs'
                                 }`}
                             >
-                                Rantai Pasok
+                                Keunggulan
                             </a>
                             <a 
-                                href="#dampak" 
-                                onClick={(e) => scrollToSection(e, 'dampak')}
-                                className="text-xs font-semibold text-white/90 hover:text-white transition-colors cursor-pointer"
-                            >
-                                Dampak APBN
-                            </a>
-                            <a 
-                                href="#teknologi" 
-                                onClick={(e) => scrollToSection(e, 'teknologi')}
+                                href="#tim" 
+                                onClick={(e) => scrollToSection(e, 'tim')}
                                 className={`text-xs 2xl:text-sm font-semibold transition-colors cursor-pointer whitespace-nowrap ${
                                     isScrolled 
                                         ? 'text-gray-700 hover:text-[#980f12]' 
                                         : 'text-white/90 hover:text-white drop-shadow-xs'
                                 }`}
                             >
-                                Arsitektur AI &amp; Blockchain
+                                Tim Inovator
                             </a>
                             <a 
                                 href="#faq" 
@@ -521,6 +525,15 @@ export default function Welcome({ auth }: { auth: any }) {
                                 Cara Kerja
                             </a>
                             <a 
+                                href="#fitur" 
+                                onClick={(e) => scrollToSection(e, 'fitur')}
+                                className={`block px-3 py-2 rounded-lg text-sm font-medium cursor-pointer ${
+                                    isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+                                }`}
+                            >
+                                Fitur Inovatif
+                            </a>
+                            <a 
                                 href="#aturan" 
                                 onClick={(e) => scrollToSection(e, 'aturan')}
                                 className={`block px-3 py-2 rounded-lg text-sm font-medium cursor-pointer ${
@@ -536,30 +549,16 @@ export default function Welcome({ auth }: { auth: any }) {
                                     isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
                                 }`}
                             >
-                                Rantai Pasok Nasional
-                            </a>
-                            <a 
-                                href="#dampak" 
-                                onClick={(e) => scrollToSection(e, 'dampak')}
-                                className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
-                            >
-                                Dampak APBN & Regulasi
-                            </a>
-                            <a 
-                                href="#teknologi" 
-                                onClick={(e) => scrollToSection(e, 'teknologi')}
-                                className={`block px-3 py-2 rounded-lg text-sm font-medium cursor-pointer ${
-                                    isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
-                                }`}
-                            >
-                                Arsitektur AI & Blockchain
+                                Keunggulan
                             </a>
                             <a 
                                 href="#tim" 
                                 onClick={(e) => scrollToSection(e, 'tim')}
-                                className="block px-3 py-2 rounded-lg text-sm font-medium text-white/90 hover:bg-white/10 cursor-pointer"
+                                className={`block px-3 py-2 rounded-lg text-sm font-medium cursor-pointer ${
+                                    isScrolled ? 'text-gray-700 hover:bg-gray-100' : 'text-white/90 hover:bg-white/10'
+                                }`}
                             >
-                                Tim Inovator (TIMBERAPA)
+                                Tim Inovator
                             </a>
                             <a 
                                 href="#faq" 
@@ -1675,28 +1674,28 @@ export default function Welcome({ auth }: { auth: any }) {
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#simulator" onClick={(e) => scrollToSection(e, 'simulator')} className="hover:text-[#980f12] transition-colors cursor-pointer inline-flex items-center gap-1.5">
-                                        &rsaquo; Simulasi Cek CC
+                                    <a href="#fitur" onClick={(e) => scrollToSection(e, 'fitur')} className="hover:text-[#980f12] transition-colors cursor-pointer inline-flex items-center gap-1.5">
+                                        &rsaquo; Fitur Inovatif
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#aturan" onClick={(e) => scrollToSection(e, 'aturan')} className="hover:text-[#980f12] transition-colors cursor-pointer inline-flex items-center gap-1.5">
+                                        &rsaquo; Aturan &amp; Limit Kuota
                                     </a>
                                 </li>
                                 <li>
                                     <a href="#alur" onClick={(e) => scrollToSection(e, 'alur')} className="hover:text-[#980f12] transition-colors cursor-pointer inline-flex items-center gap-1.5">
-                                        &rsaquo; Rantai Pasok Nasional
+                                        &rsaquo; Keunggulan
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#teknologi" onClick={(e) => scrollToSection(e, 'teknologi')} className="hover:text-[#980f12] transition-colors cursor-pointer inline-flex items-center gap-1.5">
-                                        &rsaquo; Arsitektur AI &amp; Chain
+                                    <a href="#tim" onClick={(e) => scrollToSection(e, 'tim')} className="hover:text-[#980f12] transition-colors cursor-pointer inline-flex items-center gap-1.5">
+                                        &rsaquo; Tim Inovator
                                     </a>
                                 </li>
                                 <li>
                                     <Link href={route('public.stock')} className="hover:text-[#980f12] transition-colors inline-flex items-center gap-1.5">
                                         &rsaquo; Cek Stok SPBU
-                                    </Link>
-                                </li>
-                                <li>
-                                    <Link href={route('login')} className="hover:text-[#980f12] transition-colors inline-flex items-center gap-1.5">
-                                        &rsaquo; Masuk Portal
                                     </Link>
                                 </li>
                             </ul>
