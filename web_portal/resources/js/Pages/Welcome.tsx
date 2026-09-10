@@ -1217,14 +1217,39 @@ export default function Welcome({ auth }: { auth: any }) {
 
                         </div>
 
-                        {/* Compact Bottom Warning Bar */}
-                        <div className="bg-gray-50 border-t border-gray-200 p-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-                            <div className="flex items-center gap-2 text-rose-700 font-bold">
-                                <FiAlertTriangle size={15} className="shrink-0" />
-                                <span>Tanpa QR Code (Hanya Plat Nomor Fisik):</span>
+                        {/* Enhanced Premium Warning Bar for Non-QR Code Users */}
+                        <div className="bg-gradient-to-r from-rose-50 via-red-50 to-orange-50 border-t border-rose-200 p-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 relative overflow-hidden">
+                            {/* Decorative background elements */}
+                            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-32 h-32 rounded-full bg-rose-200/40 blur-2xl"></div>
+                            <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-32 h-32 rounded-full bg-orange-200/40 blur-2xl"></div>
+                            
+                            <div className="flex items-center gap-3 relative z-10">
+                                <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 shrink-0 shadow-sm border border-rose-200">
+                                    <FiAlertTriangle size={18} />
+                                </div>
+                                <div>
+                                    <h4 className="text-rose-800 font-black text-sm sm:text-base uppercase tracking-wide">
+                                        Tanpa QR Code
+                                    </h4>
+                                    <p className="text-rose-600/80 text-[10px] sm:text-xs font-bold uppercase tracking-wider mt-0.5">
+                                        Hanya Plat Nomor Fisik
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-gray-600 text-center sm:text-right">
-                                Kuota dibatasi ketat maksimal <strong className="text-gray-950 font-black font-mono">20 Liter / Hari</strong> untuk semua kendaraan subsidi.
+                            
+                            <div className="text-center sm:text-right relative z-10 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/80 shadow-sm">
+                                <span className="text-gray-700 text-xs sm:text-sm font-medium">
+                                    Kuota dibatasi ketat maksimal
+                                </span>
+                                <div className="text-rose-700 mt-1">
+                                    <strong className="text-xl sm:text-2xl font-black font-mono tracking-tight drop-shadow-sm">
+                                        20 LITER
+                                    </strong>
+                                    <span className="text-xs sm:text-sm font-bold text-gray-500 ml-1">/ Hari</span>
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-0.5 font-medium">
+                                    Berlaku untuk semua kendaraan subsidi
+                                </p>
                             </div>
                         </div>
                     </div>
