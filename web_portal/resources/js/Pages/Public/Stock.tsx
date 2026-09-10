@@ -29,59 +29,6 @@ const DEFAULT_NATIONWIDE_SPBUS = [
             { id: 3, fuel_type: 'pertamax', status: 'available', volume_current: 11400, volume_max: 15000, temp: 28.3, density: 0.755 },
             { id: 4, fuel_type: 'dexlite', status: 'limited', volume_current: 2400, volume_max: 10000, temp: 28.0, density: 0.840 }
         ]
-    },
-    {
-        id: 102,
-        code: '14.231.004',
-        name: 'SPBU Pertamina Syiah Kuala',
-        address: 'Jl. T. Nyak Arief No. 45, Darussalam',
-        city: 'Banda Aceh',
-        province: 'Aceh',
-        latitude: 5.5682,
-        longitude: 95.3621,
-        queue_status: 'sedang',
-        queue_time: '6-9 Menit',
-        fuel_stocks: [
-            { id: 5, fuel_type: 'pertalite', status: 'available', volume_current: 14200, volume_max: 20000, temp: 28.6, density: 0.741 },
-            { id: 6, fuel_type: 'solar', status: 'limited', volume_current: 3100, volume_max: 20000, temp: 28.2, density: 0.836 },
-            { id: 7, fuel_type: 'pertamax', status: 'available', volume_current: 9800, volume_max: 15000, temp: 28.5, density: 0.754 }
-        ]
-    },
-    {
-        id: 103,
-        code: '11.201.088',
-        name: 'SPBU Pertamina Gatot Subroto',
-        address: 'Jl. Gatot Subroto No. 120, Petisah',
-        city: 'Medan',
-        province: 'Sumatera Utara',
-        latitude: 3.5852,
-        longitude: 98.6651,
-        queue_status: 'padat',
-        queue_time: '12-16 Menit',
-        fuel_stocks: [
-            { id: 8, fuel_type: 'pertalite', status: 'available', volume_current: 19100, volume_max: 20000, temp: 29.0, density: 0.743 },
-            { id: 9, fuel_type: 'solar', status: 'available', volume_current: 17800, volume_max: 20000, temp: 28.8, density: 0.838 },
-            { id: 10, fuel_type: 'pertamax', status: 'available', volume_current: 13500, volume_max: 15000, temp: 28.9, density: 0.756 },
-            { id: 11, fuel_type: 'dexlite', status: 'available', volume_current: 7200, volume_max: 10000, temp: 28.7, density: 0.841 }
-        ]
-    },
-    {
-        id: 104,
-        code: '31.102.002',
-        name: 'SPBU Pertamina Rasuna Said',
-        address: 'Jl. HR Rasuna Said Kav. B-5, Kuningan',
-        city: 'Jakarta Selatan',
-        province: 'DKI Jakarta',
-        latitude: -6.2215,
-        longitude: 106.8312,
-        queue_status: 'lancar',
-        queue_time: '3-5 Menit',
-        fuel_stocks: [
-            { id: 12, fuel_type: 'pertalite', status: 'available', volume_current: 19800, volume_max: 20000, temp: 28.8, density: 0.742 },
-            { id: 13, fuel_type: 'solar', status: 'available', volume_current: 18900, volume_max: 20000, temp: 28.6, density: 0.835 },
-            { id: 14, fuel_type: 'pertamax', status: 'available', volume_current: 14200, volume_max: 15000, temp: 28.7, density: 0.755 },
-            { id: 15, fuel_type: 'dexlite', status: 'available', volume_current: 8800, volume_max: 10000, temp: 28.5, density: 0.842 }
-        ]
     }
 ];
 
