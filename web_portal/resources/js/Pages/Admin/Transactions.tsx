@@ -46,6 +46,13 @@ export default function Transactions({ transactions, filters = {} }: { transacti
     const [endDate, setEndDate] = useState(filters.end_date || '');
     const [status, setStatus] = useState(filters.status || 'all');
     
+    // Load price config
+    const [bbmPrice, setBbmPrice] = useState(10000);
+    React.useEffect(() => {
+        const savedPrice = localStorage.getItem('petrochain_bbm_price');
+        if (savedPrice) setBbmPrice(parseInt(savedPrice));
+    }, []);
+    
     // Edit state
     const [editingTx, setEditingTx] = useState<Transaction | null>(null);
     const [editVolume, setEditVolume] = useState('');
@@ -156,6 +163,7 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                                 <th className="px-5 py-4">Lokasi & Petugas</th>
                                 <th className="px-5 py-4">Kendaraan</th>
                                 <th className="px-5 py-4">BBM & Volume</th>
+                                <th className="px-5 py-4">Total Harga (Rp)</th>
                                 <th className="px-5 py-4 text-center">AI Match</th>
                                 <th className="px-5 py-4">Status</th>
                             </tr>
@@ -212,6 +220,11 @@ export default function Transactions({ transactions, filters = {} }: { transacti
                                                 <div className="text-xs text-gray-500">{trx.volume} Liter</div>
                                             </>
                                         )}
+                                    </td>
+                                    <td className="px-5 py-4">
+                                        <div className="font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded w-max">
+                                            Rp {(trx.volume * bbmPrice).toLocaleString('id-ID')}
+                                        </div>
                                     </td>
                                     <td className="px-5 py-4 text-center">
                                         {isMatch ? (

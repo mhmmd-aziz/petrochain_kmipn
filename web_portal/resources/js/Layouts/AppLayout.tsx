@@ -6,7 +6,7 @@ import {
     FiRepeat, FiLink, FiDatabase, FiUsers, 
     FiMenu, FiX, FiLogOut, FiCpu, FiClock,
     FiUser, FiShield, FiChevronDown, FiActivity,
-    FiCheckCircle, FiHelpCircle
+    FiCheckCircle, FiHelpCircle, FiDollarSign
 } from 'react-icons/fi';
 import { FaMotorcycle } from 'react-icons/fa';
 
@@ -61,6 +61,9 @@ const roleBadgeConfig: Record<string, { label: string; bg: string; text: string;
 export default function AppLayout({ children, title }: Props) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+    const [priceModalOpen, setPriceModalOpen] = useState(false);
+    const [bbmPrice, setBbmPrice] = useState('10000');
+    const [priceSaved, setPriceSaved] = useState(false);
     const [currentTime, setCurrentTime] = useState<string>('');
 
     const { url, props } = usePage<any>();
@@ -100,6 +103,23 @@ export default function AppLayout({ children, title }: Props) {
         document.addEventListener('click', closeDropdown);
         return () => document.removeEventListener('click', closeDropdown);
     }, []);
+
+    // Load price from localStorage
+    useEffect(() => {
+        const savedPrice = localStorage.getItem('petrochain_bbm_price');
+        if (savedPrice) {
+            setBbmPrice(savedPrice);
+        }
+    }, []);
+
+    const handleSavePrice = () => {
+        localStorage.setItem('petrochain_bbm_price', bbmPrice);
+        setPriceSaved(true);
+        setTimeout(() => {
+            setPriceSaved(false);
+            setPriceModalOpen(false);
+        }, 1500);
+    };
 
     const visibleNavItems = navItems.filter(item => !user || item.roles.includes(user.role));
 
@@ -320,6 +340,17 @@ export default function AppLayout({ children, title }: Props) {
                                             >
                                                 <FiMapPin /> Cek Stok SPBU
                                             </Link>
+                                            {user?.role === 'admin' && (
+                                                <button 
+                                                    onClick={() => {
+                                                        setPriceModalOpen(true);
+                                                        setProfileDropdownOpen(false);
+                                                    }}
+                                                    className="w-full flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#980f12] font-medium text-left"
+                                                >
+                                                    <FiDollarSign /> Konfigurasi Harga BBM
+                                                </button>
+                                            )}
                                         </div>
 
                                         {/* Logout Button */}
@@ -353,6 +384,61 @@ export default function AppLayout({ children, title }: Props) {
                     </motion.div>
                 </main>
             </div>
+
+            {/* Price Configuration Modal (Smoke and Mirrors) */}
+            <AnimatePresence>
+                {priceModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={() => setPriceModalOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md relative z-10"
+                        >
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                    <FiDollarSign className="text-emerald-500" /> Konfigurasi Harga BBM
+                                </h3>
+                                <button onClick={() => setPriceModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                                    <FiX size={20} />
+                                </button>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-4">
+                                Atur harga per liter (misal: Pertalite). Data ini akan memengaruhi tampilan nilai transaksi di Dashboard.
+                            </p>
+                            <div className="mb-4">
+                                <label className="block text-xs font-bold text-gray-700 mb-1">Harga per Liter (Rp)</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">Rp</span>
+                                    <input 
+                                        type="number" 
+                                        value={bbmPrice}
+                                        onChange={(e) => setBbmPrice(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#980f12] focus:border-transparent outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <button 
+                                onClick={handleSavePrice}
+                                className="w-full bg-[#980f12] hover:bg-red-800 text-white font-bold py-2.5 rounded-xl transition-colors flex justify-center items-center gap-2"
+                            >
+                                {priceSaved ? (
+                                    <><FiCheckCircle /> Tersimpan!</>
+                                ) : (
+                                    'Simpan Harga'
+                                )}
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

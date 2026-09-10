@@ -17,6 +17,13 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
     const [selectedBlock, setSelectedBlock] = useState<any | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Load price config
+    const [bbmPrice, setBbmPrice] = useState(10000);
+    React.useEffect(() => {
+        const savedPrice = localStorage.getItem('petrochain_bbm_price');
+        if (savedPrice) setBbmPrice(parseInt(savedPrice));
+    }, []);
+
     const copyToClipboard = (text: string, id: string) => {
         navigator.clipboard.writeText(text);
         setCopiedHash(id);
@@ -355,6 +362,7 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                 <th className="px-6 py-4">ID & Waktu</th>
                                 <th className="px-6 py-4">Kendaraan</th>
                                 <th className="px-6 py-4">Volume & BBM</th>
+                                <th className="px-6 py-4">Nilai On-Chain (Rp)</th>
                                 <th className="px-6 py-4">Blockchain Hash Reference</th>
                                 <th className="px-6 py-4 text-right">Audit Integritas</th>
                             </tr>
@@ -401,6 +409,12 @@ export default function Blockchain({ transactions = [] }: { transactions: any[] 
                                                     <span className="uppercase text-[10px] font-black bg-purple-50 text-purple-700 px-2 py-0.5 rounded-md">{tx.fuel_type}</span>
                                                 </div>
                                             )}
+                                        </td>
+                                        
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="font-bold text-gray-700">
+                                                Rp {(tx.volume * bbmPrice).toLocaleString('id-ID')}
+                                            </div>
                                         </td>
 
                                         <td className="px-6 py-4 whitespace-nowrap">

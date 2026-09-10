@@ -14,6 +14,13 @@ export default function AuditorTransactions({ transactions }: any) {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<'all' | 'validated' | 'manual_review' | 'rejected'>('all');
 
+    // Load price config
+    const [bbmPrice, setBbmPrice] = useState(10000);
+    React.useEffect(() => {
+        const savedPrice = localStorage.getItem('petrochain_bbm_price');
+        if (savedPrice) setBbmPrice(parseInt(savedPrice));
+    }, []);
+
     const filteredList = txList.filter((tx: any) => {
         const matchesStatus = statusFilter === 'all' || tx.transaction_status === statusFilter;
         const query = searchQuery.toLowerCase();
@@ -109,6 +116,7 @@ export default function AuditorTransactions({ transactions }: any) {
                                 <th className="px-6 py-4">Titik SPBU</th>
                                 <th className="px-6 py-4">Kendaraan (ANPR)</th>
                                 <th className="px-6 py-4">BBM Subsidi & Volume</th>
+                                <th className="px-6 py-4 text-emerald-800">Nilai Subsidi (Rp)</th>
                                 <th className="px-6 py-4">Status QR</th>
                                 <th className="px-6 py-4">Audit Status</th>
                             </tr>
@@ -157,6 +165,11 @@ export default function AuditorTransactions({ transactions }: any) {
                                                 <span className="text-gray-400 font-mono font-normal ml-1 text-xs">({tx.volume}L)</span>
                                             </>
                                         )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="font-black text-emerald-700">
+                                            Rp {(tx.volume * bbmPrice).toLocaleString('id-ID')}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold border ${

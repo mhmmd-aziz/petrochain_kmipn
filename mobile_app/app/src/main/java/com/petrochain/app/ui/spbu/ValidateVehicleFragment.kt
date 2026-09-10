@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -87,6 +89,39 @@ class ValidateVehicleFragment : Fragment() {
         }
 
         observeViewModel()
+
+        // Smoke and Mirrors: Calculate liters from Rupiah
+        binding.etNominalRupiah.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (s.isNullOrEmpty()) return
+                // Only calculate if the user is typing in Rupiah, prevent loop
+                if (binding.etNominalRupiah.hasFocus()) {
+                    val nominal = s.toString().toDoubleOrNull() ?: 0.0
+                    val price = if (binding.rbPertalite.isChecked) 10000.0 else 6800.0
+                    if (nominal > 0) {
+                        val volume = nominal / price
+                        binding.etVolume.setText(String.format(Locale.US, "%.2f", volume))
+                    } else {
+                        binding.etVolume.setText("")
+                    }
+                }
+            }
+        })
+
+        // Re-calculate if fuel type changes
+        binding.rgFuelType.setOnCheckedChangeListener { _, _ ->
+            val s = binding.etNominalRupiah.text
+            if (!s.isNullOrEmpty()) {
+                val nominal = s.toString().toDoubleOrNull() ?: 0.0
+                val price = if (binding.rbPertalite.isChecked) 10000.0 else 6800.0
+                if (nominal > 0) {
+                    val volume = nominal / price
+                    binding.etVolume.setText(String.format(Locale.US, "%.2f", volume))
+                }
+            }
+        }
 
         binding.btnSubmitTransaction.setOnClickListener {
             val volumeStr = binding.etVolume.text.toString()

@@ -272,6 +272,20 @@
                         android:text="Solar (Biosolar)"/>
                 </RadioGroup>
 
+                <!-- Input Nominal Rupiah (Smoke and Mirrors) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nominal Rupiah (Opsional)"
+                    app:boxBackgroundMode="outline"
+                    android:layout_marginBottom="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etNominalRupiah"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <!-- Input Volume -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
